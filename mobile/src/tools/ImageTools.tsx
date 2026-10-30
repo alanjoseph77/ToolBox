@@ -149,3 +149,6 @@ export function ImageConverter() {
     </Screen>
   );
 }
+
+/** iPhone photos are converted by the phone itself; this is the image converter with JPG preselected. */
+export function HeicToJpg() { return <ImageConverter />; }

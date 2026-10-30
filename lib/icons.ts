@@ -2,7 +2,7 @@ import {
   Barcode, Binary, Braces, Briefcase, Camera, Clapperboard, Combine, ContactRound, Crop, Eraser, FileArchive, FileImage,
   FileOutput, FileSpreadsheet, FileText, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, MessageSquareText,
   Music, Palette, PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, Sparkles,
-  SpellCheck, SquareSplitHorizontal, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, TextSelect, Type, Wand2, ZoomIn, Film, Droplets, Split, type LucideIcon,
+  SpellCheck, SquareSplitHorizontal, Aperture, Calculator, CaseSensitive, FileX2, Hash, IdCard, IndianRupee, ListChecks, PenTool, Percent, TextCursorInput, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, TextSelect, Type, Wand2, ZoomIn, Film, Droplets, Split, type LucideIcon,
 } from "lucide-react";
 import type { Category } from "./tools";
 
@@ -35,6 +35,17 @@ export const toolIcons: Record<string, LucideIcon> = {
   "redact-pdf": EyeOff,
   "pdf-workflow": Workflow,
   "scan-to-pdf": ScanLine,
+  "image-pipeline": ListChecks,
+  "heic-to-jpg": Aperture,
+  "signature-maker": PenTool,
+  "remove-photo-details": FileX2,
+  "mask-aadhaar": IdCard,
+  "fill-pdf-form": TextCursorInput,
+  "upi-qr-generator": IndianRupee,
+  "emi-calculator": Calculator,
+  "gst-calculator": Percent,
+  "hash-generator": Hash,
+  "text-case-converter": CaseSensitive,
   "word-counter": Type, "password-generator": ShieldCheck, "unit-converter": Ruler, "color-picker": Pipette,
   "barcode-generator": Barcode, "screenshot-editor": SquareSplitHorizontal,
 };

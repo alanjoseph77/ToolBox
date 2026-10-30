@@ -2,7 +2,7 @@ import {
   Barcode, Binary, Braces, Camera, Clapperboard, Combine, ContactRound, Crop, Droplets, FileArchive, FileImage, FileOutput,
   FileSpreadsheet, FileText, Film, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, Music,
   PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, SquareSplitHorizontal,
-  TextSelect, Type, Wand2, ZoomIn, Split, Wrench, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, type LucideIcon,
+  TextSelect, Type, Wand2, ZoomIn, Split, Wrench, Aperture, Calculator, CaseSensitive, FileX2, Hash, IdCard, IndianRupee, ListChecks, PenTool, Percent, TextCursorInput, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, type LucideIcon,
 } from "lucide-react-native";
 
 // Same icon set as the website.
@@ -33,6 +33,17 @@ export const toolIcons: Record<string, LucideIcon> = {
   "redact-pdf": EyeOff,
   "pdf-workflow": Workflow,
   "scan-to-pdf": ScanLine,
+  "image-pipeline": ListChecks,
+  "heic-to-jpg": Aperture,
+  "signature-maker": PenTool,
+  "remove-photo-details": FileX2,
+  "mask-aadhaar": IdCard,
+  "fill-pdf-form": TextCursorInput,
+  "upi-qr-generator": IndianRupee,
+  "emi-calculator": Calculator,
+  "gst-calculator": Percent,
+  "hash-generator": Hash,
+  "text-case-converter": CaseSensitive,
   "word-counter": Type, "password-generator": ShieldCheck, "unit-converter": Ruler, "color-picker": Pipette,
   "barcode-generator": Barcode, "screenshot-editor": SquareSplitHorizontal,
 };

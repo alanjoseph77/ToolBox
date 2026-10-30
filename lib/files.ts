@@ -1,5 +1,8 @@
+import { publishResult } from "./handoff";
+
 export function download(data: Blob | Uint8Array, filename: string, type = "application/octet-stream") {
   const blob = data instanceof Blob ? data : new Blob([data as BlobPart], { type });
+  publishResult(blob, filename, type === "application/octet-stream" ? blob.type : type); // offers "continue with…" tools
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

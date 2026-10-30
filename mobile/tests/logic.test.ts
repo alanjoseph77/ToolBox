@@ -11,7 +11,7 @@ const mk = async (n: number) => { const d = await PDFDocument.create(); for (let
 
 (async () => {
   // the PDF engine is shared with the website; the copies must stay identical (run scripts/sync-pdfops.mjs)
-  for (const f of ["pdfOps.ts", "zip.ts", "ranges.ts"]) ok(`mobile copy of ${f} matches the website`, readFileSync(`../lib/${f}`, "utf8") === readFileSync(`src/lib/${f}`, "utf8"));
+  for (const f of ["pdfOps.ts", "zip.ts", "ranges.ts", "calc.ts", "textCase.ts", "hash.ts", "upi.ts", "pdfForms.ts"]) ok(`mobile copy of ${f} matches the website`, readFileSync(`../lib/${f}`, "utf8") === readFileSync(`src/lib/${f}`, "utf8"));
   // PDF
   const merged = await mergePdfs([await mk(2), await mk(3)]);
   ok("merge 2+3 pages", (await pageCount(merged)) === 5, `→ ${await pageCount(merged)}`);

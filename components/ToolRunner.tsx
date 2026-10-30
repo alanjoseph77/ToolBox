@@ -68,6 +68,17 @@ const map: Record<string, ComponentType> = {
   "redact-pdf": load(() => import("@/tools/RedactPdf")),
   "pdf-workflow": load(() => import("@/tools/PdfWorkflow")),
   "scan-to-pdf": load(() => import("@/tools/ScanToPdf")),
+  "image-pipeline": load(() => import("@/tools/ImagePipeline")),
+  "heic-to-jpg": load(() => import("@/tools/HeicToJpg")),
+  "signature-maker": load(() => import("@/tools/SignatureMaker")),
+  "remove-photo-details": load(() => import("@/tools/RemovePhotoDetails")),
+  "mask-aadhaar": load(() => import("@/tools/MaskAadhaar")),
+  "fill-pdf-form": load(() => import("@/tools/FillPdfForm")),
+  "upi-qr-generator": load(() => import("@/tools/UpiQrGenerator")),
+  "emi-calculator": load(() => import("@/tools/EmiCalculator")),
+  "gst-calculator": load(() => import("@/tools/GstCalculator")),
+  "hash-generator": load(() => import("@/tools/HashGenerator")),
+  "text-case-converter": load(() => import("@/tools/TextCaseConverter")),
   "qr-code-generator": load(() => import("@/tools/QrGenerator")),
 };
 

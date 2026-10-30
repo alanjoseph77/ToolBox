@@ -1,5 +1,6 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { takePending } from "@/lib/handoff";
 import { FileUp } from "lucide-react";
 
 export default function Dropzone({ accept, multiple, onFiles, hint }: {
@@ -7,6 +8,9 @@ export default function Dropzone({ accept, multiple, onFiles, hint }: {
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
+  // a file handed over from the previous tool (chaining) loads straight away
+  useEffect(() => { const f = takePending(accept, window.location.pathname); if (f) onFiles([f]); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div
       role="button" tabIndex={0}

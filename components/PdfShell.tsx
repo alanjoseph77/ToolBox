@@ -70,7 +70,7 @@ export function JobStatus({ busy, error, label }: { busy: boolean; error: string
   return <>{error && <p className="text-sm text-red-600">{error}</p>}<WaterLoader active={busy} label={label} /></>;
 }
 
-export interface Part { name: string; bytes: Uint8Array }
+export interface Part { name: string; bytes: Uint8Array; type?: string }
 
 /** Several result files: each one downloadable, or all together as a ZIP. */
 export function PartsList({ parts, zipName = "pdf-parts.zip" }: { parts: Part[]; zipName?: string }) {
@@ -83,7 +83,7 @@ export function PartsList({ parts, zipName = "pdf-parts.zip" }: { parts: Part[];
         {parts.map((p) => (
           <li key={p.name} className="flex items-center gap-2 p-2 text-sm">
             <span className="min-w-0 flex-1 truncate">{p.name} <span className="text-neutral-400">({formatBytes(p.bytes.length)})</span></span>
-            <button aria-label={`Download ${p.name}`} className="btn-ghost !min-h-0 !px-2 !py-1" onClick={() => download(p.bytes, p.name, "application/pdf")}><Download className="h-4 w-4" /></button>
+            <button aria-label={`Download ${p.name}`} className="btn-ghost !min-h-0 !px-2 !py-1" onClick={() => download(p.bytes, p.name, p.type ?? "application/pdf")}><Download className="h-4 w-4" /></button>
           </li>
         ))}
       </ul>

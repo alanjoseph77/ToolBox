@@ -7,6 +7,7 @@ import { ADSENSE_CLIENT, BRAND, MONETAG_VERIFICATION, SITE } from "@/lib/site";
 import JsonLd from "@/components/JsonLd";
 import AdSense from "@/components/AdSense";
 import Monetag from "@/components/Monetag";
+import ResultBar from "@/components/ResultBar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main id="main" className="mx-auto max-w-6xl px-4 py-8">{children}</main>
         <Footer />
+        <ResultBar />
       </body>
     </html>
   );

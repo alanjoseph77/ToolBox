@@ -76,6 +76,17 @@ const allTools: ToolMeta[] = [
   { slug: "redact-pdf", name: "Redact PDF", description: "Black out sensitive text so it is permanently removed.", category: "PDF", keywords: ["blackout", "censor", "hide", "private"] },
   { slug: "pdf-workflow", name: "PDF Workflow Builder", description: "Chain several PDF steps and run them on many files at once.", category: "PDF", keywords: ["batch", "automate", "chain", "recipe"] },
   { slug: "scan-to-pdf", name: "Scan to PDF", description: "Turn photos of pages into a clean, scan-style PDF.", category: "PDF", keywords: ["scanner", "document", "camera", "black and white"] },
+  { slug: "image-pipeline", name: "Image Pipeline (Resize + Convert + Compress)", description: "Resize, convert and compress many photos in one go, without re-uploading between steps.", category: "Image", keywords: ["batch", "chain", "resize", "compress", "convert"] },
+  { slug: "heic-to-jpg", name: "HEIC to JPG Converter", description: "Convert iPhone HEIC photos to JPG or PNG on your device.", category: "Image", keywords: ["iphone", "heif", "convert"] },
+  { slug: "signature-maker", name: "Signature Maker", description: "Draw or photograph your signature and get a transparent PNG.", category: "Image", keywords: ["sign", "transparent", "png", "form"] },
+  { slug: "remove-photo-details", name: "Remove Photo Details (EXIF)", description: "See and strip location, camera and date data hidden in photos.", category: "Image", keywords: ["exif", "gps", "metadata", "privacy"] },
+  { slug: "mask-aadhaar", name: "Mask Aadhaar", description: "Cover the first 8 digits of an Aadhaar number in a photo or PDF.", category: "Image", keywords: ["aadhar", "masked", "privacy", "india"] },
+  { slug: "fill-pdf-form", name: "Fill PDF Form", description: "Type into fillable PDF forms and download the completed file.", category: "PDF", keywords: ["form", "fields", "fillable", "acroform"] },
+  { slug: "upi-qr-generator", name: "UPI QR Code Generator", description: "Create a UPI payment QR with your ID, name and amount.", category: "Utility", keywords: ["upi", "payment", "gpay", "phonepe", "india"] },
+  { slug: "emi-calculator", name: "EMI Calculator", description: "Work out your monthly loan EMI, total interest and repayment schedule.", category: "Utility", keywords: ["loan", "home loan", "interest", "india"] },
+  { slug: "gst-calculator", name: "GST Calculator", description: "Add or remove GST at 5%, 12%, 18%, 28% with CGST and SGST split.", category: "Utility", keywords: ["tax", "india", "invoice", "cgst"] },
+  { slug: "hash-generator", name: "Hash Generator (MD5, SHA)", description: "Create MD5, SHA-1, SHA-256 and SHA-512 hashes of text or files.", category: "Developer", keywords: ["checksum", "md5", "sha256", "verify"] },
+  { slug: "text-case-converter", name: "Text Case Converter", description: "Change text to UPPER, lower, Title, camelCase, snake_case and more.", category: "Developer", keywords: ["uppercase", "lowercase", "title case", "camelcase"] },
   { slug: "qr-code-generator", name: "QR Code Generator", description: "Create QR codes for links, text, Wi-Fi and more. Download as PNG.", category: "Developer", popular: true, keywords: ["qr", "barcode"] },
 ];
 

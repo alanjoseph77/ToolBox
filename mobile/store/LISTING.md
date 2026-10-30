@@ -70,7 +70,7 @@ The app has no accounts, no analytics SDK, no advertising SDK and no tracking.
 - **Export compliance:** only standard HTTPS encryption (`ITSAppUsesNonExemptEncryption` is set to false).
 
 ## App review notes (App Store Connect → App Review Information)
-"ToolBox is a collection of file tools. 28 tools (PDF merge, split, rotate, flip, crop, watermark, page numbers, document scan, image compress/resize/convert, JSON, Base64, URL, UUID, JWT, regex, QR, word counter, password generator, unit converter) are fully native and work offline. The remaining tools open our website inside the app to run heavier processing (video, OCR, background removal). No login is required. All processing happens on the device."
+"ToolBox is a collection of file tools. 38 tools (HEIC to JPG, signature maker, UPI QR, EMI and GST calculators, hash generator, text case, remove photo details, fill PDF form, image pipeline, PDF merge, split, rotate, flip, crop, watermark, page numbers, document scan, image compress/resize/convert, JSON, Base64, URL, UUID, JWT, regex, QR, word counter, password generator, unit converter) are fully native and work offline. The remaining tools open our website inside the app to run heavier processing (video, OCR, background removal). No login is required. All processing happens on the device."
 
 ## Screenshots
 - iPhone 6.9" (1290 × 2796): `store/screenshots/ios/`

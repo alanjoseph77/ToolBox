@@ -42,6 +42,7 @@ export const tools: ToolDef[] = [
   { slug: "redact-pdf", name: "Redact PDF", description: "Black out sensitive text.", category: "PDF", native: false },
   { slug: "pdf-workflow", name: "PDF Workflow Builder", description: "Chain steps, run on many files.", category: "PDF", native: false },
   { slug: "scan-to-pdf", name: "Scan to PDF", description: "Camera or photos to PDF.", category: "PDF", native: true },
+  { slug: "fill-pdf-form", name: "Fill PDF Form", description: "Fill in fillable PDF forms.", category: "PDF", native: true },
   // Image
   { slug: "compress-image", name: "Compress Image", description: "Hit an exact size like 50 KB.", category: "Image", native: true },
   { slug: "resize-image", name: "Resize Image", description: "Resize with passport presets.", category: "Image", native: true },
@@ -53,6 +54,11 @@ export const tools: ToolDef[] = [
   { slug: "passport-photo-maker", name: "Passport Photo Maker", description: "White background and print sheet.", category: "Image", native: false },
   { slug: "image-upscaler", name: "Image Upscaler", description: "Enlarge 2x, 3x or 4x.", category: "Image", native: false },
   { slug: "image-to-text", name: "Image to Text (OCR)", description: "Extract text from photos.", category: "Image", native: false },
+  { slug: "image-pipeline", name: "Image Pipeline", description: "Resize + convert + compress in one go.", category: "Image", native: true },
+  { slug: "heic-to-jpg", name: "HEIC to JPG", description: "Convert iPhone photos.", category: "Image", native: true },
+  { slug: "signature-maker", name: "Signature Maker", description: "Draw a transparent PNG signature.", category: "Image", native: true },
+  { slug: "remove-photo-details", name: "Remove Photo Details", description: "Strip location and camera data.", category: "Image", native: true },
+  { slug: "mask-aadhaar", name: "Mask Aadhaar", description: "Cover the first 8 digits.", category: "Image", native: false },
   // Video
   { slug: "video-compressor", name: "Video Compressor", description: "Shrink video file size.", category: "Video", native: false },
   { slug: "video-trimmer", name: "Video Trimmer", description: "Cut a clip from a video.", category: "Video", native: false },
@@ -68,6 +74,8 @@ export const tools: ToolDef[] = [
   { slug: "jwt-decoder", name: "JWT Decoder", description: "Decode tokens and check expiry.", category: "Developer", native: true },
   { slug: "regex-tester", name: "Regex Tester", description: "Test with live matches.", category: "Developer", native: true },
   { slug: "qr-code-generator", name: "QR Code Generator", description: "Make and share QR codes.", category: "Developer", native: true },
+  { slug: "hash-generator", name: "Hash Generator", description: "MD5, SHA-1, SHA-256, SHA-512.", category: "Developer", native: true },
+  { slug: "text-case-converter", name: "Text Case Converter", description: "camelCase, snake_case and more.", category: "Developer", native: true },
   // Utility
   { slug: "word-counter", name: "Word & Character Counter", description: "Words, characters, reading time.", category: "Utility", native: true },
   { slug: "password-generator", name: "Password Generator", description: "Strong random passwords.", category: "Utility", native: true },
@@ -75,6 +83,9 @@ export const tools: ToolDef[] = [
   { slug: "color-picker", name: "Image Color Picker", description: "Pick colours from a photo.", category: "Utility", native: false },
   { slug: "barcode-generator", name: "Barcode Generator", description: "Code 128, EAN-13, UPC.", category: "Utility", native: false },
   { slug: "screenshot-editor", name: "Screenshot Editor", description: "Annotate and blur.", category: "Utility", native: false },
+  { slug: "upi-qr-generator", name: "UPI QR Generator", description: "Payment QR with amount.", category: "Utility", native: true },
+  { slug: "emi-calculator", name: "EMI Calculator", description: "Monthly loan EMI and schedule.", category: "Utility", native: true },
+  { slug: "gst-calculator", name: "GST Calculator", description: "Add or remove GST.", category: "Utility", native: true },
 ];
 
 export const getTool = (slug: string) => tools.find((t) => t.slug === slug);

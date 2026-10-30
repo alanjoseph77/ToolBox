@@ -62,7 +62,7 @@ NEXT_PUBLIC_MONETAG_VERIFICATION=...     # site-ownership meta tag value
 ```
 
 ## Mobile app
-An Expo / React Native app for iOS and Android lives in [`mobile/`](mobile/README.md). It has native screens for 16 core tools and opens the rest of the website tools inside the app.
+An Expo / React Native app for iOS and Android lives in [`mobile/`](mobile/README.md). It has native screens for 38 tools and opens the rest of the website tools inside the app.
 
 ## Acknowledgements
 The extra PDF tools (alternate and mix, split in half / by size / by text / by bookmarks, multiple pages per sheet, crop and resize, flip, watermark, page numbers, redact, workflow builder and scan to PDF) were inspired by the feature list of [sammyZi/pdf-tools](https://github.com/sammyZi/pdf-tools) (MIT licence), an Android PDF app. They are written from scratch in TypeScript for the web and Expo; no code was copied.
@@ -75,6 +75,12 @@ Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qr
 npm install
 npm run dev
 ```
+
+## Chaining tools
+
+After a tool saves a file, a "Keep going" bar offers the next tools (resize, then compress, then convert and so on). The result is handed to the next tool in memory, so nothing is re-uploaded. It works when you move between tools inside the site; opening a tool in a fresh tab starts empty. The mobile app has the Image Pipeline tool (resize, convert and compress in one step) instead.
+
+New tools in this release: HEIC to JPG, Signature Maker, UPI QR Generator, Remove Photo Details (EXIF), Fill PDF Form, Mask Aadhaar, EMI Calculator, GST Calculator, Hash Generator, Text Case Converter and Image Pipeline. Mask Aadhaar reads text automatically and can miss digits, so always check the result before sharing.
 
 Add a tool by registering it in `lib/tools.ts`, creating `tools/<Name>.tsx`, and mapping it in `components/ToolRunner.tsx`.
 

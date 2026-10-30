@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { Base64Tool, JsonFormatter, JwtDecoder, RegexTester, UrlCodec, UuidGenerator } from "./DevTools";
-import { CompressImage, ImageConverter, ResizeImage } from "./ImageTools";
+import { CompressImage, HeicToJpg, ImageConverter, ResizeImage } from "./ImageTools";
+import { EmiCalculator, FillPdfForm, GstCalculator, HashGenerator, ImagePipeline, RemovePhotoDetails, SignatureMaker, TextCaseConverter, UpiQrGenerator } from "./MoreTools";
 import { JpgToPdf, MergePdf, SplitPdf } from "./PdfTools";
 import { AddPageNumbers, AlternateMixPdf, CropResizePdf, EditPdfDetails, FlipPdf, MultiplePagesPerSheet, PdfToZip, RotatePdf, ScanToPdf, SplitPdfHalf, SplitPdfSize, WatermarkPdf } from "./PdfOpsTools";
 import { PasswordGenerator, QrGenerator, UnitConverter, WordCounter } from "./UtilityTools";
@@ -23,6 +24,16 @@ export const nativeTools: Record<string, ComponentType> = {
   "compress-image": CompressImage,
   "resize-image": ResizeImage,
   "image-converter": ImageConverter,
+  "image-pipeline": ImagePipeline,
+  "heic-to-jpg": HeicToJpg,
+  "signature-maker": SignatureMaker,
+  "remove-photo-details": RemovePhotoDetails,
+  "fill-pdf-form": FillPdfForm,
+  "upi-qr-generator": UpiQrGenerator,
+  "emi-calculator": EmiCalculator,
+  "gst-calculator": GstCalculator,
+  "hash-generator": HashGenerator,
+  "text-case-converter": TextCaseConverter,
   "alternate-mix-pdf": AlternateMixPdf,
   "split-pdf-in-half": SplitPdfHalf,
   "split-pdf-by-size": SplitPdfSize,
