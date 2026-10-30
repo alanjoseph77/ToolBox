@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // FFmpeg.wasm (single-threaded core, so no special cross-origin-isolation headers are needed).
 const BASE = "/vendor/ffmpeg/";
+const abs = (f: string) => new URL(BASE + f, window.location.origin).href; // the worker constructor needs an absolute URL
 let instance: Promise<any> | null = null;
 
 function loadScript(src: string): Promise<void> {
@@ -17,9 +18,9 @@ export function getFFmpeg(onProgress?: (p: number) => void): Promise<any> {
     await loadScript(BASE + "ffmpeg.js");
     const ff = new (window as any).FFmpegWASM.FFmpeg();
     await ff.load({
-      classWorkerURL: BASE + "814.ffmpeg.js",
-      coreURL: BASE + "ffmpeg-core.js",
-      wasmURL: BASE + "ffmpeg-core.wasm",
+      classWorkerURL: abs("814.ffmpeg.js"),
+      coreURL: abs("ffmpeg-core.js"),
+      wasmURL: abs("ffmpeg-core.wasm"),
     });
     return ff;
   })().catch((e) => { instance = null; throw e; });
