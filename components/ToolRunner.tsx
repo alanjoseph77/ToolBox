@@ -13,6 +13,7 @@ const map: Record<string, ComponentType> = {
   "compress-image": load(() => import("@/tools/CompressImage")),
   "resize-image": load(() => import("@/tools/ResizeImage")),
   "remove-background": load(() => import("@/tools/RemoveBackground")),
+  "watermark-remover": load(() => import("@/tools/WatermarkRemover")),
   "qr-code-generator": load(() => import("@/tools/QrGenerator")),
 };
 

@@ -17,6 +17,7 @@ export const tools: ToolMeta[] = [
   { slug: "compress-image", name: "Compress Image", description: "Compress to an exact size like 50 KB, 100 KB or 200 KB.", category: "Image", popular: true, keywords: ["reduce", "kb", "jpg", "exact size"] },
   { slug: "resize-image", name: "Resize Image", description: "Resize by pixels or percentage, with passport and exam presets.", category: "Image", popular: true, keywords: ["dimensions", "passport", "exam"] },
   { slug: "remove-background", name: "Background Remover", description: "Remove image backgrounds with AI that runs on your device.", category: "Image", popular: true, keywords: ["bg", "transparent", "cutout"] },
+  { slug: "watermark-remover", name: "Watermark Remover", description: "Erase watermarks from images you own or are authorised to edit.", category: "Image", keywords: ["logo", "text", "stamp", "inpaint"] },
   { slug: "qr-code-generator", name: "QR Code Generator", description: "Create QR codes for links, text, Wi-Fi and more. Download as PNG.", category: "Developer", popular: true, keywords: ["qr", "barcode"] },
 ];
 

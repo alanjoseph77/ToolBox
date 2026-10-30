@@ -12,6 +12,7 @@ Mobile-first web toolkit. Files are processed in the browser and never uploaded.
 | `/compress-image` | Compress image to an exact KB target |
 | `/resize-image` | Resize image, with passport/exam presets |
 | `/remove-background` | AI background remover (model loaded in-browser from a CDN) |
+| `/watermark-remover` | Watermark remover (select area, inpaint; ownership confirmation required) |
 | `/qr-code-generator` | QR code generator |
 
 ## Stack
