@@ -3,7 +3,7 @@
 iOS and Android app for [ToolBox](https://toolbox.otaga.in), an [Otaga](https://otaga.in) product.
 
 ## How it is built
-- **28 native tools** that work offline: Merge, Split, Split in Half, Split by Size, PDF to ZIP, Rotate, Flip, Multiple Pages per Sheet, Crop & Resize, Watermark, Page Numbers, Edit PDF Details, Alternate & Mix, JPG to PDF and Scan to PDF (camera); Compress Image (exact KB), Resize Image, Image Converter; JSON, Base64, URL, UUID, JWT, Regex, QR; Word Counter, Password Generator, Unit Converter.
+- **38 native tools** that work offline: Merge, Split, Split in Half, Split by Size, PDF to ZIP, Rotate, Flip, Multiple Pages per Sheet, Crop & Resize, Watermark, Page Numbers, Edit PDF Details, Alternate & Mix, JPG to PDF and Scan to PDF (camera); Compress Image (exact KB), Resize Image, Image Converter; JSON, Base64, URL, UUID, JWT, Regex, QR; Word Counter, Password Generator, Unit Converter; HEIC to JPG, Image Pipeline, Signature Maker, Remove Photo Details, UPI QR, Fill PDF Form, EMI and GST calculators, Hash Generator, Text Case Converter. Mask Aadhaar opens the website view.
 - **29 more tools** open the website tool inside the app (`react-native-webview`). Downloads from the website are passed to the phone's share sheet ("Save to Files", Drive, WhatsApp, ...). The site detects the app (`ToolBoxApp` in the user agent) and hides its header, footer and ads.
 - Expo SDK 58, `expo-router`, TypeScript, `pdf-lib` for PDFs, `expo-image-manipulator` for images.
 - Heavy tools (video, OCR, background removal) are not ported natively because they rely on browser-only engines (FFmpeg.wasm, Tesseract, ONNX).
