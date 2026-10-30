@@ -52,6 +52,15 @@ NEXT_PUBLIC_CONTACT_EMAIL=you@example.com            # shown on the Contact and 
 
 `/ads.txt` is generated from the publisher id. Ad units appear below the tool (never next to upload or download buttons), on category pages and on the home page. About, Contact, Privacy and Terms pages are included, as AdSense requires them.
 
+## Monetag banner
+A Monetag Vignette banner loads on the home page and category pages only (never on tool pages, so it cannot cover an upload or download). Settings, all optional:
+
+```bash
+NEXT_PUBLIC_MONETAG_ZONE=12155431        # set to an empty value to turn it off
+NEXT_PUBLIC_MONETAG_ON_TOOLS=true        # also show it on tool pages
+NEXT_PUBLIC_MONETAG_VERIFICATION=...     # site-ownership meta tag value
+```
+
 ## Stack
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qrcode · jsbarcode
 
