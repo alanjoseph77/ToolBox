@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Box } from "lucide-react";
 import { categories } from "@/lib/tools";
+import { categorySeo } from "@/lib/seo";
 import CommandPalette from "./CommandPalette";
 import ThemeToggle from "./ThemeToggle";
 
@@ -13,8 +14,8 @@ export default function Header() {
           ToolBox
         </Link>
         <nav className="hidden items-center gap-1 text-sm font-medium text-neutral-600 md:flex">
-          {categories.map((c) => [c, c.toLowerCase()]).map(([l, id]) => (
-            <Link key={id} href={`/#${id}`} className="rounded-lg px-3 py-2 hover:bg-neutral-100 hover:text-black dark:hover:bg-neutral-900 dark:hover:text-white">{l}</Link>
+          {categories.map((c) => [c, categorySeo[c].slug]).map(([l, id]) => (
+            <Link key={id} href={`/tools/${id}`} className="rounded-lg px-3 py-2 hover:bg-neutral-100 hover:text-black dark:hover:bg-neutral-900 dark:hover:text-white">{l}</Link>
           ))}
         </nav>
         <div className="flex items-center gap-2"><CommandPalette /><ThemeToggle /></div>

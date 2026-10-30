@@ -3,18 +3,25 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { tools } from "@/lib/tools";
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://toolbox.example";
+import { BRAND, SITE } from "@/lib/site";
+import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: { default: "ToolBox – All Your Tools in One Place", template: "%s | ToolBox" },
-  description: "Merge, split and compress PDFs, compress and resize images, remove backgrounds, edit videos and more. Free, private, no signup.",
+  title: { default: "ToolBox – Free Online PDF, Image & Video Tools | Otaga", template: "%s | ToolBox" },
+  description: `Free online PDF, image and video tools: merge, compress, convert, resize, remove backgrounds and more. ${tools.length} private tools that run in your browser. No sign-up.`,
   applicationName: "ToolBox",
   authors: [{ name: "Otaga", url: "https://otaga.in" }],
   creator: "Otaga",
   publisher: "Otaga",
-  openGraph: { type: "website", siteName: "ToolBox", title: "ToolBox – All Your Tools in One Place", description: `${tools.length} free, private tools for PDFs, images, video and more.` },
+  alternates: { canonical: SITE },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+  openGraph: { type: "website", siteName: "ToolBox", url: SITE, locale: "en_IN", title: "ToolBox – Free Online PDF, Image & Video Tools", description: `${tools.length} free, private tools for PDFs, images, video and more. No sign-up, no uploads.` },
+  twitter: { card: "summary_large_image", title: "ToolBox – Free Online PDF, Image & Video Tools", description: `${tools.length} free, private tools that run in your browser.` },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION } : undefined,
+  },
 };
 
 export const viewport: Viewport = {
@@ -28,8 +35,14 @@ const themeScript = `try{if(localStorage.getItem("theme")==="dark")document.docu
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
+    <html lang="en-IN" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <JsonLd data={[
+          { "@context": "https://schema.org", "@type": "Organization", name: BRAND.owner, url: BRAND.ownerUrl, brand: { "@type": "Brand", name: BRAND.name } },
+          { "@context": "https://schema.org", "@type": "WebSite", name: BRAND.name, url: SITE, publisher: { "@type": "Organization", name: BRAND.owner }, inLanguage: "en-IN" },
+        ]} />
+      </head>
       <body>
         
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">Skip to content</a>

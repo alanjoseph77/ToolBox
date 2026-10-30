@@ -4,17 +4,30 @@ import type { Metadata } from "next";
 import { BadgeCheck, ChevronRight, Cpu, Sparkles } from "lucide-react";
 import { getTool, tools } from "@/lib/tools";
 import { categoryStyle } from "@/lib/icons";
+import { toolSeo } from "@/lib/seo";
+import { BRAND, SITE } from "@/lib/site";
 import ToolRunner from "@/components/ToolRunner";
 import ToolIcon from "@/components/ToolIcon";
 import ToolCard from "@/components/ToolCard";
 import RecordVisit from "@/components/RecordVisit";
+import JsonLd from "@/components/JsonLd";
 
 export const dynamicParams = false;
 export const generateStaticParams = () => tools.map((t) => ({ tool: t.slug }));
 
 export function generateMetadata({ params }: { params: { tool: string } }): Metadata {
   const t = getTool(params.tool);
-  return t ? { title: t.name, description: t.description, openGraph: { title: `${t.name} | ToolBox`, description: t.description } } : {};
+  if (!t) return {};
+  const seo = toolSeo[t.slug];
+  const title = seo?.title ?? t.name;
+  const description = seo?.description ?? t.description;
+  const url = `${SITE}/${t.slug}`;
+  return {
+    title, description,
+    alternates: { canonical: url },
+    openGraph: { type: "website", url, title: `${title} | ${BRAND.name}`, description, siteName: BRAND.name, images: [{ url: `${SITE}/opengraph-image.png`, width: 1200, height: 630, alt: "ToolBox by Otaga" }] },
+    twitter: { card: "summary_large_image", title: `${title} | ${BRAND.name}`, description, images: [`${SITE}/twitter-image.png`] },
+  };
 }
 
 const steps: Record<string, [string, string, string, string]> = {
@@ -29,16 +42,42 @@ const steps: Record<string, [string, string, string, string]> = {
 export default function ToolPage({ params }: { params: { tool: string } }) {
   const t = getTool(params.tool);
   if (!t) notFound();
+  const seo = toolSeo[t.slug];
   const s = steps[t.category];
   const related = tools.filter((x) => x.category === t.category && x.slug !== t.slug).slice(0, 4);
   const isAi = t.category === "AI" || t.slug === "pdf-summarizer";
+  const url = `${SITE}/${t.slug}`;
+  const catUrl = `${SITE}/tools/${t.category.toLowerCase()}`;
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org", "@type": "WebApplication", name: t.name, url,
+      description: seo?.description ?? t.description, applicationCategory: seo?.kind ?? "UtilityApplication",
+      operatingSystem: "Any", browserRequirements: "Requires a modern web browser", isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+      publisher: { "@type": "Organization", name: BRAND.owner, url: BRAND.ownerUrl },
+    },
+    {
+      "@context": "https://schema.org", "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+        { "@type": "ListItem", position: 2, name: categoryStyle[t.category].label, item: catUrl },
+        { "@type": "ListItem", position: 3, name: t.name, item: url },
+      ],
+    },
+    ...(seo?.faqs.length ? [{
+      "@context": "https://schema.org", "@type": "FAQPage",
+      mainEntity: seo.faqs.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+    }] : []),
+  ];
 
   return (
     <div className="mx-auto max-w-3xl animate-fade-up">
+      <JsonLd data={jsonLd} />
       <RecordVisit slug={t.slug} />
       <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1 text-sm text-neutral-500">
         <Link href="/" className="hover:text-black dark:hover:text-white">Home</Link><ChevronRight className="h-3.5 w-3.5" />
-        <Link href={`/#${t.category.toLowerCase()}`} className="hover:text-black dark:hover:text-white">{categoryStyle[t.category].label}</Link><ChevronRight className="h-3.5 w-3.5" />
+        <Link href={`/tools/${t.category.toLowerCase()}`} className="hover:text-black dark:hover:text-white">{categoryStyle[t.category].label}</Link><ChevronRight className="h-3.5 w-3.5" />
         <span className="font-medium text-neutral-700">{t.name}</span>
       </nav>
       <header className="mb-6 flex items-start gap-4">
@@ -54,15 +93,36 @@ export default function ToolPage({ params }: { params: { tool: string } }) {
 
       <ToolRunner slug={t.slug} />
 
-      <section aria-label="How it works" className="mt-12 grid gap-4 sm:grid-cols-3">
+      {seo && (
+        <section aria-label={`About ${t.name}`} className="mt-12 space-y-3">
+          <h2 className="text-xl font-bold">About {t.name}</h2>
+          <p className="leading-relaxed text-neutral-600">{seo.intro}</p>
+        </section>
+      )}
+
+      <section aria-label="How it works" className="mt-10 grid gap-4 sm:grid-cols-3">
         {[[s[0], s[1]], [s[2], s[3]], ["Download", "Save the result. No watermark, no sign-up."]].map(([title, text], i) => (
           <div key={title} className="card p-4">
             <span className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">{i + 1}</span>
-            <h2 className="text-sm font-semibold">{title}</h2>
+            <h3 className="text-sm font-semibold">{title}</h3>
             <p className="mt-1 text-sm text-neutral-500">{text}</p>
           </div>
         ))}
       </section>
+
+      {seo && (
+        <section aria-label="Frequently asked questions" className="mt-12">
+          <h2 className="mb-3 text-xl font-bold">Frequently asked questions</h2>
+          <div className="card divide-y">
+            {seo.faqs.map(([q, a]) => (
+              <details key={q} className="group p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">{q}<ChevronRight className="h-4 w-4 shrink-0 transition group-open:rotate-90" aria-hidden /></summary>
+                <p className="mt-2 text-sm leading-relaxed text-neutral-600">{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section aria-label="Related tools" className="mt-12">

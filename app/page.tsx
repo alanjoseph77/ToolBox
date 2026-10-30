@@ -3,6 +3,8 @@ import Link from "next/link";
 import ToolSearch from "@/components/ToolSearch";
 import ToolBrowser from "@/components/ToolBrowser";
 import { tools } from "@/lib/tools";
+import { SITE } from "@/lib/site";
+import JsonLd from "@/components/JsonLd";
 
 const features: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: ShieldCheck, title: "Private by design", text: "Files are processed on your device and never uploaded." },
@@ -14,6 +16,7 @@ const features: { icon: LucideIcon; title: string; text: string }[] = [
 export default function Home() {
   return (
     <div className="space-y-14">
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "ToolBox tools", itemListElement: tools.map((t, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE}/${t.slug}`, name: t.name })) }} />
       <section className="relative -mt-4 px-0 pb-4 pt-12 text-center">
         <p className="mx-auto mb-5 inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-neutral-800 dark:border-neutral-700 dark:bg-black dark:text-neutral-200"><Sparkles className="h-3.5 w-3.5" /> {tools.length} free tools · 100% private · no sign-up</p>
         <h1 className="mx-auto max-w-3xl animate-fade-up text-4xl font-extrabold tracking-tight sm:text-6xl">
@@ -33,6 +36,11 @@ export default function Home() {
       </section>
 
       <ToolBrowser />
+
+      <section aria-label="About ToolBox" className="mx-auto max-w-3xl space-y-3 text-center">
+        <h2 className="text-2xl font-bold">Free online PDF, image and video tools</h2>
+        <p className="leading-relaxed text-neutral-600">ToolBox by Otaga brings the tools you use every day into one fast, private place. Merge, split and compress PDFs, convert PDF to Word or Excel, compress photos to an exact size like 50 KB, resize and crop images, remove backgrounds, make passport photos, trim and convert videos, create GIFs and QR codes, and use handy developer utilities. Everything runs in your browser, so your files never leave your device, and there is no sign-up or watermark.</p>
+      </section>
 
       <section className="flex flex-col items-start gap-4 overflow-hidden rounded-2xl border border-neutral-900 bg-neutral-950 p-6 text-white sm:flex-row sm:items-center sm:justify-between sm:p-8 dark:border-neutral-700 dark:bg-neutral-950">
         <div className="flex items-start gap-4">

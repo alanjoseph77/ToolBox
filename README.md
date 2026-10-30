@@ -34,6 +34,13 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 Note: text and images you submit to AI tools are sent to the AI provider, unlike the on-device tools.
 
+## SEO
+- Every tool has a unique keyword-focused title, meta description, "About" text and FAQ (`lib/seo.ts`), plus schema.org data (WebApplication, FAQPage, BreadcrumbList).
+- Category landing pages at `/tools/pdf`, `/tools/image`, `/tools/video`, `/tools/developer`, `/tools/utility`.
+- `sitemap.xml`, `robots.txt`, canonical URLs, Open Graph / Twitter cards and a share image are generated automatically.
+- Set `NEXT_PUBLIC_SITE_URL` (for example `https://toolbox.otaga.in`) in Vercel so canonical links and the sitemap use your real domain.
+- Optional: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and `NEXT_PUBLIC_BING_SITE_VERIFICATION` add the verification tags for Google Search Console and Bing Webmaster Tools.
+
 ## Stack
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qrcode · jsbarcode
 
