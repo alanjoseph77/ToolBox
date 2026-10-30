@@ -5,7 +5,7 @@ import { categoryStyle } from "@/lib/icons";
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-slate-200 bg-white dark:border-slate-800">
+    <footer className="mt-16 border-t border-slate-200/60 bg-white/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]">
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
@@ -22,7 +22,7 @@ export default function Footer() {
             </div>
           ))}
         </div>
-        <p className="mt-10 border-t border-slate-200 pt-6 text-center text-xs text-slate-400 dark:border-slate-800">© {new Date().getFullYear()} ToolBox · Made in India 🇮🇳</p>
+        <p className="mt-10 border-t border-slate-200/60 pt-6 text-center text-xs text-slate-400 dark:border-white/10">© {new Date().getFullYear()} ToolBox · Made in India 🇮🇳</p>
       </div>
     </footer>
   );

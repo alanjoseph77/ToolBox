@@ -5,7 +5,7 @@ import ToolIcon from "./ToolIcon";
 
 export default function ToolCard({ tool }: { tool: ToolMeta }) {
   return (
-    <Link href={`/${tool.slug}`} className="card group flex items-start gap-3 p-4 transition hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-md">
+    <Link href={`/${tool.slug}`} className="card group flex items-start gap-3 p-4 transition hover:-translate-y-1 hover:border-brand-500/60 hover:shadow-glow">
       <ToolIcon tool={tool} />
       <span className="min-w-0 flex-1">
         <h3 className="font-semibold leading-snug group-hover:text-brand-600">{tool.name}</h3>

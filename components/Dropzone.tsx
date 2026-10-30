@@ -15,9 +15,9 @@ export default function Dropzone({ accept, multiple, onFiles, hint }: {
       onDragOver={(e) => { e.preventDefault(); setOver(true); }}
       onDragLeave={() => setOver(false)}
       onDrop={(e) => { e.preventDefault(); setOver(false); onFiles(Array.from(e.dataTransfer.files)); }}
-      className={`group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition sm:py-14 ${over ? "scale-[1.01] border-brand-500 bg-brand-50" : "border-slate-300 bg-white hover:border-brand-500 hover:bg-brand-50/50"}`}
+      className={`group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition sm:py-14 ${over ? "scale-[1.01] border-brand-500 bg-brand-50 dark:bg-brand-500/15" : "border-slate-300/80 bg-white/60 backdrop-blur hover:border-brand-500 hover:bg-brand-50/60 dark:border-white/20 dark:bg-white/[0.03] dark:hover:bg-brand-500/10"}`}
     >
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition group-hover:scale-105 dark:bg-brand-500/15 dark:text-brand-200">
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/15 to-fuchsia-500/15 text-brand-600 ring-1 ring-brand-500/20 transition group-hover:scale-105 dark:text-brand-200">
         <FileUp className="h-7 w-7" aria-hidden />
       </span>
       <div>
