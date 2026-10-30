@@ -13,7 +13,7 @@ export default function Monetag() {
 
   // Inject the Monetag script once, the first time an allowed page is shown.
   useEffect(() => {
-    if (!MONETAG_ZONE || window.__monetag || !allowed(path)) return;
+    if (!MONETAG_ZONE || window.__monetag || !allowed(path) || /ToolBoxApp/.test(navigator.userAgent)) return; // never inside the mobile app
     window.__monetag = true;
     const s = document.createElement("script");
     s.dataset.zone = MONETAG_ZONE;

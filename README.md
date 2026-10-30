@@ -61,6 +61,9 @@ NEXT_PUBLIC_MONETAG_ON_TOOLS=true        # also show it on tool pages
 NEXT_PUBLIC_MONETAG_VERIFICATION=...     # site-ownership meta tag value
 ```
 
+## Mobile app
+An Expo / React Native app for iOS and Android lives in [`mobile/`](mobile/README.md). It has native screens for 16 core tools and opens the rest of the website tools inside the app.
+
 ## Stack
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qrcode · jsbarcode
 

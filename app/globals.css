@@ -24,6 +24,12 @@
   .gradient-text { @apply underline decoration-neutral-900 decoration-[6px] underline-offset-[10px]; }
 }
 
+/* Inside the ToolBox mobile app the tool is the whole screen: hide site chrome, ads and long-form text. */
+.app-mode body > header, .app-mode footer, .app-mode nav[aria-label="Breadcrumb"], .app-mode [aria-label="Advertisement"],
+.app-mode [aria-label^="About "], .app-mode [aria-label="How it works"], .app-mode [aria-label="Frequently asked questions"],
+.app-mode [aria-label="Related tools"], .app-mode .skip-link { display: none !important; }
+.app-mode main { padding-top: 12px; }
+
 @media (prefers-reduced-motion: reduce) { .animate-fade-up, .animate-wave, .animate-wave-slow, .animate-bubble { animation: none !important; } }
 
 /* ---- Dark mode: pure black with white text. Tool components use plain neutral/white utilities, so remap them. ---- */

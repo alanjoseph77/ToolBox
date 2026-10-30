@@ -34,7 +34,7 @@ export const viewport: Viewport = {
 
 // Runs before paint so the saved/system theme is applied without a flash.
 // Light is the default; a saved "dark" choice is applied before paint to avoid a flash.
-const themeScript = `try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}`;
+const themeScript = `try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}try{if(/ToolBoxApp/.test(navigator.userAgent))document.documentElement.classList.add("app-mode")}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
