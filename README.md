@@ -2,21 +2,18 @@
 
 Mobile-first web toolkit. Files are processed in the browser and never uploaded.
 
-## Phase 1 (MVP) tools
-| Route | Tool |
+## Tools
+| Category | Tools |
 |---|---|
-| `/merge-pdf` | Merge PDF |
-| `/split-pdf` | Split PDF |
-| `/compress-pdf` | Compress PDF (re-pack and strip metadata) |
-| `/jpg-to-pdf` | JPG/PNG to PDF |
-| `/compress-image` | Compress image to an exact KB target |
-| `/resize-image` | Resize image, with passport/exam presets |
-| `/remove-background` | AI background remover (model loaded in-browser from a CDN) |
-| `/watermark-remover` | Watermark remover (select area, inpaint; ownership confirmation required) |
-| `/qr-code-generator` | QR code generator |
+| PDF | Merge, Split, Compress, JPG to PDF, Organize pages (rotate/reorder/delete), PDF to JPG, Protect (AES), Sign |
+| Image | Compress to exact KB, Resize (passport/exam presets), Background remover, Watermark remover, Converter (JPG/PNG/WebP), Cropper |
+| Developer | JSON formatter, Base64, URL encode/decode, UUID, JWT decoder, Regex tester, QR generator |
+| Utility | Word counter, Password generator, Unit converter, Image colour picker, Barcode generator |
+
+Every tool lives at `/<slug>` (see `lib/tools.ts`). pdf.js and the background-removal model are loaded from jsDelivr at runtime.
 
 ## Stack
-Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · qrcode
+Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qrcode · jsbarcode
 
 ## Develop
 ```bash

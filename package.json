@@ -9,9 +9,11 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "jsbarcode": "^3.12.3",
     "lucide-react": "^0.453.0",
     "next": "^14.2.35",
     "pdf-lib": "^1.17.1",
+    "pdf-lib-plus-encrypt": "^1.1.0",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
