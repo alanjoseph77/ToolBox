@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { Upload } from "lucide-react";
+import { FileUp } from "lucide-react";
 
 export default function Dropzone({ accept, multiple, onFiles, hint }: {
   accept: string; multiple?: boolean; hint?: string; onFiles: (files: File[]) => void;
@@ -9,15 +9,22 @@ export default function Dropzone({ accept, multiple, onFiles, hint }: {
   const [over, setOver] = useState(false);
   return (
     <div
+      role="button" tabIndex={0}
       onClick={() => ref.current?.click()}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ref.current?.click(); } }}
       onDragOver={(e) => { e.preventDefault(); setOver(true); }}
       onDragLeave={() => setOver(false)}
       onDrop={(e) => { e.preventDefault(); setOver(false); onFiles(Array.from(e.dataTransfer.files)); }}
-      className={`flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition ${over ? "border-brand-500 bg-brand-50" : "border-slate-300 bg-white hover:border-brand-500"}`}
+      className={`group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition sm:py-14 ${over ? "scale-[1.01] border-brand-500 bg-brand-50" : "border-slate-300 bg-white hover:border-brand-500 hover:bg-brand-50/50"}`}
     >
-      <Upload className="h-8 w-8 text-brand-600" />
-      <p className="font-semibold">Tap to choose {multiple ? "files" : "a file"} or drop here</p>
-      <p className="text-xs text-slate-500">{hint ?? "Files never leave your device."}</p>
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition group-hover:scale-105 dark:bg-brand-500/15 dark:text-brand-200">
+        <FileUp className="h-7 w-7" aria-hidden />
+      </span>
+      <div>
+        <p className="text-base font-semibold">Tap to choose {multiple ? "files" : "a file"}</p>
+        <p className="mt-0.5 text-sm text-slate-500">or drag and drop here</p>
+      </div>
+      <p className="max-w-sm text-xs text-slate-400">{hint ?? "Files never leave your device."}</p>
       <input ref={ref} type="file" hidden accept={accept} multiple={multiple}
         onChange={(e) => { onFiles(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
     </div>

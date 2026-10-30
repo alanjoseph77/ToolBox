@@ -40,7 +40,7 @@ export const tools: ToolMeta[] = [
   { slug: "word-to-pdf", name: "Word to PDF", description: "Convert .docx documents to PDF in your browser.", category: "PDF", keywords: ["docx", "convert", "word"] },
   { slug: "pdf-ocr", name: "PDF OCR", description: "Extract text from scanned PDFs in English, Hindi, Tamil and more.", category: "PDF", keywords: ["ocr", "scan", "text"] },
   { slug: "pdf-summarizer", name: "PDF Summarizer", description: "Get an AI summary of any PDF in seconds.", category: "PDF", keywords: ["summary", "ai", "summarise"] },
-  { slug: "passport-photo-maker", name: "Passport Photo Maker", description: "White background, exact size and a ready-to-print sheet.", category: "Image", keywords: ["passport", "visa", "id photo", "print"] },
+  { slug: "passport-photo-maker", name: "Passport Photo Maker", description: "White background, exact size and a ready-to-print sheet.", category: "Image", popular: true, keywords: ["passport", "visa", "id photo", "print"] },
   { slug: "background-replacer", name: "Background Replacer", description: "Swap the background with a colour, gradient or your own image.", category: "Image", keywords: ["background", "change", "replace"] },
   { slug: "image-upscaler", name: "Image Upscaler", description: "Enlarge images 2\u00d7, 3\u00d7 or 4\u00d7 with smooth, sharpened results.", category: "Image", keywords: ["enlarge", "upscale", "resolution"] },
   { slug: "image-to-text", name: "Image to Text (OCR)", description: "Extract text from photos and screenshots in 8 languages.", category: "Image", keywords: ["ocr", "text", "scan"] },

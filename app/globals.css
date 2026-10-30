@@ -2,8 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
-body { @apply bg-slate-50 text-slate-900 antialiased; }
-.btn { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50; }
-.btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100; }
-.input { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100; }
-.label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500; }
+@layer base {
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body { @apply overflow-x-clip bg-slate-50 font-sans text-slate-900 antialiased; }
+  :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white; }
+  .dark :focus-visible { @apply ring-offset-slate-900; }
+  ::selection { @apply bg-brand-200 text-brand-800; }
+}
+
+@layer components {
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition active:scale-[.98] hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100; }
+  .btn-ghost { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition active:scale-[.98] hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100; }
+  .input { @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100; }
+  .label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500; }
+  .card { @apply rounded-2xl border border-slate-200 bg-white shadow-soft; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:border-brand-500 hover:text-brand-700; }
+  .chip-active { @apply border-brand-600 bg-brand-600 text-white hover:text-white; }
+}
+
+/* ---- Dark mode: the tool components use plain slate/white utilities, so remap them here ---- */
+.dark body { @apply bg-slate-950 text-slate-100; }
+.dark .bg-white { background-color: rgb(15 23 42); }
+.dark .bg-white\/90 { background-color: rgb(2 6 23 / .85); }
+.dark .bg-slate-50 { background-color: rgb(30 41 59 / .6); }
+.dark .bg-slate-100 { background-color: rgb(30 41 59); }
+.dark .border, .dark .border-slate-200, .dark .divide-y > * { border-color: rgb(51 65 85); }
+.dark .border-slate-300 { border-color: rgb(71 85 105); }
+.dark .text-slate-900 { color: rgb(241 245 249); }
+.dark .text-slate-700, .dark .text-slate-600 { color: rgb(203 213 225); }
+.dark .text-slate-500 { color: rgb(148 163 184); }
+.dark .text-slate-400 { color: rgb(148 163 184); }
+.dark .btn-ghost { @apply border-slate-600 bg-slate-800 text-slate-200 hover:bg-slate-700; }
+.dark .input { @apply border-slate-600 bg-slate-800 text-slate-100 focus:ring-brand-800; }
+.dark .card { @apply border-slate-700 bg-slate-900; }
+.dark .chip { @apply border-slate-700 bg-slate-900 text-slate-300; }
+.dark .chip-active { @apply border-brand-600 bg-brand-600 text-white; }
+.dark .bg-amber-50 { background-color: rgb(120 53 15 / .35); }
+.dark .bg-red-50 { background-color: rgb(127 29 29 / .35); }
+.dark .bg-brand-50 { background-color: rgb(49 46 129 / .4); }
+.dark .text-amber-800, .dark .text-amber-700 { color: rgb(252 211 77); }
+.dark .text-red-600, .dark .text-red-700 { color: rgb(252 165 165); }
+.dark .text-green-700 { color: rgb(134 239 172); }
+.dark .border-amber-300 { border-color: rgb(180 83 9); }
+.dark mark { color: rgb(15 23 42); }
+.dark pre { background-color: rgb(15 23 42); }

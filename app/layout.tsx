@@ -1,19 +1,35 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://toolbox.example";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
   title: { default: "ToolBox – All Your Tools in One Place", template: "%s | ToolBox" },
-  description: "Merge, split and compress PDFs, compress and resize images, remove backgrounds and make QR codes. Free, private, no signup.",
+  description: "Merge, split and compress PDFs, compress and resize images, remove backgrounds, edit videos and more. Free, private, no signup.",
+  applicationName: "ToolBox",
+  openGraph: { type: "website", siteName: "ToolBox", title: "ToolBox – All Your Tools in One Place", description: "47 free, private tools for PDFs, images, video and more." },
 };
+
+export const viewport: Viewport = {
+  width: "device-width", initialScale: 1,
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#4f46e5" }, { media: "(prefers-color-scheme: dark)", color: "#020617" }],
+};
+
+// Runs before paint so the saved/system theme is applied without a flash.
+const themeScript = `try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body>
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
         <Header />
-        <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
-        <footer className="py-8 text-center text-xs text-slate-400">© {new Date().getFullYear()} ToolBox · Files are processed in your browser and never uploaded.</footer>
+        <main id="main" className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+        <Footer />
       </body>
     </html>
   );

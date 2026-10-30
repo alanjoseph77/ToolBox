@@ -1,14 +1,22 @@
 import Link from "next/link";
-import { Wrench } from "lucide-react";
+import { Box } from "lucide-react";
+import CommandPalette from "./CommandPalette";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 text-lg font-bold">
-          <Wrench className="h-5 w-5 text-brand-600" /> ToolBox
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur dark:border-slate-800">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+        <Link href="/" className="flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-500 text-white shadow-sm"><Box className="h-5 w-5" aria-hidden /></span>
+          ToolBox
         </Link>
-        <span className="hidden text-sm text-slate-500 sm:block">All your tools in one place · No signup · Private</span>
+        <nav className="hidden items-center gap-1 text-sm font-medium text-slate-600 md:flex">
+          {[["PDF", "pdf"], ["Image", "image"], ["Video", "video"], ["AI", "ai"], ["Developer", "developer"], ["Utility", "utility"]].map(([l, id]) => (
+            <Link key={id} href={`/#${id}`} className="rounded-lg px-3 py-2 hover:bg-slate-100 hover:text-brand-700 dark:hover:bg-slate-800">{l}</Link>
+          ))}
+        </nav>
+        <div className="flex items-center gap-2"><CommandPalette /><ThemeToggle /></div>
       </div>
     </header>
   );
