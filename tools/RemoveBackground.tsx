@@ -2,8 +2,7 @@
 import { useState } from "react";
 import Dropzone from "@/components/Dropzone";
 import { download } from "@/lib/files";
-
-const IMGLY_URL = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
+import { removeBg } from "@/lib/bgremoval";
 
 export default function RemoveBackground() {
   const [src, setSrc] = useState("");
@@ -17,10 +16,7 @@ export default function RemoveBackground() {
     if (!f) return;
     setSrc(URL.createObjectURL(f)); setOut(null); setOutUrl(""); setError(""); setBusy(true);
     try {
-      // Loaded from a CDN at runtime: the ONNX runtime can't be bundled by webpack, and the
-      // model (~40 MB) is downloaded once and then cached by the browser.
-      const { removeBackground } = await import(/* webpackIgnore: true */ IMGLY_URL);
-      const blob: Blob = await removeBackground(f);
+      const blob = await removeBg(f);
       setOut(blob); setOutUrl(URL.createObjectURL(blob));
     } catch { setError("Background removal failed. Try a smaller image or another browser."); }
     setBusy(false);

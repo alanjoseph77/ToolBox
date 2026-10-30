@@ -2,7 +2,7 @@ import ToolSearch from "@/components/ToolSearch";
 import ToolCard from "@/components/ToolCard";
 import { categories, tools } from "@/lib/tools";
 
-const titles = { PDF: "PDF tools", Image: "Image tools", Developer: "Developer utilities", Utility: "Utility tools" } as const;
+const titles = { PDF: "PDF tools", Image: "Image tools", Video: "Video tools", AI: "AI tools", Developer: "Developer utilities", Utility: "Utility tools" } as const;
 
 export default function Home() {
   return (
