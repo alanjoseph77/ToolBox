@@ -3,68 +3,50 @@
 @tailwind utilities;
 
 @layer base {
-  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
-  html { background: #f6f7fb; }
-  html.dark { background: #05060f; }
-  body { @apply overflow-x-clip bg-transparent font-sans text-slate-900 antialiased; }
-  :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white; }
-  .dark :focus-visible { @apply ring-offset-slate-900; }
-  ::selection { @apply bg-brand-200 text-brand-800; }
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; background: #fff; }
+  html.dark { background: #000; }
+  body { @apply overflow-x-clip bg-white font-sans text-neutral-900 antialiased; }
+  .dark body { @apply bg-black text-neutral-100; }
+  :focus-visible { @apply outline-none ring-2 ring-neutral-900 ring-offset-2 ring-offset-white; }
+  .dark :focus-visible { @apply ring-white ring-offset-black; }
+  ::selection { @apply bg-neutral-900 text-white; }
+  .dark ::selection { @apply bg-white text-black; }
 }
 
 @layer components {
-  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-[length:140%_auto] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition duration-200 hover:bg-right hover:shadow-glow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:active:scale-100; }
-  .btn-ghost { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300/80 bg-white/70 px-4 py-2.5 text-sm font-medium text-slate-700 backdrop-blur transition active:scale-[.98] hover:border-brand-500/60 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100; }
-  .input { @apply w-full rounded-xl border border-slate-300/80 bg-white/80 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/25; }
-  .label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500; }
-  .card { @apply rounded-2xl border border-white/70 bg-white/75 shadow-soft backdrop-blur-xl; }
-  .chip { @apply inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/70 px-3 py-1.5 text-sm font-medium text-slate-600 backdrop-blur transition hover:border-brand-500/60 hover:text-brand-700; }
-  .chip-active { @apply border-transparent bg-gradient-to-r from-brand-600 to-fuchsia-600 text-white shadow-md shadow-brand-600/25 hover:text-white; }
-  .gradient-text { @apply animate-shimmer bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400 bg-[length:200%_auto] bg-clip-text text-transparent; }
-
-  /* Animated AI-style backdrop: soft glowing orbs over a faint grid. */
-  .aurora { position: fixed; inset: 0; z-index: -10; overflow: hidden; pointer-events: none; }
-  .aurora::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(99 102 241 / .08) 1px, transparent 1px), linear-gradient(90deg, rgb(99 102 241 / .08) 1px, transparent 1px); background-size: 56px 56px; mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 25%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 25%, transparent 75%); }
-  .aurora i { position: absolute; border-radius: 9999px; filter: blur(90px); opacity: .55; @apply animate-float; }
-  .aurora i:nth-child(1) { width: 46rem; height: 46rem; left: -12%; top: -22%; background: #a5b4fc; }
-  .aurora i:nth-child(2) { width: 40rem; height: 40rem; right: -10%; top: 0%; background: #f0abfc; animation-delay: -8s; }
-  .aurora i:nth-child(3) { width: 34rem; height: 34rem; left: 30%; top: 38%; background: #7dd3fc; opacity: .4; animation-delay: -15s; }
-  .dark .aurora::before { background-image: linear-gradient(rgb(148 163 184 / .07) 1px, transparent 1px), linear-gradient(90deg, rgb(148 163 184 / .07) 1px, transparent 1px); }
-  .dark .aurora i { opacity: .38; }
-  .dark .aurora i:nth-child(1) { background: #4f46e5; }
-  .dark .aurora i:nth-child(2) { background: #c026d3; }
-  .dark .aurora i:nth-child(3) { background: #0891b2; opacity: .28; }
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition duration-150 hover:bg-black active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100; }
+  .btn-ghost { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-800 transition active:scale-[.98] hover:border-neutral-900 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100; }
+  .input { @apply w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 transition focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10; }
+  .label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-neutral-500; }
+  .card { @apply rounded-2xl border border-neutral-200 bg-white shadow-soft; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm font-medium text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900; }
+  .chip-active { @apply border-neutral-900 bg-neutral-900 text-white hover:text-white; }
+  .gradient-text { @apply underline decoration-neutral-900 decoration-[6px] underline-offset-[10px]; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .aurora i, .gradient-text, .animate-fade-up { animation: none !important; }
-}
+@media (prefers-reduced-motion: reduce) { .animate-fade-up { animation: none !important; } }
 
-/* ---- Dark mode: the tool components use plain slate/white utilities, so remap them here ---- */
-.dark body { @apply text-slate-100; }
-.dark .bg-white { background-color: rgb(15 23 42 / .6); }
-.dark .bg-white\/90 { background-color: rgb(5 6 15 / .65); }
-.dark .bg-slate-50 { background-color: rgb(30 41 59 / .5); }
-.dark .bg-slate-100 { background-color: rgb(30 41 59 / .8); }
-.dark .border, .dark .border-slate-200, .dark .divide-y > * { border-color: rgb(255 255 255 / .09); }
-.dark .border-slate-200\/80 { border-color: rgb(255 255 255 / .09); }
-.dark .border-slate-300 { border-color: rgb(255 255 255 / .16); }
-.dark .text-slate-900 { color: rgb(248 250 252); }
-.dark .text-slate-700, .dark .text-slate-600 { color: rgb(203 213 225); }
-.dark .text-slate-500 { color: rgb(160 174 192); }
-.dark .text-slate-400 { color: rgb(148 163 184); }
-.dark .btn-ghost { @apply border-white/15 bg-white/5 text-slate-200 hover:border-brand-500/60 hover:bg-white/10; }
-.dark .input { @apply border-white/15 bg-white/5 text-slate-100 placeholder:text-slate-500 focus:ring-brand-500/30; }
-.dark .card { @apply border-white/10 bg-slate-900/50 shadow-none; }
-.dark .chip { @apply border-white/10 bg-white/5 text-slate-300 hover:text-white; }
-.dark .chip-active { @apply border-transparent text-white; }
-.dark .bg-amber-50 { background-color: rgb(120 53 15 / .3); }
-.dark .bg-red-50 { background-color: rgb(127 29 29 / .3); }
-.dark .bg-brand-50, .dark .bg-brand-50\/50 { background-color: rgb(99 102 241 / .14); }
-.dark .text-amber-800, .dark .text-amber-700 { color: rgb(252 211 77); }
-.dark .text-red-600, .dark .text-red-700 { color: rgb(252 165 165); }
-.dark .text-green-700 { color: rgb(134 239 172); }
-.dark .border-amber-300 { border-color: rgb(180 83 9 / .6); }
-.dark mark { color: rgb(15 23 42); }
-.dark pre { background-color: rgb(15 23 42 / .6); }
-.dark .bg-white, .dark .bg-slate-50 { backdrop-filter: blur(10px); }
+/* ---- Dark mode: pure black with white text. Tool components use plain neutral/white utilities, so remap them. ---- */
+.dark .btn { @apply bg-[#fafafa] text-black hover:bg-neutral-300; }
+.dark .btn-ghost { @apply border-neutral-700 bg-black text-neutral-200 hover:border-white hover:bg-neutral-900; }
+.dark .input { @apply border-neutral-700 bg-black text-neutral-100 placeholder:text-neutral-500 focus:border-white focus:ring-white/10; }
+.dark .card { @apply border-neutral-800 bg-neutral-950 shadow-none; }
+.dark .chip { @apply border-neutral-800 bg-black text-neutral-400 hover:border-white hover:text-white; }
+.dark .chip-active { @apply border-white bg-[#fafafa] text-black hover:text-black; }
+.dark .gradient-text { @apply decoration-white; }
+.dark [class~="bg-white"] { background-color: #0a0a0a; }
+.dark [class~="bg-white/90"] { background-color: rgb(0 0 0 / .85); }
+.dark [class~="bg-neutral-50"] { background-color: #111; }
+.dark [class~="bg-neutral-100"] { background-color: #171717; }
+.dark [class~="border"], .dark [class~="border-neutral-200"], .dark [class~="divide-y"] > * { border-color: #262626; }
+.dark [class~="border-neutral-300"] { border-color: #404040; }
+.dark [class~="text-neutral-900"] { color: #fafafa; }
+.dark [class~="text-neutral-800"], .dark [class~="text-neutral-700"], .dark [class~="text-neutral-600"] { color: #d4d4d4; }
+.dark [class~="text-neutral-500"], .dark [class~="text-neutral-400"] { color: #a3a3a3; }
+.dark [class~="bg-brand-600"] { background-color: #fff; color: #000; }
+.dark [class~="text-brand-600"], .dark [class~="text-brand-700"] { color: #fff; }
+.dark [class~="bg-brand-50"] { background-color: #171717; }
+.dark [class~="text-red-600"], .dark [class~="text-red-700"] { color: #f87171; }
+.dark [class~="bg-red-50"] { background-color: rgb(127 29 29 / .25); }
+.dark mark { color: #000; }
+.dark pre { background-color: #0a0a0a; }

@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-const Loading = () => <p className="text-sm text-slate-500">Loading tool…</p>;
+const Loading = () => <p className="text-sm text-neutral-500">Loading tool…</p>;
 const load = (p: () => Promise<{ default: ComponentType }>) => dynamic(p, { ssr: false, loading: Loading });
 
 const map: Record<string, ComponentType> = {

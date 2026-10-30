@@ -73,12 +73,12 @@ export default function SignPdf() {
         <>
           <div className="space-y-2 rounded-xl border bg-white p-4">
             <p className="label">1. Your signature</p>
-            <canvas ref={pad} width={600} height={200} className="w-full touch-none rounded-lg border bg-slate-50"
+            <canvas ref={pad} width={600} height={200} className="w-full touch-none rounded-lg border bg-neutral-50"
               onPointerDown={padDown} onPointerMove={padMove} onPointerUp={padUp} />
             <div className="flex flex-wrap items-center gap-2">
               <button className="btn-ghost !py-1.5" onClick={clearPad}>Clear</button>
               <label className="btn-ghost !py-1.5 cursor-pointer">Upload image<input type="file" accept="image/png,image/jpeg" hidden onChange={(e) => upload(Array.from(e.target.files ?? []))} /></label>
-              {sig && <span className="text-sm text-green-700">✓ Signature ready</span>}
+              {sig && <span className="text-sm text-neutral-900 dark:text-white">✓ Signature ready</span>}
             </div>
           </div>
           <div className="space-y-2 rounded-xl border bg-white p-4">

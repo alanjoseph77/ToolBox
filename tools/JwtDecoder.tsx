@@ -28,8 +28,8 @@ export default function JwtDecoder() {
         <div className="grid gap-3 sm:grid-cols-2">
           <div><p className="label">Header</p><pre className="overflow-auto rounded-lg bg-white p-3 text-xs border">{JSON.stringify(result.header, null, 2)}</pre></div>
           <div><p className="label">Payload</p><pre className="overflow-auto rounded-lg bg-white p-3 text-xs border">{JSON.stringify(result.payload, null, 2)}</pre></div>
-          {exp && <p className={`text-sm font-semibold sm:col-span-2 ${exp < new Date() ? "text-red-600" : "text-green-700"}`}>{exp < new Date() ? "Expired" : "Valid until"} {exp.toLocaleString()}</p>}
-          <p className="text-xs text-slate-500 sm:col-span-2">The signature is not verified. Decoding happens only in your browser.</p>
+          {exp && <p className={`text-sm font-semibold sm:col-span-2 ${exp < new Date() ? "text-red-600" : "text-neutral-900 dark:text-white"}`}>{exp < new Date() ? "Expired" : "Valid until"} {exp.toLocaleString()}</p>}
+          <p className="text-xs text-neutral-500 sm:col-span-2">The signature is not verified. Decoding happens only in your browser.</p>
         </div>
       )}
     </div>

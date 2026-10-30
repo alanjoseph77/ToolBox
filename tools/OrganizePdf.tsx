@@ -46,18 +46,18 @@ export default function OrganizePdf() {
   return (
     <div className="space-y-4">
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && load(f[0])} />
-      {busy && <p className="text-sm text-slate-500">Loading pages…</p>}
+      {busy && <p className="text-sm text-neutral-500">Loading pages…</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {items.length > 0 && (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {items.map((it, i) => (
               <div key={it.src} className="space-y-1 rounded-xl border bg-white p-2">
-                <div className="flex h-36 items-center justify-center overflow-hidden rounded bg-slate-100">
+                <div className="flex h-36 items-center justify-center overflow-hidden rounded bg-neutral-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={it.thumb} alt={`Page ${it.src + 1}`} className="max-h-full max-w-full transition" style={{ transform: `rotate(${it.rot}deg)` }} />
                 </div>
-                <p className="text-center text-xs text-slate-500">Page {it.src + 1}</p>
+                <p className="text-center text-xs text-neutral-500">Page {it.src + 1}</p>
                 <div className="grid grid-cols-4 gap-1">
                   <button aria-label="Move earlier" className="btn-ghost !px-0 !py-1" onClick={() => move(i, -1)}>←</button>
                   <button aria-label="Move later" className="btn-ghost !px-0 !py-1" onClick={() => move(i, 1)}>→</button>

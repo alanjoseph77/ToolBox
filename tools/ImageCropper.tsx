@@ -64,7 +64,7 @@ export default function ImageCropper() {
         <div className="flex flex-wrap gap-2">
           {ratios.map((r) => <button key={r.label} className={r.r === ratio ? "btn !py-1.5" : "btn-ghost !py-1.5"} onClick={() => { setRatio(r.r); setRect(null); }}>{r.label}</button>)}
         </div>
-        <p className="text-sm text-slate-600">Drag on the image to choose the crop area{rect ? ` · ${Math.round(rect.w)}×${Math.round(rect.h)}px` : ""}.</p>
+        <p className="text-sm text-neutral-600">Drag on the image to choose the crop area{rect ? ` · ${Math.round(rect.w)}×${Math.round(rect.h)}px` : ""}.</p>
         <canvas ref={canvasRef} className="max-h-[65vh] w-full touch-none cursor-crosshair rounded-lg border object-contain"
           onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); start.current = pos(e); }}
           onPointerMove={(e) => { if (start.current) setRect(build(start.current, pos(e))); }}

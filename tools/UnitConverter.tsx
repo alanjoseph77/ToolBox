@@ -37,7 +37,7 @@ export default function UnitConverter() {
           <input className="input" type="number" value={value} onChange={(e) => setValue(e.target.value)} />
           <select className="input" value={from} onChange={(e) => setFrom(e.target.value)}>{names.map((n) => <option key={n}>{n}</option>)}</select></div>
         <div className="space-y-2"><label className="label">To</label>
-          <input className="input bg-slate-50 font-semibold" readOnly value={shown} />
+          <input className="input bg-neutral-50 font-semibold" readOnly value={shown} />
           <select className="input" value={to} onChange={(e) => setTo(e.target.value)}>{names.map((n) => <option key={n}>{n}</option>)}</select></div>
       </div>
     </div>

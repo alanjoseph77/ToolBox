@@ -39,8 +39,8 @@ export default function PasswordGenerator() {
 
   return (
     <div className="space-y-4 rounded-xl border bg-white p-4">
-      <div className="break-all rounded-lg bg-slate-100 p-3 font-mono text-lg">{pw || "Select at least one option"}</div>
-      <p className="text-sm text-slate-600">{strength} · about {bits} bits of entropy</p>
+      <div className="break-all rounded-lg bg-neutral-100 p-3 font-mono text-lg">{pw || "Select at least one option"}</div>
+      <p className="text-sm text-neutral-600">{strength} · about {bits} bits of entropy</p>
       <div><label className="label">Length: {len}</label>
         <input type="range" min={6} max={64} value={len} onChange={(e) => setLen(+e.target.value)} className="w-full" /></div>
       <div className="grid grid-cols-2 gap-2 text-sm">

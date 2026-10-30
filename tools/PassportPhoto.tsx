@@ -110,14 +110,14 @@ export default function PassportPhoto() {
           <div className="space-y-2">
             <canvas ref={canvasRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={() => (drag.current = null)}
               className="mx-auto max-h-[60vh] w-full max-w-xs touch-none cursor-move rounded border" style={{ aspectRatio: `${fw}/${fh}` }} />
-            <p className="text-center text-xs text-slate-500">Drag to position · {fw}×{fh}px @ 300 DPI</p>
+            <p className="text-center text-xs text-neutral-500">Drag to position · {fw}×{fh}px @ 300 DPI</p>
           </div>
           <div className="space-y-3">
             <div><label className="label">Photo size</label>
               <select className="input" value={preset.label} onChange={(e) => setPreset(presets.find((p) => p.label === e.target.value)!)}>{presets.map((p) => <option key={p.label}>{p.label}</option>)}</select></div>
             <div><label className="label">Zoom: {zoom.toFixed(2)}×</label><input type="range" min={1} max={3} step={0.01} value={zoom} onChange={(e) => setZoom(+e.target.value)} className="w-full" /></div>
             <div><label className="label">Background</label>
-              <div className="flex items-center gap-2">{bgOptions.map((c) => <button key={c} aria-label={c} onClick={() => setBg(c)} className={`h-8 w-8 rounded-full border-2 ${bg === c ? "border-brand-600" : "border-slate-300"}`} style={{ background: c }} />)}
+              <div className="flex items-center gap-2">{bgOptions.map((c) => <button key={c} aria-label={c} onClick={() => setBg(c)} className={`h-8 w-8 rounded-full border-2 ${bg === c ? "border-brand-600" : "border-neutral-300"}`} style={{ background: c }} />)}
                 <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="h-8 w-8" aria-label="Custom colour" /></div></div>
             <button className="btn-ghost w-full" disabled={busy || cutout} onClick={whiten}>{busy ? "Removing background…" : cutout ? "✓ Background removed" : "Remove background"}</button>
             {error && <p className="text-sm text-red-600">{error}</p>}

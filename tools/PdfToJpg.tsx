@@ -37,9 +37,9 @@ export default function PdfToJpg() {
         </div>
       </div>
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && !busy && run(f[0])} />
-      {name && status && <p className="text-sm text-slate-600">{name}.pdf: {status}</p>}
+      {name && status && <p className="text-sm text-neutral-600">{name}.pdf: {status}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <p className="text-xs text-slate-500">If your browser asks, allow multiple downloads so every page is saved.</p>
+      <p className="text-xs text-neutral-500">If your browser asks, allow multiple downloads so every page is saved.</p>
     </div>
   );
 }

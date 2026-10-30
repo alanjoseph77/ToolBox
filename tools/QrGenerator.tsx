@@ -30,7 +30,7 @@ export default function QrGenerator() {
             <img src={url} alt="QR code" className="w-56 rounded-lg border" />
             <a className="btn w-full" href={url} download="qr-code.png">Download PNG</a>
           </>
-        ) : <p className="text-sm text-slate-400">Enter some text to generate a QR code.</p>}
+        ) : <p className="text-sm text-neutral-400">Enter some text to generate a QR code.</p>}
       </div>
     </div>
   );

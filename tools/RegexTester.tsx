@@ -39,7 +39,7 @@ export default function RegexTester() {
         {matches.map((m, i) => (
           <li key={i} className="rounded border bg-white p-2 font-mono">
             <b>#{i + 1}</b> “{m[0]}” at {m.index}
-            {m.length > 1 && <span className="text-slate-500"> · groups: {m.slice(1).map((g, k) => `$${k + 1}=${g ?? "∅"}`).join(", ")}</span>}
+            {m.length > 1 && <span className="text-neutral-500"> · groups: {m.slice(1).map((g, k) => `$${k + 1}=${g ?? "∅"}`).join(", ")}</span>}
           </li>
         ))}
       </ul>

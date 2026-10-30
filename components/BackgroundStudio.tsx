@@ -53,9 +53,9 @@ export default function BackgroundStudio({ ai = false }: { ai?: boolean }) {
 
   return (
     <div className="space-y-4">
-      {ai && !configured && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">AI scene generation isn&apos;t configured on this server yet (set <code>ANTHROPIC_API_KEY</code>). You can still use colours, gradients and your own images.</p>}
+      {ai && !configured && <p className="rounded-lg bg-neutral-100 p-3 text-sm text-neutral-800">AI scene generation isn&apos;t configured on this server yet (set <code>ANTHROPIC_API_KEY</code>). You can still use colours, gradients and your own images.</p>}
       <Dropzone accept="image/*" onFiles={pick} hint="Upload a photo with a clear subject. The background is removed on your device." />
-      {status && <p className="text-sm text-slate-500">{status}</p>}
+      {status && <p className="text-sm text-neutral-500">{status}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {subject && (
         <div className="grid gap-4 rounded-xl border bg-white p-4 md:grid-cols-2">

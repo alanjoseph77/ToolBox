@@ -115,13 +115,13 @@ export default function WatermarkRemover() {
 
   return (
     <div className="space-y-4">
-      <label className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm">
+      <label className="flex items-start gap-2 rounded-xl border border-neutral-300 bg-neutral-100 p-3 text-sm">
         <input type="checkbox" className="mt-1" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
         <span>I own this image or have permission to edit it. I will not use this tool to remove watermarks from content I don&apos;t have rights to.</span>
       </label>
       {agreed && <Dropzone accept="image/*" onFiles={pick} hint="Then drag a box over the watermark. Works best on plain or softly textured backgrounds." />}
       <div className={loaded && agreed ? "space-y-3 rounded-xl border bg-white p-3" : "hidden"}>
-        <p className="text-sm text-slate-600">Drag over each watermark to select it, then press Remove.</p>
+        <p className="text-sm text-neutral-600">Drag over each watermark to select it, then press Remove.</p>
         <canvas
           ref={canvasRef}
           className="max-h-[70vh] w-full touch-none rounded-lg border object-contain"

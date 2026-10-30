@@ -36,17 +36,17 @@ export default function ToolPage({ params }: { params: { tool: string } }) {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up">
       <RecordVisit slug={t.slug} />
-      <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1 text-sm text-slate-500">
-        <Link href="/" className="hover:text-brand-600">Home</Link><ChevronRight className="h-3.5 w-3.5" />
-        <Link href={`/#${t.category.toLowerCase()}`} className="hover:text-brand-600">{categoryStyle[t.category].label}</Link><ChevronRight className="h-3.5 w-3.5" />
-        <span className="font-medium text-slate-700">{t.name}</span>
+      <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1 text-sm text-neutral-500">
+        <Link href="/" className="hover:text-black dark:hover:text-white">Home</Link><ChevronRight className="h-3.5 w-3.5" />
+        <Link href={`/#${t.category.toLowerCase()}`} className="hover:text-black dark:hover:text-white">{categoryStyle[t.category].label}</Link><ChevronRight className="h-3.5 w-3.5" />
+        <span className="font-medium text-neutral-700">{t.name}</span>
       </nav>
       <header className="mb-6 flex items-start gap-4">
         <ToolIcon tool={t} size="lg" />
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.name}</h1>
-          <p className="mt-1 text-slate-600">{t.description}</p>
-          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+          <p className="mt-1 text-neutral-600">{t.description}</p>
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-semibold text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
             {isAi ? <><Sparkles className="h-3.5 w-3.5" /> Uses AI · sends only what is needed</> : <><BadgeCheck className="h-3.5 w-3.5" /> Runs on your device · no upload</>}
           </p>
         </div>
@@ -59,14 +59,14 @@ export default function ToolPage({ params }: { params: { tool: string } }) {
           <div key={title} className="card p-4">
             <span className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">{i + 1}</span>
             <h2 className="text-sm font-semibold">{title}</h2>
-            <p className="mt-1 text-sm text-slate-500">{text}</p>
+            <p className="mt-1 text-sm text-neutral-500">{text}</p>
           </div>
         ))}
       </section>
 
       {related.length > 0 && (
         <section aria-label="Related tools" className="mt-12">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold"><Cpu className="h-5 w-5 text-slate-400" /> More {categoryStyle[t.category].label.toLowerCase()}</h2>
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold"><Cpu className="h-5 w-5 text-neutral-400" /> More {categoryStyle[t.category].label.toLowerCase()}</h2>
           <div className="grid gap-3 sm:grid-cols-2">{related.map((r) => <ToolCard key={r.slug} tool={r} />)}</div>
         </section>
       )}

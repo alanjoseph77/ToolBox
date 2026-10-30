@@ -16,7 +16,7 @@ export default function WordCounter() {
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {stats.map(([k, v]) => (
-          <div key={k} className="rounded-xl border bg-white p-3"><p className="text-2xl font-bold">{v}</p><p className="text-xs text-slate-500">{k}</p></div>
+          <div key={k} className="rounded-xl border bg-white p-3"><p className="text-2xl font-bold">{v}</p><p className="text-xs text-neutral-500">{k}</p></div>
         ))}
       </div>
       <textarea className="input h-64" placeholder="Type or paste your text…" value={text} onChange={(e) => setText(e.target.value)} />

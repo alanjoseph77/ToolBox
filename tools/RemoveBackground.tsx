@@ -25,7 +25,7 @@ export default function RemoveBackground() {
   return (
     <div className="space-y-4">
       <Dropzone accept="image/*" onFiles={run} hint="The AI model runs on your device. First use downloads it (~40 MB)." />
-      {busy && <p className="text-sm text-slate-500">Removing background… the first run can take a minute.</p>}
+      {busy && <p className="text-sm text-neutral-500">Removing background… the first run can take a minute.</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {src && (
         <div className="grid gap-3 sm:grid-cols-2">

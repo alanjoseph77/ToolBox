@@ -36,7 +36,7 @@ export default function PdfSummarizer() {
         <select className="input !w-auto" value={format} onChange={(e) => setFormat(e.target.value)}><option value="bullets">Bullet points</option><option value="prose">Paragraph</option></select>
       </div>
       <Dropzone accept="application/pdf" onFiles={run} hint="Text is extracted on your device; only the text is sent to the AI to summarise." />
-      {status && <p className="text-sm text-slate-500">{status}</p>}
+      {status && <p className="text-sm text-neutral-500">{status}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {out && <div className="space-y-2"><div className="whitespace-pre-wrap rounded-xl border bg-white p-4 text-sm">{out}</div><CopyButton text={out} /></div>}
     </div>

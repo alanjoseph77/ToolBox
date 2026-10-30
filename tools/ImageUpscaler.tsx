@@ -67,7 +67,7 @@ export default function ImageUpscaler() {
           <p className="text-sm">{dims.w}×{dims.h}px → <b>{dims.w * factor}×{dims.h * factor}px</b></p>
           <div className="flex gap-2">{[2, 3, 4].map((f) => <button key={f} className={f === factor ? "btn !py-1.5" : "btn-ghost !py-1.5"} onClick={() => setFactor(f)}>{f}×</button>)}</div>
           <div><label className="label">Sharpening: {Math.round(sharp * 100)}%</label><input type="range" min={0} max={1} step={0.05} value={sharp} onChange={(e) => setSharp(+e.target.value)} className="w-full" /></div>
-          {tooBig && <p className="text-sm text-amber-700">That would exceed 40 megapixels. Choose a smaller factor.</p>}
+          {tooBig && <p className="text-sm text-neutral-700">That would exceed 40 megapixels. Choose a smaller factor.</p>}
           <button className="btn w-full" disabled={busy || tooBig} onClick={run}>{busy ? "Upscaling…" : "Upscale"}</button>
           {error && <p className="text-sm text-red-600">{error}</p>}
           {out && (
@@ -78,7 +78,7 @@ export default function ImageUpscaler() {
               <button className="btn w-full" onClick={() => download(out.blob, "upscaled.png")}>Download PNG</button>
             </div>
           )}
-          <p className="text-xs text-slate-500">Uses high-quality resampling plus sharpening. It enlarges cleanly but can&apos;t invent detail the way a neural upscaler does.</p>
+          <p className="text-xs text-neutral-500">Uses high-quality resampling plus sharpening. It enlarges cleanly but can&apos;t invent detail the way a neural upscaler does.</p>
         </div>
       )}
     </div>

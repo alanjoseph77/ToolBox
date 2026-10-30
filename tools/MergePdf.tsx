@@ -37,7 +37,7 @@ export default function MergePdf() {
         <ul className="divide-y rounded-xl border bg-white">
           {files.map((f, i) => (
             <li key={i} className="flex items-center gap-2 p-3 text-sm">
-              <span className="flex-1 truncate">{i + 1}. {f.name} <span className="text-slate-400">({formatBytes(f.size)})</span></span>
+              <span className="flex-1 truncate">{i + 1}. {f.name} <span className="text-neutral-400">({formatBytes(f.size)})</span></span>
               <button className="btn-ghost !px-2 !py-1" onClick={() => move(i, -1)}>↑</button>
               <button className="btn-ghost !px-2 !py-1" onClick={() => move(i, 1)}>↓</button>
               <button className="btn-ghost !px-2 !py-1" onClick={() => setFiles(files.filter((_, k) => k !== i))}>✕</button>

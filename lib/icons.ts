@@ -23,12 +23,15 @@ export const toolIcons: Record<string, LucideIcon> = {
   "barcode-generator": Barcode, "screenshot-editor": SquareSplitHorizontal,
 };
 
-// Full class strings so Tailwind can see them.
+const tile = "bg-neutral-100 text-neutral-900 ring-1 ring-neutral-200 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800";
+const dot = "bg-neutral-900 dark:bg-white";
+const text = "text-neutral-900 dark:text-white";
+
 export const categoryStyle: Record<Category, { tile: string; text: string; dot: string; label: string }> = {
-  PDF: { tile: "bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300", text: "text-rose-600 dark:text-rose-300", dot: "bg-rose-500", label: "PDF tools" },
-  Image: { tile: "bg-sky-50 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300", text: "text-sky-600 dark:text-sky-300", dot: "bg-sky-500", label: "Image tools" },
-  Video: { tile: "bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300", text: "text-violet-600 dark:text-violet-300", dot: "bg-violet-500", label: "Video tools" },
-  AI: { tile: "bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-500/15 dark:text-fuchsia-300", text: "text-fuchsia-600 dark:text-fuchsia-300", dot: "bg-fuchsia-500", label: "AI tools" },
-  Developer: { tile: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300", text: "text-emerald-600 dark:text-emerald-300", dot: "bg-emerald-500", label: "Developer utilities" },
-  Utility: { tile: "bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300", text: "text-amber-600 dark:text-amber-300", dot: "bg-amber-500", label: "Utility tools" },
+  PDF: { tile, text, dot, label: "PDF tools" },
+  Image: { tile, text, dot, label: "Image tools" },
+  Video: { tile, text, dot, label: "Video tools" },
+  AI: { tile, text, dot, label: "AI tools" },
+  Developer: { tile, text, dot, label: "Developer utilities" },
+  Utility: { tile, text, dot, label: "Utility tools" },
 };

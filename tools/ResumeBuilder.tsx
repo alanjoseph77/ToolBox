@@ -91,7 +91,7 @@ export default function ResumeBuilder() {
         <button className="btn-ghost" disabled={busy || !r.summary && !r.experience[0].bullets} onClick={polish}>{busy ? "Polishing…" : "✨ Polish wording with AI"}</button>
         <button className="btn" onClick={save}>Download PDF</button>
       </div>
-      <p className="text-xs text-slate-500">The PDF is a clean single-column, ATS-friendly layout. Review AI edits before sending your resume. Latin characters only for now.</p>
+      <p className="text-xs text-neutral-500">The PDF is a clean single-column, ATS-friendly layout. Review AI edits before sending your resume. Latin characters only for now.</p>
     </div>
   );
 }

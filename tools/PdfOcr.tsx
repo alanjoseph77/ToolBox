@@ -37,7 +37,7 @@ export default function PdfOcr() {
       <div className="rounded-xl border bg-white p-4"><label className="label">Language of the text</label>
         <select className="input" value={lang} disabled={busy} onChange={(e) => setLang(e.target.value)}>{ocrLanguages.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
       <Dropzone accept="application/pdf" onFiles={(f) => !busy && run(f)} hint="Best for scanned PDFs. Large files take a while on a phone." />
-      {status && <p className="text-sm text-slate-500">{status}</p>}
+      {status && <p className="text-sm text-neutral-500">{status}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {text && (
         <div className="space-y-2">

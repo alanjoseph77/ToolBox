@@ -56,9 +56,9 @@ export default function PdfToExcel() {
   return (
     <div className="space-y-4">
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && !busy && run(f[0])} />
-      {status && <p className="text-sm text-slate-600">{status}</p>}
+      {status && <p className="text-sm text-neutral-600">{status}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <p className="text-xs text-slate-500">Works best on PDFs with simple tables (invoices, statements, reports). Text is aligned into columns by position.</p>
+      <p className="text-xs text-neutral-500">Works best on PDFs with simple tables (invoices, statements, reports). Text is aligned into columns by position.</p>
     </div>
   );
 }

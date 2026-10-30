@@ -27,12 +27,12 @@ export default function CompressPdf() {
   return (
     <div className="space-y-4">
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && run(f[0])} />
-      {busy && <p className="text-sm text-slate-500">Optimising…</p>}
+      {busy && <p className="text-sm text-neutral-500">Optimising…</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {file && result && (
         <div className="space-y-3 rounded-xl border bg-white p-4">
           <p className="text-sm">{formatBytes(file.size)} → <b>{formatBytes(result.length)}</b> ({saved}% smaller)</p>
-          {result.length >= file.size && <p className="text-xs text-amber-600">This PDF is already well optimised; the download is the original size or similar. Image-heavy PDFs need server-side recompression, coming later.</p>}
+          {result.length >= file.size && <p className="text-xs text-neutral-600">This PDF is already well optimised; the download is the original size or similar. Image-heavy PDFs need server-side recompression, coming later.</p>}
           <button className="btn w-full" onClick={() => download(result, "compressed.pdf", "application/pdf")} disabled={result.length >= file.size}>Download compressed PDF</button>
         </div>
       )}

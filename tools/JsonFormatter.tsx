@@ -23,7 +23,7 @@ export default function JsonFormatter() {
       {error && <p className="rounded-lg bg-red-50 p-3 font-mono text-sm text-red-700">Invalid JSON: {error}</p>}
       {output && (
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-green-700">✓ Valid JSON</p>
+          <p className="text-sm font-semibold text-neutral-900 dark:text-white">✓ Valid JSON</p>
           <textarea readOnly className="input h-64 font-mono" value={output} />
           <CopyButton text={output} />
         </div>

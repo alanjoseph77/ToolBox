@@ -29,7 +29,7 @@ export default function ImageToText() {
       <div className="rounded-xl border bg-white p-4"><label className="label">Language of the text</label>
         <select className="input" value={lang} disabled={busy} onChange={(e) => setLang(e.target.value)}>{ocrLanguages.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
       <Dropzone accept="image/*" onFiles={run} hint="Photos of documents, screenshots and scans work best." />
-      {busy && <p className="text-sm text-slate-500">Reading text… {Math.round(progress * 100)}%</p>}
+      {busy && <p className="text-sm text-neutral-500">Reading text… {Math.round(progress * 100)}%</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {text && (
         <div className="space-y-2">

@@ -37,9 +37,9 @@ export default function WordToPdf() {
   return (
     <div className="space-y-4">
       <Dropzone accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onFiles={(f) => f[0] && run(f[0])} hint="Upload a .docx file. It stays on your device." />
-      {status && <p className="text-sm text-slate-600">{status}</p>}
+      {status && <p className="text-sm text-neutral-600">{status}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <p className="text-xs text-slate-500">Keeps headings, paragraphs, lists and table text. Fonts, images and exact layout are not preserved, and non-Latin scripts are not supported yet.</p>
+      <p className="text-xs text-neutral-500">Keeps headings, paragraphs, lists and table text. Fonts, images and exact layout are not preserved, and non-Latin scripts are not supported yet.</p>
     </div>
   );
 }

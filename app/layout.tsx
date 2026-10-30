@@ -15,19 +15,19 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   width: "device-width", initialScale: 1,
-  themeColor: "#05060f",
+  themeColor: "#ffffff",
 };
 
 // Runs before paint so the saved/system theme is applied without a flash.
-// Dark is the default (AI-style look); a saved "light" choice is respected.
-const themeScript = `try{if(localStorage.getItem("theme")!=="light")document.documentElement.classList.add("dark")}catch(e){document.documentElement.classList.add("dark")}`;
+// Light is the default; a saved "dark" choice is applied before paint to avoid a flash.
+const themeScript = `try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body>
-        <div className="aurora" aria-hidden><i /><i /><i /></div>
+        
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
         <Header />
         <main id="main" className="mx-auto max-w-6xl px-4 py-8">{children}</main>

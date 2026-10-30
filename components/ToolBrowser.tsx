@@ -18,8 +18,8 @@ export default function ToolBrowser() {
       {recentTools.length > 0 && (
         <section aria-labelledby="recent">
           <div className="mb-3 flex items-center justify-between">
-            <h2 id="recent" className="flex items-center gap-2 text-xl font-bold"><Clock className="h-5 w-5 text-slate-400" /> Recently used</h2>
-            <button onClick={() => { clearRecent(); setRecent([]); }} className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600"><X className="h-3 w-3" /> Clear</button>
+            <h2 id="recent" className="flex items-center gap-2 text-xl font-bold"><Clock className="h-5 w-5 text-neutral-400" /> Recently used</h2>
+            <button onClick={() => { clearRecent(); setRecent([]); }} className="flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-600"><X className="h-3 w-3" /> Clear</button>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{recentTools.slice(0, 4).map((t) => <ToolCard key={t.slug} tool={t} />)}</div>
         </section>
@@ -31,7 +31,7 @@ export default function ToolBrowser() {
       </section>
 
       <section aria-labelledby="all">
-        <h2 id="all" className="mb-3 text-xl font-bold">All tools <span className="text-base font-medium text-slate-400">({tools.length})</span></h2>
+        <h2 id="all" className="mb-3 text-xl font-bold">All tools <span className="text-base font-medium text-neutral-400">({tools.length})</span></h2>
         <div className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" role="tablist" aria-label="Tool categories">
           {(["All", ...categories] as const).map((c) => (
             <button key={c} role="tab" aria-selected={active === c} onClick={() => setActive(c)} className={`chip shrink-0 ${active === c ? "chip-active" : ""}`}>
