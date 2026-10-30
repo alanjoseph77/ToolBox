@@ -2,6 +2,7 @@
 import { useState } from "react";
 import AiNotice from "@/components/AiNotice";
 import CopyButton from "@/components/CopyButton";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { callAi } from "@/lib/ai";
 import { canvasToBlob, loadImage } from "@/lib/files";
@@ -40,6 +41,7 @@ export default function CaptionGenerator() {
             <select className="input !w-auto" value={style} onChange={(e) => setStyle(e.target.value)}><option value="social">Social media captions</option><option value="alt">Alt text</option><option value="descriptive">Detailed description</option></select>
             <button className="btn" disabled={busy} onClick={run}>{busy ? "Writing…" : "Generate caption"}</button>
           </div>
+          <WaterLoader active={busy} label="Looking at your photo…" />
           {error && <p className="text-sm text-red-600">{error}</p>}
           {out && <div className="space-y-2"><div className="whitespace-pre-wrap rounded-lg bg-neutral-50 p-3 text-sm">{out}</div><CopyButton text={out} /></div>}
         </div>

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import CopyButton from "@/components/CopyButton";
 import { download } from "@/lib/files";
@@ -30,7 +31,8 @@ export default function ImageToText() {
         <select className="input" value={lang} disabled={busy} onChange={(e) => setLang(e.target.value)}>{ocrLanguages.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
       <Dropzone accept="image/*" onFiles={run} hint="Photos of documents, screenshots and scans work best." />
       {busy && <p className="text-sm text-neutral-500">Reading text… {Math.round(progress * 100)}%</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <WaterLoader active={busy} progress={progress} label="Reading the text…" />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       {text && (
         <div className="space-y-2">
           <textarea className="input h-64" value={text} onChange={(e) => setText(e.target.value)} />

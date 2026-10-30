@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, loadImage } from "@/lib/files";
 import { removeBg } from "@/lib/bgremoval";
@@ -120,7 +121,8 @@ export default function PassportPhoto() {
               <div className="flex items-center gap-2">{bgOptions.map((c) => <button key={c} aria-label={c} onClick={() => setBg(c)} className={`h-8 w-8 rounded-full border-2 ${bg === c ? "border-brand-600" : "border-neutral-300"}`} style={{ background: c }} />)}
                 <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="h-8 w-8" aria-label="Custom colour" /></div></div>
             <button className="btn-ghost w-full" disabled={busy || cutout} onClick={whiten}>{busy ? "Removing background…" : cutout ? "✓ Background removed" : "Remove background"}</button>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            <WaterLoader active={busy} label="Cutting out the background…" hints={["First run downloads the AI model (~40 MB)", "Then it works offline-fast", "Almost there…"]} />
+          {error && <p className="text-sm text-red-600">{error}</p>}
             <button className="btn w-full" onClick={async () => download(await canvasToBlob(photo(), "image/jpeg", 0.95), "passport-photo.jpg")}>Download single photo</button>
             <div className="space-y-2 border-t pt-3">
               <label className="label">Print sheet ({count} photos)</label>

@@ -24,7 +24,7 @@
   .gradient-text { @apply underline decoration-neutral-900 decoration-[6px] underline-offset-[10px]; }
 }
 
-@media (prefers-reduced-motion: reduce) { .animate-fade-up { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .animate-fade-up, .animate-wave, .animate-wave-slow, .animate-bubble { animation: none !important; } }
 
 /* ---- Dark mode: pure black with white text. Tool components use plain neutral/white utilities, so remap them. ---- */
 .dark .btn { @apply bg-[#fafafa] text-black hover:bg-neutral-300; }

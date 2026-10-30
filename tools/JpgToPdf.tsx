@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, loadImage } from "@/lib/files";
 
@@ -42,6 +43,7 @@ export default function JpgToPdf() {
         </ul>
       )}
       <button className="btn w-full" disabled={!files.length || busy} onClick={build}>{busy ? "Creating…" : "Create PDF"}</button>
+      <WaterLoader active={busy} label="Building your PDF…" />
     </div>
   );
 }

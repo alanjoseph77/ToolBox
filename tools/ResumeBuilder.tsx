@@ -1,4 +1,5 @@
 "use client";
+import WaterLoader from "@/components/WaterLoader";
 import { useState } from "react";
 import AiNotice from "@/components/AiNotice";
 import { callAi } from "@/lib/ai";
@@ -86,7 +87,8 @@ export default function ResumeBuilder() {
         <button className="btn-ghost !py-1.5" onClick={() => set("education", [...r.education, { degree: "", school: "", year: "" }])}>+ Add education</button>
       </div>
       <div className="rounded-xl border bg-white p-4"><Field area label="Skills (comma separated)" value={r.skills} onChange={(v) => set("skills", v)} /></div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <WaterLoader active={busy} label="Polishing your resume…" />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="grid gap-2 sm:grid-cols-2">
         <button className="btn-ghost" disabled={busy || !r.summary && !r.experience[0].bullets} onClick={polish}>{busy ? "Polishing…" : "✨ Polish wording with AI"}</button>
         <button className="btn" onClick={save}>Download PDF</button>

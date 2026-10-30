@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, loadImage } from "@/lib/files";
 
@@ -133,6 +134,7 @@ export default function WatermarkRemover() {
             if (r.w > 3 && r.h > 3) setRects((p) => [...p, r]);
           }}
         />
+        <WaterLoader active={busy} label="Erasing the watermark…" />
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <button className="btn" disabled={!rects.length || busy} onClick={remove}>{busy ? "Working…" : "Remove"}</button>
           <button className="btn-ghost" disabled={!rects.length} onClick={() => setRects([])}>Clear boxes</button>

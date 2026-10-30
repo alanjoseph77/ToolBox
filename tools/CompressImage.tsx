@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, formatBytes, loadImage } from "@/lib/files";
 
@@ -59,6 +60,7 @@ export default function CompressImage() {
             <input type="number" min={5} className="input !w-28" value={kb} onChange={(e) => setKb(Math.max(5, +e.target.value || 5))} />
           </div>
           <button className="btn w-full" disabled={busy} onClick={run}>{busy ? "Compressing…" : `Compress to ${kb} KB`}</button>
+          <WaterLoader active={busy} label={`Squeezing it to ${kb} KB…`} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           {out && (
             <div className="space-y-2">

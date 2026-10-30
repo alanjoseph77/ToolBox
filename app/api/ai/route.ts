@@ -3,10 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// Provider: Anthropic when ANTHROPIC_API_KEY is set, otherwise a free public service that needs no key.
+const HAS_KEY = Boolean(process.env.ANTHROPIC_API_KEY);
 const API_URL = process.env.ANTHROPIC_API_URL || "https://api.anthropic.com/v1/messages";
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-5-5";
+const PUBLIC_TEXT_URL = process.env.AI_PUBLIC_URL || "https://text.pollinations.ai/openai";
+const PUBLIC_IMAGE_URL = process.env.AI_IMAGE_URL || "https://image.pollinations.ai/prompt";
 const MAX_TEXT = 60_000;
 const MAX_IMAGE_B64 = 6_000_000;
+const TIMEOUT_MS = 45_000;
 
 // Basic per-IP limiter (in-memory, per server instance). Replace with accounts/plans in Phase 2.
 const hits = new Map<string, number[]>();
@@ -19,15 +24,44 @@ function limited(ip: string) {
 
 const err = (message: string, status: number) => NextResponse.json({ error: message }, { status });
 
-async function ask(system: string, content: unknown, maxTokens = 2000): Promise<string> {
-  const res = await fetch(API_URL, {
+async function fetchJson(url: string, init: RequestInit) {
+  const res = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
+  if (res.status === 429) throw new Error("The free AI service is busy right now. Please try again in a minute.");
+  if (!res.ok) throw new Error(`AI service error (${res.status}). Please try again.`);
+  return res.json();
+}
+
+/** Sends a prompt (plus an optional image as a data URL) to whichever provider is available. */
+async function ask(system: string, text: string, maxTokens = 2000, imageDataUrl?: string): Promise<string> {
+  if (HAS_KEY) {
+    const m = imageDataUrl?.match(/^data:(image\/[a-z]+);base64,(.*)$/);
+    const content = m ? [{ type: "image", source: { type: "base64", media_type: m[1], data: m[2] } }, { type: "text", text }] : text;
+    const data = await fetchJson(API_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system, messages: [{ role: "user", content }] }),
+    });
+    return (data.content ?? []).filter((b: { type: string }) => b.type === "text").map((b: { text: string }) => b.text).join("").trim();
+  }
+  const user = imageDataUrl ? [{ type: "text", text }, { type: "image_url", image_url: { url: imageDataUrl } }] : text;
+  const data = await fetchJson(PUBLIC_TEXT_URL, {
     method: "POST",
-    headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system, messages: [{ role: "user", content }] }),
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ model: "openai", max_tokens: maxTokens, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
   });
-  if (!res.ok) throw new Error(`AI service error (${res.status})`);
-  const data = await res.json();
-  return (data.content ?? []).filter((b: { type: string }) => b.type === "text").map((b: { text: string }) => b.text).join("").trim();
+  const out = data?.choices?.[0]?.message?.content;
+  if (typeof out !== "string" || !out.trim()) throw new Error("The AI service returned an empty answer. Please try again.");
+  return out.trim();
+}
+
+/** Public image generation (no key): fetched server-side so the browser gets a same-origin data URL. */
+async function generateImage(prompt: string): Promise<string> {
+  const url = `${PUBLIC_IMAGE_URL}/${encodeURIComponent(prompt + ", clean wide background scene, no people, no text")}?width=1280&height=960&nologo=true&seed=${Math.floor(Math.random() * 1e6)}`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+  if (res.status === 429) throw new Error("The free AI service is busy right now. Please try again in a minute.");
+  const type = res.headers.get("content-type") ?? "";
+  if (!res.ok || !type.startsWith("image/")) throw new Error("Could not generate a background right now. Please try again.");
+  return `data:${type.split(";")[0]};base64,${Buffer.from(await res.arrayBuffer()).toString("base64")}`;
 }
 
 /** Keeps only drawing elements from model-generated SVG. */
@@ -42,11 +76,10 @@ function cleanSvg(raw: string) {
 }
 
 export async function GET() {
-  return NextResponse.json({ configured: Boolean(process.env.ANTHROPIC_API_KEY) });
+  return NextResponse.json({ configured: true, provider: HAS_KEY ? "anthropic" : "public" });
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) return err("AI features are not configured on this server yet.", 503);
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
   if (limited(ip)) return err("Hourly AI limit reached. Please try again later.", 429);
 
@@ -73,7 +106,7 @@ export async function POST(req: NextRequest) {
         if (!m) return err("Please upload a JPG, PNG, WebP or GIF image.", 400);
         if (m[2].length > MAX_IMAGE_B64) return err("Image is too large. Try a smaller one.", 413);
         const style = { alt: "Write concise, objective alt text (under 125 characters) for accessibility.", social: "Write 3 engaging social media captions with a few relevant hashtags each.", descriptive: "Write a detailed one-paragraph description." }[body.style as string] ?? "Write one clear caption.";
-        return NextResponse.json({ result: await ask(`You write image captions. ${style} Output only the caption text.`, [{ type: "image", source: { type: "base64", media_type: m[1], data: m[2] } }, { type: "text", text: "Caption this image." }]) });
+        return NextResponse.json({ result: await ask(`You write image captions. ${style} Output only the caption text.`, "Caption this image.", 1000, body.image) });
       }
       case "resume": {
         if (!body.resume || typeof body.resume !== "object") return err("Missing resume data.", 400);
@@ -85,6 +118,7 @@ export async function POST(req: NextRequest) {
       case "background": {
         const prompt = String(body.prompt || "").slice(0, 300);
         if (prompt.trim().length < 3) return err("Describe the background you want.", 400);
+        if (!HAS_KEY) return NextResponse.json({ result: await generateImage(prompt) });
         const raw = await ask("You are an illustrator that outputs a single self-contained SVG scene for use as a photo backdrop. Use viewBox=\"0 0 1600 1200\", rich gradients, soft shapes and depth; keep it tasteful and uncluttered in the centre. No text, no scripts, no external references. Output only the <svg> element.", prompt, 6000);
         return NextResponse.json({ result: cleanSvg(raw) });
       }

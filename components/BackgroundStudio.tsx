@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, loadImage } from "@/lib/files";
 import { removeBg } from "@/lib/bgremoval";
@@ -16,10 +17,6 @@ export default function BackgroundStudio({ ai = false }: { ai?: boolean }) {
   const [prompt, setPrompt] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
-  const [configured, setConfigured] = useState(true);
-
-  useEffect(() => { if (ai) fetch("/api/ai").then((r) => r.json()).then((d) => setConfigured(d.configured)).catch(() => {}); }, [ai]);
-
   useEffect(() => {
     const c = canvasRef.current;
     if (!c || !subject) return;
@@ -41,9 +38,10 @@ export default function BackgroundStudio({ ai = false }: { ai?: boolean }) {
   const generate = async () => {
     setError(""); setStatus("Painting your scene…");
     try {
-      const svg = await callAi<string>({ action: "background", prompt });
-      const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
-      setBg({ kind: "image", img: await loadImage(await (await fetch(url)).blob()) });
+      // The server returns either a generated image (data URL) or, with an Anthropic key, an SVG scene.
+      const out = await callAi<string>({ action: "background", prompt });
+      const blob = out.startsWith("data:") ? await (await fetch(out)).blob() : new Blob([out], { type: "image/svg+xml" });
+      setBg({ kind: "image", img: await loadImage(blob) });
     } catch (e) { setError((e as Error).message); }
     setStatus("");
   };
@@ -53,9 +51,8 @@ export default function BackgroundStudio({ ai = false }: { ai?: boolean }) {
 
   return (
     <div className="space-y-4">
-      {ai && !configured && <p className="rounded-lg bg-neutral-100 p-3 text-sm text-neutral-800">AI scene generation isn&apos;t configured on this server yet (set <code>ANTHROPIC_API_KEY</code>). You can still use colours, gradients and your own images.</p>}
       <Dropzone accept="image/*" onFiles={pick} hint="Upload a photo with a clear subject. The background is removed on your device." />
-      {status && <p className="text-sm text-neutral-500">{status}</p>}
+      <WaterLoader active={!!status} label={status || "Working…"} />
       {error && <p className="text-sm text-red-600">{error}</p>}
       {subject && (
         <div className="grid gap-4 rounded-xl border bg-white p-4 md:grid-cols-2">

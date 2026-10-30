@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { download, formatBytes } from "@/lib/files";
 
@@ -28,7 +29,8 @@ export default function CompressPdf() {
     <div className="space-y-4">
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && run(f[0])} />
       {busy && <p className="text-sm text-neutral-500">Optimising…</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <WaterLoader active={busy} label="Optimising your PDF…" />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       {file && result && (
         <div className="space-y-3 rounded-xl border bg-white p-4">
           <p className="text-sm">{formatBytes(file.size)} → <b>{formatBytes(result.length)}</b> ({saved}% smaller)</p>

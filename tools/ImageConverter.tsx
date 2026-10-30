@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, formatBytes, loadImage } from "@/lib/files";
 
@@ -42,6 +43,7 @@ export default function ImageConverter() {
           <div className="flex gap-2">{targets.map((t) => <button key={t.ext} className={t === target ? "btn !py-1.5" : "btn-ghost !py-1.5"} onClick={() => setTarget(t)}>{t.label}</button>)}</div>
           {target.type !== "image/png" && <div><label className="label">Quality: {quality}%</label><input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(+e.target.value)} className="w-full" /></div>}
           <button className="btn w-full" disabled={busy} onClick={run}>{busy ? "Converting…" : `Convert to ${target.label}`}</button>
+          <WaterLoader active={busy} label="Converting your images…" />
           {done.map((d) => <p key={d.name} className="text-sm text-neutral-600">✓ {d.name} · {formatBytes(d.size)}</p>)}
         </div>
       )}

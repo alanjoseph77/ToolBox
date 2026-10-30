@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PDFDocument } from "pdf-lib-plus-encrypt";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { download } from "@/lib/files";
 
@@ -39,6 +40,7 @@ export default function ProtectPdf() {
           {mismatch && <p className="text-sm text-red-600">Passwords do not match.</p>}
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={restrict} onChange={(e) => setRestrict(e.target.checked)} /> Also block printing, copying and editing</label>
           <button className="btn w-full" disabled={!pw || pw !== pw2 || busy} onClick={run}>{busy ? "Encrypting…" : "Protect PDF"}</button>
+          <WaterLoader active={busy} label="Encrypting your PDF…" />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <p className="text-xs text-neutral-500">Keep this password safe. It can&apos;t be recovered.</p>
         </div>

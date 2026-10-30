@@ -15,15 +15,20 @@ Mobile-first web toolkit. Files are processed in the browser and never uploaded.
 Every tool lives at `/<slug>` (see `lib/tools.ts`). Almost everything runs in the browser; `npm install` copies pdf.js, FFmpeg and Tesseract into `public/vendor`. The background-removal model loads from jsDelivr on first use.
 
 ## AI features
-AI tools call `POST /api/ai`, which needs a server-side key:
+The AI tools work out of the box with **no API key**. `POST /api/ai` uses a free public AI service (text and images) by default, and the text summariser falls back to an on-device summary if that service is busy.
+
+To use Anthropic instead, set these on the server (all optional):
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-...   # required
-ANTHROPIC_MODEL=claude-haiku-5-5  # optional
-AI_HOURLY_LIMIT=30             # optional per-IP limit
+ANTHROPIC_API_KEY=sk-ant-...      # switches the provider to Anthropic
+ANTHROPIC_MODEL=claude-haiku-5-5
+AI_HOURLY_LIMIT=30                # per-IP limit
+AI_PUBLIC_URL=...                 # override the free text endpoint
+AI_IMAGE_URL=...                  # override the free image endpoint
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
-Without a key the AI tools show a notice and everything else keeps working.
+Note: text and images you submit to AI tools are sent to the AI provider, unlike the on-device tools.
 
 ## Stack
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qrcode · jsbarcode

@@ -1,5 +1,6 @@
 "use client";
 import { ReactNode, useEffect, useRef, useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { download, formatBytes } from "@/lib/files";
 import { runFFmpeg } from "@/lib/ffmpeg";
@@ -54,6 +55,7 @@ export default function VideoRunner({ accept = "video/*", outName, mime, args, c
           <video ref={videoRef} src={src} controls className="max-h-60 w-full rounded bg-black" onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)} />
           {controls?.({ video: videoRef.current, duration })}
           <button className="btn w-full" disabled={busy} onClick={run}>{busy ? `Processing… ${Math.round(progress * 100)}%` : cta}</button>
+          <WaterLoader active={busy} progress={progress} label="Processing your video…" hints={["Video runs on your device, so big files take a little longer", "Keep this tab open", "Almost there…"]} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           {out && (
             <div className="space-y-2 border-t pt-3">

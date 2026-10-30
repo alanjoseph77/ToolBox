@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import writeXlsxFile from "write-excel-file/browser";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { download } from "@/lib/files";
 import { openPdf, pageTextItems, toLines } from "@/lib/pdfjs";
@@ -56,8 +57,9 @@ export default function PdfToExcel() {
   return (
     <div className="space-y-4">
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && !busy && run(f[0])} />
-      {status && <p className="text-sm text-neutral-600">{status}</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {!busy && status && <p className="text-sm text-neutral-600">{status}</p>}
+      <WaterLoader active={busy} label={status || "Building your spreadsheet…"} />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       <p className="text-xs text-neutral-500">Works best on PDFs with simple tables (invoices, statements, reports). Text is aligned into columns by position.</p>
     </div>
   );

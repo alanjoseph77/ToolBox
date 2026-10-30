@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { download, formatBytes } from "@/lib/files";
 
@@ -45,7 +46,8 @@ export default function MergePdf() {
           ))}
         </ul>
       )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <WaterLoader active={busy} label="Merging your PDFs…" />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       <button className="btn w-full" disabled={files.length < 2 || busy} onClick={merge}>{busy ? "Merging…" : `Merge ${files.length || ""} PDFs`}</button>
     </div>
   );

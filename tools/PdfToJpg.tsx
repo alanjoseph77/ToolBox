@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download } from "@/lib/files";
 import { openPdf, renderPage } from "@/lib/pdfjs";
@@ -37,8 +38,9 @@ export default function PdfToJpg() {
         </div>
       </div>
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && !busy && run(f[0])} />
-      {name && status && <p className="text-sm text-neutral-600">{name}.pdf: {status}</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {!busy && name && status && <p className="text-sm text-neutral-600">{name}.pdf: {status}</p>}
+      <WaterLoader active={busy} label={status || "Rendering your pages…"} />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       <p className="text-xs text-neutral-500">If your browser asks, allow multiple downloads so every page is saved.</p>
     </div>
   );

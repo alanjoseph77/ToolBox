@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { download } from "@/lib/files";
 import { removeBg } from "@/lib/bgremoval";
@@ -26,7 +27,8 @@ export default function RemoveBackground() {
     <div className="space-y-4">
       <Dropzone accept="image/*" onFiles={run} hint="The AI model runs on your device. First use downloads it (~40 MB)." />
       {busy && <p className="text-sm text-neutral-500">Removing background… the first run can take a minute.</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <WaterLoader active={busy} label="Removing the background…" hints={["First run downloads the AI model (~40 MB)", "Then it is much faster", "Almost there…"]} />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       {src && (
         <div className="grid gap-3 sm:grid-cols-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}

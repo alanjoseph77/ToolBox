@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PDFDocument, degrees } from "pdf-lib";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { download } from "@/lib/files";
 import { openPdf, renderPage } from "@/lib/pdfjs";
@@ -47,7 +48,8 @@ export default function OrganizePdf() {
     <div className="space-y-4">
       <Dropzone accept="application/pdf" onFiles={(f) => f[0] && load(f[0])} />
       {busy && <p className="text-sm text-neutral-500">Loading pages…</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <WaterLoader active={busy} label="Generating page previews…" />
+          {error && <p className="text-sm text-red-600">{error}</p>}
       {items.length > 0 && (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">

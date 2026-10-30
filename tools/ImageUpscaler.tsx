@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, formatBytes, loadImage } from "@/lib/files";
 
@@ -69,6 +70,7 @@ export default function ImageUpscaler() {
           <div><label className="label">Sharpening: {Math.round(sharp * 100)}%</label><input type="range" min={0} max={1} step={0.05} value={sharp} onChange={(e) => setSharp(+e.target.value)} className="w-full" /></div>
           {tooBig && <p className="text-sm text-neutral-700">That would exceed 40 megapixels. Choose a smaller factor.</p>}
           <button className="btn w-full" disabled={busy || tooBig} onClick={run}>{busy ? "Upscaling…" : "Upscale"}</button>
+          <WaterLoader active={busy} label="Upscaling your image…" />
           {error && <p className="text-sm text-red-600">{error}</p>}
           {out && (
             <div className="space-y-2">
