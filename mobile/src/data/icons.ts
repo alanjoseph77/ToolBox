@@ -2,7 +2,7 @@ import {
   Barcode, Binary, Braces, Camera, Clapperboard, Combine, ContactRound, Crop, Droplets, FileArchive, FileImage, FileOutput,
   FileSpreadsheet, FileText, Film, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, Music,
   PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, SquareSplitHorizontal,
-  TextSelect, Type, Wand2, ZoomIn, Split, Wrench, type LucideIcon,
+  TextSelect, Type, Wand2, ZoomIn, Split, Wrench, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, type LucideIcon,
 } from "lucide-react-native";
 
 // Same icon set as the website.
@@ -17,6 +17,22 @@ export const toolIcons: Record<string, LucideIcon> = {
   "video-to-mp3": Music, "video-thumbnail": Camera,
   "json-formatter": Braces, "base64-encoder-decoder": Binary, "url-encoder-decoder": Link2, "uuid-generator": Fingerprint,
   "jwt-decoder": KeyRound, "regex-tester": Regex, "qr-code-generator": QrCode,
+  "alternate-mix-pdf": Shuffle,
+  "split-pdf-in-half": Columns2,
+  "split-pdf-by-size": HardDrive,
+  "split-pdf-by-text": TextSearch,
+  "split-pdf-by-bookmarks": Bookmark,
+  "pdf-to-zip": Archive,
+  "rotate-pdf": RotateCw,
+  "flip-pdf": FlipHorizontal2,
+  "multiple-pages-per-sheet": Grid2x2,
+  "crop-resize-pdf": Maximize,
+  "watermark-pdf": Stamp,
+  "add-page-numbers": ListOrdered,
+  "edit-pdf-details": FileCog,
+  "redact-pdf": EyeOff,
+  "pdf-workflow": Workflow,
+  "scan-to-pdf": ScanLine,
   "word-counter": Type, "password-generator": ShieldCheck, "unit-converter": Ruler, "color-picker": Pipette,
   "barcode-generator": Barcode, "screenshot-editor": SquareSplitHorizontal,
 };

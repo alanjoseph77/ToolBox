@@ -3,11 +3,15 @@ import { randomBytes } from "node:crypto";
 import { b64DecodeUtf8, b64EncodeUtf8, convertUnit, decodeJwt, findMatches, makePassword, wordStats } from "../src/lib/text";
 import { extractPages, jpegsToPdf, mergePdfs, pageCount, parseRanges } from "../src/lib/pdf";
 
+import { readFileSync } from "node:fs";
+
 let pass = 0, fail = 0;
 const ok = (name: string, cond: boolean, extra = "") => { cond ? pass++ : fail++; console.log(`${cond ? "OK  " : "FAIL"} ${name} ${extra}`); };
 const mk = async (n: number) => { const d = await PDFDocument.create(); for (let i = 0; i < n; i++) d.addPage([200, 200]); return d.saveAsBase64(); };
 
 (async () => {
+  // the PDF engine is shared with the website; the copies must stay identical (run scripts/sync-pdfops.mjs)
+  for (const f of ["pdfOps.ts", "zip.ts", "ranges.ts"]) ok(`mobile copy of ${f} matches the website`, readFileSync(`../lib/${f}`, "utf8") === readFileSync(`src/lib/${f}`, "utf8"));
   // PDF
   const merged = await mergePdfs([await mk(2), await mk(3)]);
   ok("merge 2+3 pages", (await pageCount(merged)) === 5, `→ ${await pageCount(merged)}`);

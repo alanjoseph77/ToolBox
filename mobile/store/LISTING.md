@@ -25,7 +25,11 @@ PRIVATE BY DESIGN
 • No watermarks
 
 WORKS OFFLINE (native tools)
-• Merge PDF, split PDF, photos to PDF
+• Merge, split, rotate, flip, crop and resize PDFs
+• Split in half, split by size, PDF to ZIP, alternate and mix pages
+• Add watermarks and page numbers, edit PDF details
+• Scan documents with your camera, photos to PDF
+• Multiple pages per sheet for printing
 • Compress an image to an exact size such as 50 KB or 100 KB
 • Resize images with passport, exam and signature presets
 • Convert images between JPG, PNG and WebP
@@ -34,6 +38,7 @@ WORKS OFFLINE (native tools)
 
 MORE TOOLS (need internet)
 • PDF to Word, PDF to Excel, Word to PDF, PDF OCR, protect and sign PDFs
+• Redact PDFs, split by text or bookmarks, PDF workflow builder
 • Background remover and replacer, passport photo maker with print sheet, image upscaler, image to text (OCR)
 • Video compressor, trimmer, converter, video to GIF and MP3, thumbnails
 
@@ -61,11 +66,11 @@ The app has no accounts, no analytics SDK, no advertising SDK and no tracking.
 - **App Store "Privacy Nutrition Label":** the app itself collects nothing; "Data Not Collected" is accurate for the native tools. Tools that open the website load pages from our host, which keeps ordinary server logs (IP address). If you want to be conservative, declare "Other Diagnostic Data / Not linked to you / Not used for tracking".
 - **Google Play Data safety:** no data shared with third parties; no data collected by the app. Same note about web-tool page loads. Encryption in transit: yes (HTTPS). Users can request deletion: not applicable (no accounts).
 - **Tracking (ATT):** not used. **Ads:** none in the app.
-- **Permissions:** photo library (to choose images). No camera, microphone or location.
+- **Permissions:** photo library (to choose images) and camera (only when you tap "Scan a page"). No microphone or location.
 - **Export compliance:** only standard HTTPS encryption (`ITSAppUsesNonExemptEncryption` is set to false).
 
 ## App review notes (App Store Connect → App Review Information)
-"ToolBox is a collection of file tools. Sixteen tools (PDF merge/split/images-to-PDF, image compress/resize/convert, JSON, Base64, URL, UUID, JWT, regex, QR, word counter, password generator, unit converter) are fully native and work offline. The remaining tools open our website inside the app to run heavier processing (video, OCR, background removal). No login is required. All processing happens on the device."
+"ToolBox is a collection of file tools. 28 tools (PDF merge, split, rotate, flip, crop, watermark, page numbers, document scan, image compress/resize/convert, JSON, Base64, URL, UUID, JWT, regex, QR, word counter, password generator, unit converter) are fully native and work offline. The remaining tools open our website inside the app to run heavier processing (video, OCR, background removal). No login is required. All processing happens on the device."
 
 ## Screenshots
 - iPhone 6.9" (1290 × 2796): `store/screenshots/ios/`

@@ -2,7 +2,7 @@ import {
   Barcode, Binary, Braces, Briefcase, Camera, Clapperboard, Combine, ContactRound, Crop, Eraser, FileArchive, FileImage,
   FileOutput, FileSpreadsheet, FileText, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, MessageSquareText,
   Music, Palette, PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, Sparkles,
-  SpellCheck, SquareSplitHorizontal, TextSelect, Type, Wand2, ZoomIn, Film, Droplets, Split, type LucideIcon,
+  SpellCheck, SquareSplitHorizontal, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, TextSelect, Type, Wand2, ZoomIn, Film, Droplets, Split, type LucideIcon,
 } from "lucide-react";
 import type { Category } from "./tools";
 
@@ -19,6 +19,22 @@ export const toolIcons: Record<string, LucideIcon> = {
   "resume-builder": Briefcase, "ai-background-generator": Palette,
   "json-formatter": Braces, "base64-encoder-decoder": Binary, "url-encoder-decoder": Link2, "uuid-generator": Fingerprint,
   "jwt-decoder": KeyRound, "regex-tester": Regex, "qr-code-generator": QrCode,
+  "alternate-mix-pdf": Shuffle,
+  "split-pdf-in-half": Columns2,
+  "split-pdf-by-size": HardDrive,
+  "split-pdf-by-text": TextSearch,
+  "split-pdf-by-bookmarks": Bookmark,
+  "pdf-to-zip": Archive,
+  "rotate-pdf": RotateCw,
+  "flip-pdf": FlipHorizontal2,
+  "multiple-pages-per-sheet": Grid2x2,
+  "crop-resize-pdf": Maximize,
+  "watermark-pdf": Stamp,
+  "add-page-numbers": ListOrdered,
+  "edit-pdf-details": FileCog,
+  "redact-pdf": EyeOff,
+  "pdf-workflow": Workflow,
+  "scan-to-pdf": ScanLine,
   "word-counter": Type, "password-generator": ShieldCheck, "unit-converter": Ruler, "color-picker": Pipette,
   "barcode-generator": Barcode, "screenshot-editor": SquareSplitHorizontal,
 };

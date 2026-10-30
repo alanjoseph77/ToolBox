@@ -53,7 +53,7 @@
         "expo-image-picker",
         {
           "photosPermission": "ToolBox needs access to your photos so you can compress, resize, convert and turn them into PDFs. Photos stay on your device.",
-          "cameraPermission": false,
+          "cameraPermission": "ToolBox uses the camera only when you tap Scan a page, to photograph documents. Photos stay on your device.",
           "microphonePermission": false
         }
       ]

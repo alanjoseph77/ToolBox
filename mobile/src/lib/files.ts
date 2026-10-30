@@ -5,7 +5,7 @@ import * as ImagePicker from "expo-image-picker";
 
 const UTI: Record<string, string> = {
   "application/pdf": "com.adobe.pdf", "image/jpeg": "public.jpeg", "image/png": "public.png",
-  "image/webp": "org.webmproject.webp", "text/plain": "public.plain-text",
+  "image/webp": "org.webmproject.webp", "text/plain": "public.plain-text", "application/zip": "public.zip-archive",
 };
 
 export const safeName = (n: string) => n.replace(/[^\w.\-]+/g, "_") || "file";
@@ -47,3 +47,14 @@ export async function pickImages(multiple = true) {
   const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsMultipleSelection: multiple, quality: 1 });
   return r.canceled ? [] : r.assets;
 }
+
+/** base64 for raw bytes (chunked so large files do not overflow the call stack). */
+export function bytesToBase64(bytes: Uint8Array): string {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x2000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x2000));
+  return btoa(bin);
+}
+
+export const shareBytes = (name: string, mime: string, bytes: Uint8Array) => shareBase64(name, mime, bytesToBase64(bytes));
+
+export const outName = (original: string, suffix: string, ext = "pdf") => original.replace(/\.[^.]+$/, "") + suffix + "." + ext;

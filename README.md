@@ -4,7 +4,7 @@ An [Otaga](https://otaga.in) product.
 
 Mobile-first web toolkit. Files are processed in the browser and never uploaded.
 
-## Tools (41 visible)
+## Tools (57 visible)
 | Category | Tools |
 |---|---|
 | PDF | Merge, Split, Compress, JPG to PDF, Organize pages, PDF to JPG, Protect, Sign, PDF to Word, PDF to Excel, Word to PDF, PDF OCR, PDF summariser (AI) |
@@ -63,6 +63,9 @@ NEXT_PUBLIC_MONETAG_VERIFICATION=...     # site-ownership meta tag value
 
 ## Mobile app
 An Expo / React Native app for iOS and Android lives in [`mobile/`](mobile/README.md). It has native screens for 16 core tools and opens the rest of the website tools inside the app.
+
+## Acknowledgements
+The extra PDF tools (alternate and mix, split in half / by size / by text / by bookmarks, multiple pages per sheet, crop and resize, flip, watermark, page numbers, redact, workflow builder and scan to PDF) were inspired by the feature list of [sammyZi/pdf-tools](https://github.com/sammyZi/pdf-tools) (MIT licence), an Android PDF app. They are written from scratch in TypeScript for the web and Expo; no code was copied.
 
 ## Stack
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qrcode · jsbarcode

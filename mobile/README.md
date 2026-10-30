@@ -3,8 +3,8 @@
 iOS and Android app for [ToolBox](https://toolbox.otaga.in), an [Otaga](https://otaga.in) product.
 
 ## How it is built
-- **16 native tools** that work offline: Merge PDF, Split PDF, JPG to PDF, Compress Image (exact KB), Resize Image, Image Converter, JSON Formatter, Base64, URL Encoder, UUID, JWT Decoder, Regex Tester, QR Code, Word Counter, Password Generator, Unit Converter.
-- **25 more tools** open the website tool inside the app (`react-native-webview`). Downloads from the website are passed to the phone's share sheet ("Save to Files", Drive, WhatsApp, ...). The site detects the app (`ToolBoxApp` in the user agent) and hides its header, footer and ads.
+- **28 native tools** that work offline: Merge, Split, Split in Half, Split by Size, PDF to ZIP, Rotate, Flip, Multiple Pages per Sheet, Crop & Resize, Watermark, Page Numbers, Edit PDF Details, Alternate & Mix, JPG to PDF and Scan to PDF (camera); Compress Image (exact KB), Resize Image, Image Converter; JSON, Base64, URL, UUID, JWT, Regex, QR; Word Counter, Password Generator, Unit Converter.
+- **29 more tools** open the website tool inside the app (`react-native-webview`). Downloads from the website are passed to the phone's share sheet ("Save to Files", Drive, WhatsApp, ...). The site detects the app (`ToolBoxApp` in the user agent) and hides its header, footer and ads.
 - Expo SDK 58, `expo-router`, TypeScript, `pdf-lib` for PDFs, `expo-image-manipulator` for images.
 - Heavy tools (video, OCR, background removal) are not ported natively because they rely on browser-only engines (FFmpeg.wasm, Tesseract, ONNX).
 
