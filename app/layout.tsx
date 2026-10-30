@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { tools } from "@/lib/tools";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://toolbox.example";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: { default: "ToolBox – All Your Tools in One Place", template: "%s | ToolBox" },
   description: "Merge, split and compress PDFs, compress and resize images, remove backgrounds, edit videos and more. Free, private, no signup.",
   applicationName: "ToolBox",
-  openGraph: { type: "website", siteName: "ToolBox", title: "ToolBox – All Your Tools in One Place", description: "47 free, private tools for PDFs, images, video and more." },
+  openGraph: { type: "website", siteName: "ToolBox", title: "ToolBox – All Your Tools in One Place", description: `${tools.length} free, private tools for PDFs, images, video and more.` },
 };
 
 export const viewport: Viewport = {

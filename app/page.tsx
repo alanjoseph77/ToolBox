@@ -2,6 +2,7 @@ import { Gauge, IndianRupee, ShieldCheck, Smartphone, Sparkles, UserX, type Luci
 import Link from "next/link";
 import ToolSearch from "@/components/ToolSearch";
 import ToolBrowser from "@/components/ToolBrowser";
+import { tools } from "@/lib/tools";
 
 const features: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: ShieldCheck, title: "Private by design", text: "Files are processed on your device and never uploaded." },
@@ -14,7 +15,7 @@ export default function Home() {
   return (
     <div className="space-y-14">
       <section className="relative -mt-4 px-0 pb-4 pt-12 text-center">
-        <p className="mx-auto mb-5 inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-neutral-800 dark:border-neutral-700 dark:bg-black dark:text-neutral-200"><Sparkles className="h-3.5 w-3.5" /> 47 free tools · 100% private · AI powered</p>
+        <p className="mx-auto mb-5 inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-neutral-800 dark:border-neutral-700 dark:bg-black dark:text-neutral-200"><Sparkles className="h-3.5 w-3.5" /> {tools.length} free tools · 100% private · no sign-up</p>
         <h1 className="mx-auto max-w-3xl animate-fade-up text-4xl font-extrabold tracking-tight sm:text-6xl">
           All your tools <span className="gradient-text">in one place</span>
         </h1>

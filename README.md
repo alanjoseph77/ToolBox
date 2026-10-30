@@ -2,7 +2,7 @@
 
 Mobile-first web toolkit. Files are processed in the browser and never uploaded.
 
-## Tools (47)
+## Tools (41 visible)
 | Category | Tools |
 |---|---|
 | PDF | Merge, Split, Compress, JPG to PDF, Organize pages, PDF to JPG, Protect, Sign, PDF to Word, PDF to Excel, Word to PDF, PDF OCR, PDF summariser (AI) |
@@ -14,7 +14,9 @@ Mobile-first web toolkit. Files are processed in the browser and never uploaded.
 
 Every tool lives at `/<slug>` (see `lib/tools.ts`). Almost everything runs in the browser; `npm install` copies pdf.js, FFmpeg and Tesseract into `public/vendor`. The background-removal model loads from jsDelivr on first use.
 
-## AI features
+## AI features (hidden by default)
+The AI tools (text summariser, grammar corrector, image captions, resume builder, AI background generator, PDF summariser) are hidden from the site. Set `NEXT_PUBLIC_ENABLE_AI=true` and redeploy to show them again.
+
 The AI tools work out of the box with **no API key**. `POST /api/ai` uses a free public AI service (text and images) by default, and the text summariser falls back to an on-device summary if that service is busy.
 
 To use Anthropic instead, set these on the server (all optional):

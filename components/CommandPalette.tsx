@@ -43,7 +43,7 @@ export default function CommandPalette() {
           <div className="card w-full max-w-xl animate-pop overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 border-b px-4 dark:border-neutral-700">
               <Search className="h-5 w-5 text-neutral-400" />
-              <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search 47 tools…"
+              <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${tools.length} tools…`}
                 className="h-14 flex-1 bg-transparent text-base outline-none ring-0 placeholder:text-neutral-400 focus-visible:!ring-0 focus-visible:!ring-offset-0"
                 onKeyDown={(e) => {
                   if (e.key === "ArrowDown") { e.preventDefault(); setIdx((i) => Math.min(i + 1, results.length - 1)); }
