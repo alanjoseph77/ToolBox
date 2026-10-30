@@ -7,6 +7,7 @@ import { categorySeo } from "@/lib/seo";
 import { BRAND, SITE } from "@/lib/site";
 import ToolCard from "@/components/ToolCard";
 import JsonLd from "@/components/JsonLd";
+import AdSlot from "@/components/AdSlot";
 
 export const dynamicParams = false;
 const bySlug = (slug: string) => categories.find((c) => categorySeo[c]?.slug === slug) as Category | undefined;
@@ -46,6 +47,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{seo.h1}</h1>
       <p className="mt-3 max-w-3xl leading-relaxed text-neutral-600">{seo.intro}</p>
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{list.map((t) => <ToolCard key={t.slug} tool={t} />)}</div>
+      <AdSlot />
       <div className="mt-12 flex flex-wrap gap-2">
         <span className="text-sm text-neutral-500">More tools:</span>
         {categories.filter((x) => x !== c).map((x) => <Link key={x} href={`/tools/${categorySeo[x].slug}`} className="chip !py-1 text-xs">{categorySeo[x].h1}</Link>)}

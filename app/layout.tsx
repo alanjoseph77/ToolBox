@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { tools } from "@/lib/tools";
 import { BRAND, SITE } from "@/lib/site";
 import JsonLd from "@/components/JsonLd";
+import AdSense from "@/components/AdSense";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
+        <AdSense />
         <Header />
         <main id="main" className="mx-auto max-w-6xl px-4 py-8">{children}</main>
         <Footer />

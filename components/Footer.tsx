@@ -24,7 +24,10 @@ export default function Footer() {
             </div>
           ))}
         </div>
-        <p className="mt-10 border-t border-neutral-200 pt-6 text-center text-xs text-neutral-400 dark:border-neutral-800">© {new Date().getFullYear()} ToolBox · Made by <a href="https://otaga.in" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-white">Otaga</a> · Made in India 🇮🇳</p>
+        <nav aria-label="Legal" className="mt-10 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t border-neutral-200 pt-6 text-sm text-neutral-500 dark:border-neutral-800">
+          {[["About", "/about"], ["Contact", "/contact"], ["Privacy Policy", "/privacy"], ["Terms of Use", "/terms"]].map(([l, h]) => <Link key={h} href={h} className="hover:text-black dark:hover:text-white">{l}</Link>)}
+        </nav>
+        <p className="mt-6 text-center text-xs text-neutral-400">© {new Date().getFullYear()} ToolBox · Made by <a href="https://otaga.in" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-white">Otaga</a> · Made in India 🇮🇳</p>
       </div>
     </footer>
   );

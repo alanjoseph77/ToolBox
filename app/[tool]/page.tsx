@@ -11,6 +11,7 @@ import ToolIcon from "@/components/ToolIcon";
 import ToolCard from "@/components/ToolCard";
 import RecordVisit from "@/components/RecordVisit";
 import JsonLd from "@/components/JsonLd";
+import AdSlot from "@/components/AdSlot";
 
 export const dynamicParams = false;
 export const generateStaticParams = () => tools.map((t) => ({ tool: t.slug }));
@@ -109,6 +110,8 @@ export default function ToolPage({ params }: { params: { tool: string } }) {
           </div>
         ))}
       </section>
+
+      <AdSlot />
 
       {seo && (
         <section aria-label="Frequently asked questions" className="mt-12">

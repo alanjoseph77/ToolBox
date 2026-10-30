@@ -41,6 +41,17 @@ Note: text and images you submit to AI tools are sent to the AI provider, unlike
 - Set `NEXT_PUBLIC_SITE_URL` (for example `https://toolbox.otaga.in`) in Vercel so canonical links and the sitemap use your real domain.
 - Optional: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and `NEXT_PUBLIC_BING_SITE_VERIFICATION` add the verification tags for Google Search Console and Bing Webmaster Tools.
 
+## Ads (Google AdSense)
+Ads are off by default. Once your AdSense account is approved, set these in Vercel and redeploy:
+
+```bash
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-XXXXXXXXXXXXXXXX   # your publisher id
+NEXT_PUBLIC_ADSENSE_SLOT=XXXXXXXXXX                  # a display ad unit id
+NEXT_PUBLIC_CONTACT_EMAIL=you@example.com            # shown on the Contact and Privacy pages
+```
+
+`/ads.txt` is generated from the publisher id. Ad units appear below the tool (never next to upload or download buttons), on category pages and on the home page. About, Contact, Privacy and Terms pages are included, as AdSense requires them.
+
 ## Stack
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · pdf-lib · pdf.js · qrcode · jsbarcode
 
