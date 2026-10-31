@@ -82,6 +82,8 @@ After a tool saves a file, a "Keep going" bar offers the next tools (resize, the
 
 New tools in this release: HEIC to JPG, Signature Maker, UPI QR Generator, Remove Photo Details (EXIF), Fill PDF Form, Mask Aadhaar, EMI Calculator, GST Calculator, Hash Generator, Text Case Converter and Image Pipeline. Also new: Blur Face & Private Areas, Meme Generator, HTML to Image, Compare PDF and PDF to Markdown. HTML to Image takes pasted HTML (scripts ignored, other sites' pictures and fonts not loaded); Compare PDF and PDF to Markdown need PDFs with selectable text. On mobile these five open the website inside the app. Mask Aadhaar reads text automatically and can miss digits, so always check the result before sharing.
 
+Audio tools: Audio Converter (MP3, M4A, WAV, FLAC), Audio Trimmer, Audio Compressor, Merge Audio, Audio Speed Changer and Voice Recorder. They run on the same on-device FFmpeg engine as the video tools. On mobile they open the website inside the app.
+
 Add a tool by registering it in `lib/tools.ts`, creating `tools/<Name>.tsx`, and mapping it in `components/ToolRunner.tsx`.
 
 ## Roadmap

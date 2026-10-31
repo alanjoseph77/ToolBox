@@ -5,7 +5,7 @@ import Dropzone from "@/components/Dropzone";
 import { download, formatBytes } from "@/lib/files";
 import { runFFmpeg } from "@/lib/ffmpeg";
 
-export interface VideoCtx { video: HTMLVideoElement | null; duration: number }
+export interface VideoCtx { video: HTMLMediaElement | null; duration: number }
 
 interface Props {
   accept?: string;
@@ -15,9 +15,11 @@ interface Props {
   controls?: (ctx: VideoCtx) => ReactNode;
   cta: string;
   result?: "video" | "audio" | "image";
+  /** What the user adds: audio files get an audio player instead of a video player. */
+  media?: "video" | "audio";
 }
 
-export default function VideoRunner({ accept = "video/*", outName, mime, args, controls, cta, result = "video" }: Props) {
+export default function VideoRunner({ accept = "video/*", outName, mime, args, controls, cta, result = "video", media = "video" }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [src, setSrc] = useState("");
   const [duration, setDuration] = useState(0);
@@ -25,7 +27,7 @@ export default function VideoRunner({ accept = "video/*", outName, mime, args, c
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [out, setOut] = useState<{ blob: Blob; url: string; name: string } | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLMediaElement>(null);
 
   useEffect(() => () => { if (src) URL.revokeObjectURL(src); }, [src]);
 
@@ -47,15 +49,17 @@ export default function VideoRunner({ accept = "video/*", outName, mime, args, c
 
   return (
     <div className="space-y-4">
-      <Dropzone accept={accept} onFiles={pick} hint="Processed on your device. Large videos can take a few minutes on a phone." />
+      <Dropzone accept={accept} onFiles={pick} hint={media === "audio" ? "Processed on your device. Nothing is uploaded." : "Processed on your device. Large videos can take a few minutes on a phone."} />
       {file && (
         <div className="space-y-3 rounded-xl border bg-white p-4">
           <p className="text-sm">{file.name} · {formatBytes(file.size)}{duration ? ` · ${duration.toFixed(1)}s` : ""}</p>
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-          <video ref={videoRef} src={src} controls className="max-h-60 w-full rounded bg-black" onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)} />
+          {media === "audio"
+            ? <audio ref={videoRef as React.RefObject<HTMLAudioElement>} src={src} controls className="w-full" onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)} />
+            : <video ref={videoRef as React.RefObject<HTMLVideoElement>} src={src} controls className="max-h-60 w-full rounded bg-black" onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)} />}
           {controls?.({ video: videoRef.current, duration })}
           <button className="btn w-full" disabled={busy} onClick={run}>{busy ? `Processing… ${Math.round(progress * 100)}%` : cta}</button>
-          <WaterLoader active={busy} progress={progress} label="Processing your video…" hints={["Video runs on your device, so big files take a little longer", "Keep this tab open", "Almost there…"]} />
+          <WaterLoader active={busy} progress={progress} label={media === "audio" ? "Processing your audio…" : "Processing your video…"} hints={media === "audio" ? ["Audio is processed on your device", "Keep this tab open", "Almost there…"] : ["Video runs on your device, so big files take a little longer", "Keep this tab open", "Almost there…"]} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           {out && (
             <div className="space-y-2 border-t pt-3">

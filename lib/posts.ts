@@ -85,6 +85,28 @@ export const posts: Post[] = [
       { h: "Tips", ul: ["Pixelate hides detail more strongly than blur. Use a high strength on small plates.", "Blurred areas are changed in the saved file, so the detail cannot be brought back from it.", "Keep your original photo in a safe place in case you need it."] },
     ],
   },
+  {
+    slug: "make-ringtone-from-mp3", metaTitle: "Make a Ringtone from Any MP3", date: "2026-11-02", tool: "audio-trimmer",
+    title: "How to make a ringtone from a song or any MP3",
+    description: "Cut your favourite part of a song into a short clip and use it as a ringtone. Free, on your own device.",
+    body: [
+      { p: "Ringtones are short, so you only need the best 20 to 30 seconds of a song. Here is how to cut that part out." },
+      { h: "Steps", ul: ["Open Audio Trimmer and add the song.", "Play it and press Use current position at the start and the end of the part you want.", "Press Trim audio and download the clip."] },
+      { h: "Set it as your ringtone", ul: ["Android: copy the clip to your phone, then open Settings, Sound and choose it as your ringtone.", "iPhone: ringtones need a special format, so use a ringtone app or GarageBand for the last step."] },
+      { h: "Good to know", ul: ["Trimming does not re-encode the audio, so the quality stays the same.", "Only use music that you have the right to use.", "Your file stays on your device."] },
+    ],
+  },
+  {
+    slug: "reduce-mp3-file-size", metaTitle: "How to Reduce MP3 File Size", date: "2026-11-02", tool: "audio-compressor",
+    title: "How to reduce the size of an MP3 or voice recording",
+    description: "Make audio files small enough to email or upload by lowering the bitrate, with tips for voice notes and lectures.",
+    body: [
+      { p: "Audio files are mostly limited by their bitrate. Lowering it makes the file smaller, at some cost to detail." },
+      { h: "Steps", ul: ["Open Audio Compressor and add your file.", "Choose a lower quality, such as 96 kbps. For speech, tick Mono.", "Press Compress audio, listen to the result, then download."] },
+      { h: "Rough guide", ul: ["320 kbps: best quality, biggest file.", "128 kbps: good for most music.", "64 to 96 kbps: fine for voice notes, lectures and podcasts.", "48 kbps mono: smallest, for speech only."] },
+      { h: "Tip", p: "A WAV recording can shrink more than ten times when it becomes an MP3. If you only need part of a recording, trim it first with Audio Trimmer." },
+    ],
+  },
 ];
 
 export const postBySlug = (s: string) => posts.find((p) => p.slug === s);

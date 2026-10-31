@@ -36,6 +36,7 @@ const steps: Record<string, [string, string, string, string]> = {
   PDF: ["Add your PDF", "Choose a file from your phone or computer. It never leaves your device.", "Adjust and run", "Pick your options, then tap the main button."],
   Image: ["Add your image", "Choose a photo or drop one in. It stays on your device.", "Adjust and run", "Set size, format or area, then tap the main button."],
   Video: ["Add your video", "Choose a clip. It is processed locally in your browser.", "Adjust and run", "Pick quality or timing, then start. Long videos take a moment."],
+  Audio: ["Add your audio", "Choose a file or record one. It is processed on your device.", "Adjust and run", "Pick your options, then tap the main button."],
   AI: ["Add your content", "Paste text or add an image. Only what the AI needs is sent.", "Generate", "Review the result, then copy or download it."],
   Developer: ["Paste your input", "Everything runs in your browser. Nothing is sent anywhere.", "Get the result", "Copy it with one tap."],
   Utility: ["Enter or add your data", "All calculations happen right in your browser.", "Use the result", "Copy it or download it."],

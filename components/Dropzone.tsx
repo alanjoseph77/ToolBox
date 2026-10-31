@@ -10,7 +10,7 @@ const fits = (f: File, accept: string) => {
   const t = f.type ? "" : EXT_TYPES[f.name.split(".").pop()?.toLowerCase() ?? ""];
   return !!t && matchesAccept(new File([], f.name, { type: t }), accept);
 };
-const wanted = (accept: string) => /pdf/.test(accept) && /image/.test(accept) ? "a PDF or an image" : /pdf/.test(accept) ? "a PDF" : /image/.test(accept) ? "an image (JPG, PNG or WebP)" : /video/.test(accept) ? "a video" : /heic/.test(accept) ? "a HEIC photo" : /docx/.test(accept) ? "a Word (.docx) file" : "a supported file";
+const wanted = (accept: string) => /pdf/.test(accept) && /image/.test(accept) ? "a PDF or an image" : /pdf/.test(accept) ? "a PDF" : /image/.test(accept) ? "an image (JPG, PNG or WebP)" : /audio/.test(accept) && /video/.test(accept) ? "an audio or video file" : /audio/.test(accept) ? "an audio file" : /video/.test(accept) ? "a video" : /heic/.test(accept) ? "a HEIC photo" : /docx/.test(accept) ? "a Word (.docx) file" : "a supported file";
 
 export default function Dropzone({ accept, multiple, onFiles, hint }: {
   accept: string; multiple?: boolean; hint?: string; onFiles: (files: File[]) => unknown;

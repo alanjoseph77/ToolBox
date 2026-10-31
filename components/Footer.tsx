@@ -27,7 +27,7 @@ export default function Footer() {
         <nav aria-label="Site" className="mt-10 grid grid-cols-2 gap-6 border-t border-neutral-200 pt-8 text-sm sm:grid-cols-4 dark:border-neutral-800">
           {([
             ["Product", [["Home", "/"], ["Features", "/features"], ["Pricing", "/pricing"], ["Tools", "/#all"], ["FAQ", "/faq"]]],
-            ["Resources", [["PDF tools", "/tools/pdf"], ["Image tools", "/tools/image"], ["Video tools", "/tools/video"], ["Developer tools", "/tools/developer"], ["Utility tools", "/tools/utility"]]],
+            ["Resources", [["PDF tools", "/tools/pdf"], ["Image tools", "/tools/image"], ["Video tools", "/tools/video"], ["Audio tools", "/tools/audio"], ["Developer tools", "/tools/developer"], ["Utility tools", "/tools/utility"]]],
             ["Legal", [["Privacy policy", "/privacy"], ["Terms & conditions", "/terms"], ["Cookies", "/cookies"]]],
             ["Company", [["About us", "/about"], ["Contact us", "/contact"], ["Blog", "/blog"], ["Press", "/press"]]],
           ] as [string, string[][]][]).map(([h, links]) => (

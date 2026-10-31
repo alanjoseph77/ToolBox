@@ -43,3 +43,16 @@ export async function runFFmpeg(file: File, args: (input: string) => string[], o
   await ff.deleteFile(outName).catch(() => {});
   return new Blob([data as BlobPart], { type: mime });
 }
+
+/** Runs ffmpeg with several input files (in order) and returns the named output as a Blob. */
+export async function runFFmpegMany(files: File[], args: (inputs: string[]) => string[], outName: string, mime: string, onProgress?: (p: number) => void): Promise<Blob> {
+  const ff = await getFFmpeg(onProgress);
+  const names = files.map((f, i) => `input${i}` + (f.name.match(/\.[^.]+$/)?.[0] ?? ""));
+  for (let i = 0; i < files.length; i++) await ff.writeFile(names[i], new Uint8Array(await files[i].arrayBuffer()));
+  const code = await ff.exec(args(names));
+  if (code !== 0) throw new Error("Processing failed. One of the files may not be supported.");
+  const data = await ff.readFile(outName);
+  for (const n of names) await ff.deleteFile(n).catch(() => {});
+  await ff.deleteFile(outName).catch(() => {});
+  return new Blob([data as BlobPart], { type: mime });
+}

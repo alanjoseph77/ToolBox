@@ -1,4 +1,4 @@
-export type Category = "PDF" | "Image" | "Video" | "Developer" | "Utility";
+export type Category = "PDF" | "Image" | "Video" | "Audio" | "Developer" | "Utility";
 
 export interface ToolDef {
   slug: string;
@@ -10,7 +10,7 @@ export interface ToolDef {
   keywords?: string;
 }
 
-export const categories: Category[] = ["PDF", "Image", "Video", "Developer", "Utility"];
+export const categories: Category[] = ["PDF", "Image", "Video", "Audio", "Developer", "Utility"];
 
 export const tools: ToolDef[] = [
   // PDF
@@ -64,6 +64,13 @@ export const tools: ToolDef[] = [
   { slug: "compare-pdf", name: "Compare PDF", description: "Text differences between two PDFs.", category: "PDF", native: false },
   { slug: "pdf-to-markdown", name: "PDF to Markdown", description: "Turn a PDF into Markdown.", category: "PDF", native: false },
   { slug: "mask-aadhaar", name: "Mask Aadhaar", description: "Cover the first 8 digits.", category: "Image", native: false },
+  // Audio
+  { slug: "audio-converter", name: "Audio Converter", description: "Convert audio to MP3, WAV and more.", category: "Audio", native: false },
+  { slug: "audio-trimmer", name: "Audio Trimmer", description: "Cut an audio clip.", category: "Audio", native: false },
+  { slug: "audio-compressor", name: "Audio Compressor", description: "Make audio files smaller.", category: "Audio", native: false },
+  { slug: "merge-audio", name: "Merge Audio", description: "Join audio files into one.", category: "Audio", native: false },
+  { slug: "audio-speed-changer", name: "Audio Speed Changer", description: "Faster or slower, same pitch.", category: "Audio", native: false },
+  { slug: "voice-recorder", name: "Voice Recorder", description: "Record and save your voice.", category: "Audio", native: false },
   // Video
   { slug: "video-compressor", name: "Video Compressor", description: "Shrink video file size.", category: "Video", native: false },
   { slug: "video-trimmer", name: "Video Trimmer", description: "Cut a clip from a video.", category: "Video", native: false },

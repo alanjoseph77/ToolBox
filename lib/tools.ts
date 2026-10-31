@@ -1,4 +1,4 @@
-export type Category = "PDF" | "Image" | "Video" | "AI" | "Developer" | "Utility";
+export type Category = "PDF" | "Image" | "Video" | "Audio" | "AI" | "Developer" | "Utility";
 
 // AI tools are hidden unless NEXT_PUBLIC_ENABLE_AI=true (their code stays in the repo).
 export const AI_ENABLED = process.env.NEXT_PUBLIC_ENABLE_AI === "true";
@@ -54,6 +54,12 @@ const allTools: ToolMeta[] = [
   { slug: "video-to-gif", name: "Video to GIF", description: "Turn a moment from a video into an animated GIF.", category: "Video", keywords: ["gif", "animated"] },
   { slug: "video-to-mp3", name: "Video to MP3", description: "Extract the audio track from any video as an MP3.", category: "Video", keywords: ["audio", "mp3", "extract"] },
   { slug: "video-thumbnail", name: "Video Thumbnail Generator", description: "Capture the perfect frame from a video as a JPG.", category: "Video", keywords: ["thumbnail", "frame", "screenshot"] },
+  { slug: "audio-converter", name: "Audio Converter", description: "Convert audio to MP3, M4A, WAV or FLAC. Works on your device.", category: "Audio", popular: true, keywords: ["mp3", "wav", "m4a", "flac", "convert audio"] },
+  { slug: "audio-trimmer", name: "Audio Trimmer", description: "Cut an audio clip by start and end time. Good for ringtones.", category: "Audio", keywords: ["cut", "ringtone", "crop audio", "mp3 cutter"] },
+  { slug: "audio-compressor", name: "Audio Compressor", description: "Make audio files smaller by lowering the bitrate.", category: "Audio", keywords: ["reduce size", "mp3", "bitrate", "shrink"] },
+  { slug: "merge-audio", name: "Merge Audio", description: "Join several audio files into one MP3, in the order you choose.", category: "Audio", keywords: ["join", "combine", "mp3 joiner"] },
+  { slug: "audio-speed-changer", name: "Audio Speed Changer", description: "Speed audio up or slow it down without changing the pitch.", category: "Audio", keywords: ["tempo", "faster", "slower", "playback speed"] },
+  { slug: "voice-recorder", name: "Voice Recorder", description: "Record your voice in the browser and save it as a file or MP3.", category: "Audio", keywords: ["microphone", "record audio", "mic"] },
   { slug: "text-summarizer", name: "Text Summarizer", description: "Condense long text into a clear summary with AI.", category: "AI", keywords: ["summary", "ai", "tldr"] },
   { slug: "grammar-corrector", name: "Grammar Corrector", description: "Fix grammar, spelling and tone with AI.", category: "AI", keywords: ["grammar", "spelling", "proofread"] },
   { slug: "image-caption-generator", name: "Image Caption Generator", description: "AI captions, alt text and hashtags for any picture.", category: "AI", keywords: ["caption", "alt text", "instagram"] },
@@ -97,5 +103,5 @@ const allTools: ToolMeta[] = [
 
 const isAi = (t: ToolMeta) => t.category === "AI" || AI_SLUGS.has(t.slug);
 export const tools: ToolMeta[] = AI_ENABLED ? allTools : allTools.filter((t) => !isAi(t));
-export const categories: Category[] = (["PDF", "Image", "Video", "AI", "Developer", "Utility"] as Category[]).filter((c) => tools.some((t) => t.category === c));
+export const categories: Category[] = (["PDF", "Image", "Video", "Audio", "AI", "Developer", "Utility"] as Category[]).filter((c) => tools.some((t) => t.category === c));
 export const getTool = (slug: string) => tools.find((t) => t.slug === slug);
