@@ -15,4 +15,4 @@ export const MONETAG_ZONE = process.env.NEXT_PUBLIC_MONETAG_ZONE ?? "12155431";
 export const MONETAG_SRC = "https://n6wxm.com/vignette.min.js";
 // By default the banner never runs on tool pages, so it cannot cover an upload or download.
 export const MONETAG_ON_TOOLS = process.env.NEXT_PUBLIC_MONETAG_ON_TOOLS === "true";
-export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "";
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "otaga@otaga.in";
