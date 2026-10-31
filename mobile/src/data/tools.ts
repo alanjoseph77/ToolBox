@@ -58,6 +58,11 @@ export const tools: ToolDef[] = [
   { slug: "heic-to-jpg", name: "HEIC to JPG", description: "Convert iPhone photos.", category: "Image", native: true },
   { slug: "signature-maker", name: "Signature Maker", description: "Draw a transparent PNG signature.", category: "Image", native: true },
   { slug: "remove-photo-details", name: "Remove Photo Details", description: "Strip location and camera data.", category: "Image", native: true },
+  { slug: "blur-face", name: "Blur Face & Private Areas", description: "Blur faces and private details.", category: "Image", native: false },
+  { slug: "meme-generator", name: "Meme Generator", description: "Add text to any picture.", category: "Image", native: false },
+  { slug: "html-to-image", name: "HTML to Image", description: "Turn HTML into a picture.", category: "Image", native: false },
+  { slug: "compare-pdf", name: "Compare PDF", description: "Text differences between two PDFs.", category: "PDF", native: false },
+  { slug: "pdf-to-markdown", name: "PDF to Markdown", description: "Turn a PDF into Markdown.", category: "PDF", native: false },
   { slug: "mask-aadhaar", name: "Mask Aadhaar", description: "Cover the first 8 digits.", category: "Image", native: false },
   // Video
   { slug: "video-compressor", name: "Video Compressor", description: "Shrink video file size.", category: "Video", native: false },

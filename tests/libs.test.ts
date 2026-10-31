@@ -5,6 +5,10 @@ import { hashHex, md5, hashNames } from "../lib/hash";
 import { buildUpiLink, isVpa } from "../lib/upi";
 import { fillForm, listFields } from "../lib/pdfForms";
 import { findAadhaarBoxes, type Word } from "../lib/aadhaar";
+import { obscure } from "../lib/blur";
+import { fitFont, wrapText } from "../lib/meme";
+import { diffLines, sideBySide } from "../lib/diff";
+import { pagesToMarkdown } from "../lib/pdfMarkdown";
 
 let pass = 0, fail = 0;
 const ok = (name: string, cond: boolean, extra = "") => { cond ? pass++ : fail++; console.log(`${cond ? "OK  " : "FAIL"} ${name} ${extra}`); };
@@ -86,6 +90,47 @@ const enc = (s: string) => new TextEncoder().encode(s);
   ok("groups on different lines are not joined", findAadhaarBoxes([W("1234", 100, 100, 190, 140), W("5678", 220, 300, 310, 340), W("9012", 340, 500, 430, 540)]).length === 0);
   const a4 = findAadhaarBoxes([W("1234", 100), W("5678", 220), W("9012", 340), W("VID", 10, 300, 60, 340), W("1111", 100, 300), W("2222", 220, 300), W("3333", 340, 300)]);
   ok("two numbers on one card", a4.length === 2);
+  // Blur / pixelate
+  {
+    const mk = (w: number, h: number) => { const d = new Uint8ClampedArray(w * h * 4); for (let i = 0; i < w * h; i++) { const v = (i % w) % 2 ? 255 : 0; d.set([v, v, v, 255], i * 4); } return { data: d, width: w, height: h }; };
+    const a = mk(40, 40), before = Array.from(a.data);
+    obscure(a, { x: 10, y: 10, w: 20, h: 20 }, "blur", 5);
+    const inside = a.data[(20 * 40 + 20) * 4], outside = a.data[(5 * 40 + 5) * 4] === before[(5 * 40 + 5) * 4];
+    ok("blur smooths the stripes inside the area", inside > 60 && inside < 200, `(value ${inside})`);
+    ok("blur leaves the rest untouched", outside);
+    const b = mk(40, 40); obscure(b, { x: 0, y: 0, w: 40, h: 40 }, "pixelate", 10);
+    ok("pixelate makes blocks of one colour", b.data[0] === b.data[4] && b.data[0] === b.data[(1 * 40 + 1) * 4]);
+    const c = mk(40, 40); obscure(c, { x: 0, y: 0, w: 40, h: 40 }, "blur", 5, true);
+    ok("round shape keeps the corners", c.data[0] === 0 && c.data[4] === 255);
+    ok("area outside the image is ignored", obscure(mk(10, 10), { x: 50, y: 50, w: 5, h: 5 }, "blur", 5) === false);
+  }
+  // Meme text fitting
+  {
+    const m = (s: string) => s.length * 10;
+    const lines = wrapText(m, "ONE DOES NOT SIMPLY WALK", 100);
+    ok("meme text wraps within the width", lines.every((l) => m(l) <= 100) && lines.length >= 3, JSON.stringify(lines));
+    const f = fitFont((size) => (s) => s.length * size * 0.5, "WHEN THE CODE WORKS ON THE FIRST TRY", 300, 60, 60);
+    ok("meme font shrinks to fit the box", f.size < 60 && f.lines.length * f.size * 1.12 <= 60, `(size ${f.size}, ${f.lines.length} lines)`);
+  }
+  // Diff
+  {
+    const ops = diffLines(["a", "b", "c", "d"], ["a", "x", "c", "d", "e"])!;
+    ok("diff finds one change and one addition", ops.filter((o) => o.type === "del").map((o) => o.text).join() === "b" && ops.filter((o) => o.type === "add").map((o) => o.text).join() === "x,e");
+    ok("identical documents have no differences", diffLines(["a", "b"], ["a", "b"])!.every((o) => o.type === "same"));
+    const rows = sideBySide(ops).filter((r) => r.changed);
+    ok("changed lines are paired side by side", rows[0].left === "b" && rows[0].right === "x" && rows[1].left === undefined && rows[1].right === "e");
+    ok("huge inputs are refused, not frozen", diffLines(Array.from({ length: 6000 }, (_, i) => "a" + i), Array.from({ length: 6000 }, (_, i) => "b" + i)) === null);
+  }
+  // PDF to Markdown
+  {
+    const it = (str: string, y: number, h: number) => ({ str, x: 50, y, w: str.length * 5, h });
+    const page = [it("Annual Report", 60, 24), it("This is the first line of a long body paragraph", 100, 11), it("and it continues on the second line.", 113, 11), it("Results", 160, 16), it("• First point", 190, 11), it("• Second point", 203, 11), it("1. Step one", 230, 11), it("Closing paragraph far below.", 300, 11), it("3", 800, 10)];
+    const md = pagesToMarkdown([page]);
+    ok("markdown has an h1 and an h2", md.includes("# Annual Report") && md.includes("## Results"), JSON.stringify(md));
+    ok("markdown joins wrapped lines into a paragraph", md.includes("body paragraph and it continues on the second line."));
+    ok("markdown makes bullet and numbered lists", md.includes("- First point\n- Second point") && md.includes("1. Step one"));
+    ok("markdown drops bare page numbers", !/\n3\n/.test(md) && !md.trim().endsWith("3"));
+  }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();

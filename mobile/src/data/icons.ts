@@ -1,5 +1,5 @@
 import {
-  Barcode, Binary, Braces, Camera, Clapperboard, Combine, ContactRound, Crop, Droplets, FileArchive, FileImage, FileOutput,
+  ScanFace, Laugh, GitCompare, FileCode2, CodeXml, Barcode, Binary, Braces, Camera, Clapperboard, Combine, ContactRound, Crop, Droplets, FileArchive, FileImage, FileOutput,
   FileSpreadsheet, FileText, Film, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, Music,
   PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, SquareSplitHorizontal,
   TextSelect, Type, Wand2, ZoomIn, Split, Wrench, Aperture, Calculator, CaseSensitive, FileX2, Hash, IdCard, IndianRupee, ListChecks, PenTool, Percent, TextCursorInput, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, type LucideIcon,
@@ -38,6 +38,11 @@ export const toolIcons: Record<string, LucideIcon> = {
   "signature-maker": PenTool,
   "remove-photo-details": FileX2,
   "mask-aadhaar": IdCard,
+  "blur-face": ScanFace,
+  "meme-generator": Laugh,
+  "html-to-image": CodeXml,
+  "compare-pdf": GitCompare,
+  "pdf-to-markdown": FileCode2,
   "fill-pdf-form": TextCursorInput,
   "upi-qr-generator": IndianRupee,
   "emi-calculator": Calculator,
