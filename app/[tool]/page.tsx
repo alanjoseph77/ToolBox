@@ -5,6 +5,7 @@ import { BadgeCheck, ChevronRight, Cpu, Sparkles } from "lucide-react";
 import { getTool, tools } from "@/lib/tools";
 import { categoryStyle } from "@/lib/icons";
 import { toolSeo } from "@/lib/seo";
+import { posts } from "@/lib/posts";
 import { BRAND, SITE } from "@/lib/site";
 import ToolRunner from "@/components/ToolRunner";
 import ToolIcon from "@/components/ToolIcon";
@@ -124,6 +125,13 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
               </details>
             ))}
           </div>
+        </section>
+      )}
+
+      {posts.some((x) => x.tool === t.slug) && (
+        <section aria-label="Guides" className="mt-12">
+          <h2 className="mb-3 text-lg font-bold">Guides</h2>
+          <ul className="space-y-2 text-sm">{posts.filter((x) => x.tool === t.slug).map((x) => <li key={x.slug}><Link href={`/blog/${x.slug}`} className="font-medium underline underline-offset-4">{x.title}</Link></li>)}</ul>
         </section>
       )}
 

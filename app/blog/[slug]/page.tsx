@@ -13,7 +13,7 @@ export const generateStaticParams = () => posts.map((p) => ({ slug: p.slug }));
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const p = postBySlug((await params).slug);
   if (!p) return {};
-  return { title: p.title, description: p.description, alternates: { canonical: `${SITE}/blog/${p.slug}` } };
+  return { title: p.metaTitle, description: p.description, alternates: { canonical: `${SITE}/blog/${p.slug}` } };
 }
 
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
@@ -22,7 +22,8 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
   const tool = getTool(p.tool);
   return (
     <LegalPage title={p.title}>
-      <JsonLd data={{ "@context": "https://schema.org", "@type": "Article", headline: p.title, description: p.description, datePublished: p.date, author: { "@type": "Organization", name: BRAND.owner }, publisher: { "@type": "Organization", name: BRAND.owner } }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "Article", headline: p.title, description: p.description, datePublished: p.date, dateModified: p.date, mainEntityOfPage: `${SITE}/blog/${p.slug}`, author: { "@type": "Organization", name: BRAND.owner }, publisher: { "@type": "Organization", name: BRAND.owner } }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE }, { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE}/blog` }, { "@type": "ListItem", position: 3, name: p.title, item: `${SITE}/blog/${p.slug}` }] }} />
       <p className="text-sm text-neutral-500">{new Date(p.date).toLocaleDateString("en-IN", { dateStyle: "long" })}</p>
       {p.body.map((b, i) => (
         <div key={i}>
@@ -32,6 +33,8 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
         </div>
       ))}
       {tool && <p><Link href={`/${tool.slug}`} className="btn no-underline">Open {tool.name}</Link></p>}
+      <h2>More guides</h2>
+      <ul>{posts.filter((x) => x.slug !== p.slug).slice(0, 3).map((x) => <li key={x.slug}><Link href={`/blog/${x.slug}`}>{x.title}</Link></li>)}</ul>
       <p><Link href="/blog">← All guides</Link></p>
     </LegalPage>
   );

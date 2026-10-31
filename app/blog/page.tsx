@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
 import LegalPage from "@/components/LegalPage";
 import { posts } from "@/lib/posts";
 import { SITE } from "@/lib/site";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function Blog() {
   return (
     <LegalPage title="Blog">
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", itemListElement: posts.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE}/blog/${p.slug}`, name: p.title })) }} />
       <p>Short guides for everyday file tasks.</p>
       <ul className="!list-none !ml-0 space-y-4">
         {posts.map((p) => (
