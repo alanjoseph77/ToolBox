@@ -3,7 +3,7 @@ import { useState } from "react";
 import WaterLoader from "@/components/WaterLoader";
 import Dropzone from "@/components/Dropzone";
 import CopyButton from "@/components/CopyButton";
-import { download } from "@/lib/files";
+import { download, loadImage } from "@/lib/files";
 import { createOcr, ocrLanguages } from "@/lib/tesseract";
 
 export default function ImageToText() {
@@ -16,6 +16,7 @@ export default function ImageToText() {
   const run = async (files: File[]) => {
     if (!files[0]) return;
     setBusy(true); setError(""); setText(""); setProgress(0);
+    try { await loadImage(files[0]); } catch { setError("Could not read this image. Please choose a valid JPG, PNG or WebP."); setBusy(false); return; }
     try {
       const worker = await createOcr(lang, setProgress);
       const { data } = await worker.recognize(files[0]);
