@@ -84,6 +84,8 @@ New tools in this release: HEIC to JPG, Signature Maker, UPI QR Generator, Remov
 
 Audio tools: Audio Converter (MP3, M4A, WAV, FLAC), Audio Trimmer, Audio Compressor, Merge Audio, Audio Speed Changer and Voice Recorder. Vocal Remover (removes centred vocals; not AI) and Mute Video were added after. They run on the same on-device FFmpeg engine as the video tools. On mobile they open the website inside the app.
 
+Later additions: Invoice Generator (GST), Edit PDF, Unlock PDF (needs the password; the result keeps pages as pictures), Add Watermark to Image, Rotate & Flip Image, Photo Editor, Photo & Signature Sizer, WhatsApp link, WiFi QR and Contact QR generators, and Income Tax (FY 2025-26 estimate, update the slabs in `lib/finance.ts` every Budget), SIP, FD, PPF, Age, Number to Words and CGPA calculators. On mobile they open the website inside the app.
+
 Add a tool by registering it in `lib/tools.ts`, creating `tools/<Name>.tsx`, and mapping it in `components/ToolRunner.tsx`.
 
 ## Roadmap

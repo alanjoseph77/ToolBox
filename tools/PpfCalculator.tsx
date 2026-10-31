@@ -17,7 +17,7 @@ export default function PpfCalculator() {
         <div><label className="label" htmlFor="py">Years</label><input id="py" type="number" min={1} className="input" value={years} onChange={(e) => setYears(e.target.value)} /></div>
       </div>
       {r && <>
-        <div className="grid grid-cols-3 gap-3"><Stat label="Invested" value={inr(Math.round(r.invested))} id="invested" /><Stat label="Interest" value={inr(Math.round(r.interest))} id="interest" /><Stat label="Maturity value" value={inr(Math.round(r.maturity))} big id="maturity" /></div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><Stat label="Invested" value={inr(Math.round(r.invested))} id="invested" /><Stat label="Interest" value={inr(Math.round(r.interest))} id="interest" /><Stat label="Maturity value" value={inr(Math.round(r.maturity))} big id="maturity" /></div>
         <details className="rounded-xl border bg-white p-4 text-sm"><summary className="cursor-pointer font-semibold">Year by year</summary>
           <table className="mt-3 w-full text-right tabular-nums"><thead><tr className="text-neutral-500"><th className="text-left">Year</th><th>Interest</th><th>Balance</th></tr></thead>
             <tbody>{r.rows.map((x) => <tr key={x.year}><td className="text-left">{x.year}</td><td>{inr(Math.round(x.interest))}</td><td>{inr(Math.round(x.balance))}</td></tr>)}</tbody></table></details>

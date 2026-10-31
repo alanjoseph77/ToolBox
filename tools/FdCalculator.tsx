@@ -18,7 +18,7 @@ export default function FdCalculator() {
         <div><label className="label" htmlFor="fy">Years</label><input id="fy" type="number" min={0} step="0.5" className="input" value={years} onChange={(e) => setYears(e.target.value)} /></div>
         <div><label className="label" htmlFor="fn">Interest added</label><select id="fn" className="input" value={n} onChange={(e) => setN(e.target.value)}><option value="12">Monthly</option><option value="4">Quarterly</option><option value="2">Half-yearly</option><option value="1">Yearly</option></select></div>
       </div>
-      {r && <div className="grid grid-cols-3 gap-3"><Stat label="Deposit" value={inr(Math.round(r.invested))} id="invested" /><Stat label="Interest" value={inr(Math.round(r.interest))} id="interest" /><Stat label="Maturity value" value={inr(Math.round(r.maturity))} big id="maturity" /></div>}
+      {r && <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><Stat label="Deposit" value={inr(Math.round(r.invested))} id="invested" /><Stat label="Interest" value={inr(Math.round(r.interest))} id="interest" /><Stat label="Maturity value" value={inr(Math.round(r.maturity))} big id="maturity" /></div>}
       <p className="text-xs text-neutral-500">Banks differ in how they add interest and round it, so your bank&apos;s figure may be a little different. Tax on the interest is not included.</p>
     </div>
   );
