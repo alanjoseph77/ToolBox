@@ -13,8 +13,8 @@ export const dynamicParams = false;
 const bySlug = (slug: string) => categories.find((c) => categorySeo[c]?.slug === slug) as Category | undefined;
 export const generateStaticParams = () => categories.map((c) => ({ category: categorySeo[c].slug }));
 
-export function generateMetadata({ params }: { params: { category: string } }): Metadata {
-  const c = bySlug(params.category);
+export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
+  const c = bySlug((await params).category);
   if (!c) return {};
   const seo = categorySeo[c];
   const url = `${SITE}/tools/${seo.slug}`;
@@ -25,8 +25,8 @@ export function generateMetadata({ params }: { params: { category: string } }): 
   };
 }
 
-export default function CategoryPage({ params }: { params: { category: string } }) {
-  const c = bySlug(params.category);
+export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
+  const c = bySlug((await params).category);
   if (!c) notFound();
   const seo = categorySeo[c];
   const list = tools.filter((t) => t.category === c);

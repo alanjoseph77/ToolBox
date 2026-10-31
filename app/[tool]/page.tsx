@@ -16,8 +16,8 @@ import AdSlot from "@/components/AdSlot";
 export const dynamicParams = false;
 export const generateStaticParams = () => tools.map((t) => ({ tool: t.slug }));
 
-export function generateMetadata({ params }: { params: { tool: string } }): Metadata {
-  const t = getTool(params.tool);
+export async function generateMetadata({ params }: { params: Promise<{ tool: string }> }): Promise<Metadata> {
+  const t = getTool((await params).tool);
   if (!t) return {};
   const seo = toolSeo[t.slug];
   const title = seo?.title ?? t.name;
@@ -40,8 +40,8 @@ const steps: Record<string, [string, string, string, string]> = {
   Utility: ["Enter or add your data", "All calculations happen right in your browser.", "Use the result", "Copy it or download it."],
 };
 
-export default function ToolPage({ params }: { params: { tool: string } }) {
-  const t = getTool(params.tool);
+export default async function ToolPage({ params }: { params: Promise<{ tool: string }> }) {
+  const t = getTool((await params).tool);
   if (!t) notFound();
   const seo = toolSeo[t.slug];
   const s = steps[t.category];
