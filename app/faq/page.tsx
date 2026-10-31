@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 const faqs: [string, string][] = [
   ["Are my files uploaded anywhere?", "No. Almost every tool processes your file in your browser, so it stays on your device. Tools that work differently say so on their page."],
-  ["Is ToolBox really free?", "Yes. There is no account, no watermark and no paid plan. The site is supported by ads."],
+  ["Is ToolBox really free?", "Yes. There is no account, no watermark, no ads and no paid plan."],
   ["Do I need to create an account?", "No."],
   ["Is there a file size limit?", "There is no limit set by us. Your device's memory is the limit, so very large files and videos may be slow or fail on older phones."],
   ["Does it work on my phone?", "Yes. The site is designed for phones as well as computers, in light and dark mode."],

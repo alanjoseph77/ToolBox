@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
-import { ADSENSE_CLIENT, CONTACT_EMAIL, MONETAG_ZONE, SITE } from "@/lib/site";
+import { CONTACT_EMAIL, SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -26,8 +26,6 @@ export default function Privacy() {
       <h2>Third-party services</h2>
       <ul>
         <li><b>Content delivery.</b> Some tools download open-source models or language data from public servers the first time you use them (for example the background-removal model from jsDelivr, and OCR language data for languages other than English). Those servers can see your IP address when you download these files. Your own files are not sent.</li>
-        {MONETAG_ZONE && <li><b>Advertising (Monetag).</b> Some pages show a banner ad from Monetag. Monetag and its partners may use cookies or similar technologies to choose and measure ads. See <a href="https://monetag.com/privacy-policy/" target="_blank" rel="noopener">Monetag&apos;s privacy policy</a>. Our tools never send your files to advertisers.</li>}
-        {ADSENSE_CLIENT && <li><b>Advertising.</b> We show ads through Google AdSense. Google and its partners may use cookies or similar technologies to show ads based on your visits to this and other sites. You can manage or opt out of personalised ads at <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ads Settings</a> or <a href="https://www.aboutads.info" target="_blank" rel="noopener">aboutads.info</a>. See <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">how Google uses data from sites that use its services</a>.</li>}
       </ul>
 
       <h2>Children</h2>

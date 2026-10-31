@@ -5,7 +5,6 @@ import ToolBrowser from "@/components/ToolBrowser";
 import { tools } from "@/lib/tools";
 import { SITE } from "@/lib/site";
 import JsonLd from "@/components/JsonLd";
-import AdSlot from "@/components/AdSlot";
 
 const features: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: ShieldCheck, title: "Private by design", text: "Files are processed on your device and never uploaded." },
@@ -37,8 +36,6 @@ export default function Home() {
       </section>
 
       <ToolBrowser />
-
-      <AdSlot />
 
       <section aria-label="About ToolBox" className="mx-auto max-w-3xl space-y-3 text-center">
         <h2 className="text-2xl font-bold">Free online PDF, image and video tools</h2>

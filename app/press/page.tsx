@@ -21,7 +21,7 @@ export default function Press() {
         <li>Name: ToolBox</li>
         <li>Made by: Otaga</li>
         <li>Website: <a href={SITE}>{SITE.replace(/^https?:\/\//, "")}</a></li>
-        <li>Price: free, supported by ads</li>
+        <li>Price: free, no ads</li>
         <li>Privacy: files are processed on your device, not uploaded</li>
       </ul>
       <h2>Logo</h2>
