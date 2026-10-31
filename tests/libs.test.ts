@@ -9,6 +9,13 @@ import { obscure } from "../lib/blur";
 import { fitFont, wrapText } from "../lib/meme";
 import { diffLines, sideBySide } from "../lib/diff";
 import { pagesToMarkdown } from "../lib/pdfMarkdown";
+import { fd, ppf, incomeTax } from "../lib/finance";
+import { intToWords, rupeesInWords } from "../lib/words";
+import { age } from "../lib/age";
+import { vcardString, waLink, wifiString } from "../lib/qrText";
+import { invoiceTotals } from "../lib/invoice";
+import { buildInvoicePdf } from "../lib/invoicePdf";
+import { applyAdjust, neutral } from "../lib/photoFilters";
 
 let pass = 0, fail = 0;
 const ok = (name: string, cond: boolean, extra = "") => { cond ? pass++ : fail++; console.log(`${cond ? "OK  " : "FAIL"} ${name} ${extra}`); };
@@ -130,6 +137,82 @@ const enc = (s: string) => new TextEncoder().encode(s);
     ok("markdown joins wrapped lines into a paragraph", md.includes("body paragraph and it continues on the second line."));
     ok("markdown makes bullet and numbered lists", md.includes("- First point\n- Second point") && md.includes("1. Step one"));
     ok("markdown drops bare page numbers", !/\n3\n/.test(md) && !md.trim().endsWith("3"));
+  }
+  // Finance
+  {
+    ok("FD: 1 lakh at 7% for 5 years, quarterly", near(fd(100000, 7, 5).maturity, 141478, 5), `(${Math.round(fd(100000, 7, 5).maturity)})`);
+    ok("PPF: 1.5 lakh a year for 15 years at 7.1%", near(ppf(150000, 7.1, 15).maturity, 4069000, 3000), `(${Math.round(ppf(150000, 7.1, 15).maturity)})`);
+    ok("PPF invested total", ppf(150000, 7.1, 15).invested === 2250000);
+  }
+  // Income tax (new regime, FY 2025-26)
+  {
+    const n = (g: number) => incomeTax({ income: g, regime: "new" });
+    ok("tax: 12.75 lakh salary is nil after rebate", n(1275000).total === 0);
+    ok("tax: 15 lakh salary", near(n(1500000).total, 97500, 1), `(${n(1500000).total})`);
+    ok("tax: 25 lakh salary", near(n(2500000).total, 319800, 1), `(${n(2500000).total})`);
+    ok("tax: marginal relief just above 12 lakh taxable", near(n(1285000).total, 10400, 1), `(${n(1285000).total})`);
+    const o = incomeTax({ income: 1000000, regime: "old", deductions: 150000 });
+    ok("tax: old regime 10 lakh with 1.5 lakh deductions", near(o.total, 75400, 1) && o.taxable === 800000, `(${o.total})`);
+    ok("tax: old regime rebate up to 5 lakh taxable", incomeTax({ income: 550000, regime: "old" }).total === 0);
+    ok("tax: negative income rejected", (() => { try { incomeTax({ income: -1, regime: "new" }); return false; } catch { return true; } })());
+  }
+  // Number to words
+  {
+    ok("words: Indian style", intToWords(1234567) === "Twelve Lakh Thirty Four Thousand Five Hundred Sixty Seven", intToWords(1234567));
+    ok("words: crore", intToWords(250000000) === "Twenty Five Crore");
+    ok("words: international style", intToWords(1234567, "international") === "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven");
+    ok("words: zero and teens", intToWords(0) === "Zero" && intToWords(15) === "Fifteen" && intToWords(100) === "One Hundred" && intToWords(100000) === "One Lakh");
+    ok("words: rupees and paise", rupeesInWords(1234.5) === "Rupees One Thousand Two Hundred Thirty Four and Fifty Paise Only", rupeesInWords(1234.5));
+    ok("words: whole rupees", rupeesInWords(500) === "Rupees Five Hundred Only");
+  }
+  // Age
+  {
+    const a = age("1990-04-12", "2026-11-03");
+    ok("age: 36 years 6 months 22 days", a.years === 36 && a.months === 6 && a.days === 22, JSON.stringify(a));
+    ok("age: next birthday in 160 days", a.nextBirthdayInDays === 160, `(${a.nextBirthdayInDays})`);
+    const b = age("2000-02-29", "2023-03-01"); ok("age: leap-day birthday", b.years === 23 && b.months === 0 && b.days === 1, JSON.stringify(b));
+    const c = age("2000-01-31", "2000-03-01"); ok("age: month-end borrowing", c.months === 1 && c.days === 1, JSON.stringify(c));
+    ok("age: future date of birth rejected", (() => { try { age("2030-01-01", "2026-01-01"); return false; } catch { return true; } })());
+  }
+  // QR text and WhatsApp
+  {
+    ok("wifi string", wifiString("My;Net", "p:ss,1", "WPA") === "WIFI:T:WPA;S:My\\;Net;P:p\\:ss\\,1;;", wifiString("My;Net", "p:ss,1", "WPA"));
+    ok("wifi open network has no password", wifiString("Cafe", "", "nopass") === "WIFI:T:nopass;S:Cafe;;");
+    ok("wifi hidden flag", wifiString("A", "b", "WPA", true).includes("H:true;"));
+    const v = vcardString({ first: "Asha", last: "Rao", org: "Otaga, Inc", phone: "+91 98765 43210", email: "a@x.in" });
+    ok("vcard fields", v.startsWith("BEGIN:VCARD\nVERSION:3.0") && v.includes("N:Rao;Asha") && v.includes("FN:Asha Rao") && v.includes("ORG:Otaga\\, Inc") && v.endsWith("END:VCARD"), v);
+    ok("whatsapp: 10 digit gets +91", waLink("98765 43210", "Hi there") === "https://wa.me/919876543210?text=Hi%20there");
+    ok("whatsapp: country code kept", waLink("+1 (415) 555-2671", "") === "https://wa.me/14155552671");
+    ok("whatsapp: too short rejected", (() => { try { waLink("123", ""); return false; } catch { return true; } })());
+  }
+  // Invoice
+  {
+    const items = [{ desc: "Web design", qty: 2, rate: 5000, gstPct: 18 }, { desc: "Hosting", qty: 1, rate: 1999.5, gstPct: 5 }];
+    const a = invoiceTotals(items, false), b = invoiceTotals(items, true);
+    ok("invoice: subtotal and GST", a.subtotal === 11999.5 && near(a.gstTotal, 1899.98, 0.01), JSON.stringify(a));
+    ok("invoice: CGST + SGST equal GST", near(a.cgst + a.sgst, a.gstTotal, 0.001) && a.igst === 0);
+    ok("invoice: IGST between states", b.cgst === 0 && b.sgst === 0 && near(b.igst, a.gstTotal, 0.001));
+    ok("invoice: total is rounded to a whole rupee", Number.isInteger(a.total) && near(a.total, a.subtotal + a.gstTotal, 0.5), `(${a.total}, round off ${a.roundOff})`);
+    ok("invoice: discount", near(invoiceTotals(items, false, 10).subtotal, 10799.55, 0.01));
+    const bytes = await buildInvoicePdf({ title: "TAX INVOICE", number: "INV-001", date: "03 Nov 2026", seller: { name: "Otaga", address: "Kochi, Kerala", gstin: "32ABCDE1234F1Z5" }, buyer: { name: "Asha Rao ₹" }, items: Array.from({ length: 40 }, (_, i) => ({ desc: "Item " + (i + 1) + " with a fairly long description to force wrapping onto more lines", qty: 1, rate: 100, gstPct: 18 })), interState: false, notes: "Thanks", upi: "otaga@upi" });
+    const doc = await PDFDocument.load(bytes);
+    ok("invoice pdf: long invoice runs over several pages", doc.getPageCount() >= 2, `(${doc.getPageCount()} pages, ${Math.round(bytes.length / 1024)} KB)`);
+  }
+  // Photo adjustments
+  {
+    const mk = () => ({ data: new Uint8ClampedArray([100, 120, 140, 255, 200, 50, 50, 255]) });
+    const a = mk(); applyAdjust(a, neutral);
+    ok("adjust: neutral leaves pixels alone", Array.from(a.data).join() === "100,120,140,255,200,50,50,255", Array.from(a.data).join());
+    const b = mk(); applyAdjust(b, { ...neutral, brightness: 20 });
+    ok("adjust: brightness lifts every channel", b.data[0] > 100 && b.data[1] > 120 && b.data[2] > 140);
+    const g = mk(); applyAdjust(g, { ...neutral, gray: true });
+    ok("adjust: black and white makes R=G=B", g.data[0] === g.data[1] && g.data[1] === g.data[2] && g.data[4] === g.data[5]);
+    const s = mk(); applyAdjust(s, { ...neutral, saturation: -100 });
+    ok("adjust: zero saturation is grey", s.data[4] === s.data[5] && s.data[5] === s.data[6]);
+    const w = mk(); applyAdjust(w, { ...neutral, warmth: 50 });
+    ok("adjust: warmth raises red and lowers blue", w.data[0] > 100 && w.data[2] < 140);
+    const c = mk(); applyAdjust(c, { ...neutral, brightness: 100, contrast: 100 });
+    ok("adjust: values stay within 0 to 255", Array.from(c.data).every((v) => v >= 0 && v <= 255));
   }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
