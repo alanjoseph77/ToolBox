@@ -54,6 +54,8 @@ const allTools: ToolMeta[] = [
   { slug: "video-to-gif", name: "Video to GIF", description: "Turn a moment from a video into an animated GIF.", category: "Video", keywords: ["gif", "animated"] },
   { slug: "video-to-mp3", name: "Video to MP3", description: "Extract the audio track from any video as an MP3.", category: "Video", keywords: ["audio", "mp3", "extract"] },
   { slug: "video-thumbnail", name: "Video Thumbnail Generator", description: "Capture the perfect frame from a video as a JPG.", category: "Video", keywords: ["thumbnail", "frame", "screenshot"] },
+  { slug: "mute-video", name: "Mute Video", description: "Remove the sound from a video. Fast, and the picture stays untouched.", category: "Video", keywords: ["remove audio", "silent", "no sound", "strip audio"] },
+  { slug: "vocal-remover", name: "Vocal Remover", description: "Remove vocals from a song to make a karaoke or instrumental track.", category: "Audio", popular: true, keywords: ["karaoke", "instrumental", "remove voice", "backing track", "background music"] },
   { slug: "audio-converter", name: "Audio Converter", description: "Convert audio to MP3, M4A, WAV or FLAC. Works on your device.", category: "Audio", popular: true, keywords: ["mp3", "wav", "m4a", "flac", "convert audio"] },
   { slug: "audio-trimmer", name: "Audio Trimmer", description: "Cut an audio clip by start and end time. Good for ringtones.", category: "Audio", keywords: ["cut", "ringtone", "crop audio", "mp3 cutter"] },
   { slug: "audio-compressor", name: "Audio Compressor", description: "Make audio files smaller by lowering the bitrate.", category: "Audio", keywords: ["reduce size", "mp3", "bitrate", "shrink"] },

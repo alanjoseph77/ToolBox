@@ -64,7 +64,9 @@ export const tools: ToolDef[] = [
   { slug: "compare-pdf", name: "Compare PDF", description: "Text differences between two PDFs.", category: "PDF", native: false },
   { slug: "pdf-to-markdown", name: "PDF to Markdown", description: "Turn a PDF into Markdown.", category: "PDF", native: false },
   { slug: "mask-aadhaar", name: "Mask Aadhaar", description: "Cover the first 8 digits.", category: "Image", native: false },
+  { slug: "mute-video", name: "Mute Video", description: "Remove the sound from a video.", category: "Video", native: false },
   // Audio
+  { slug: "vocal-remover", name: "Vocal Remover", description: "Make a karaoke track.", category: "Audio", native: false },
   { slug: "audio-converter", name: "Audio Converter", description: "Convert audio to MP3, WAV and more.", category: "Audio", native: false },
   { slug: "audio-trimmer", name: "Audio Trimmer", description: "Cut an audio clip.", category: "Audio", native: false },
   { slug: "audio-compressor", name: "Audio Compressor", description: "Make audio files smaller.", category: "Audio", native: false },

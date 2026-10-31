@@ -107,6 +107,28 @@ export const posts: Post[] = [
       { h: "Tip", p: "A WAV recording can shrink more than ten times when it becomes an MP3. If you only need part of a recording, trim it first with Audio Trimmer." },
     ],
   },
+  {
+    slug: "remove-vocals-from-song", metaTitle: "Remove Vocals from a Song (Karaoke)", date: "2026-11-03", tool: "vocal-remover",
+    title: "How to remove vocals from a song to make a karaoke track",
+    description: "Take the lead vocal out of a stereo song to sing along or use the backing music. How it works and how to get the best result.",
+    body: [
+      { p: "Most stereo songs place the lead vocal in the centre, so it is the same in the left and right speakers. Subtracting one side from the other cancels everything that is centred, which removes much of the voice and leaves the rest of the music." },
+      { h: "Steps", ul: ["Open Vocal Remover and add a stereo song.", "Leave Keep the bass on to protect the kick drum and bass line, which are also centred.", "Press Remove vocals, listen to the result, then download the MP3."] },
+      { h: "Get a better result", ul: ["Older stereo studio recordings work best.", "Wide vocals, harmonies and echo can leave some voice behind.", "Other centred sounds, such as a snare, may get quieter.", "A mono recording comes out silent, because the left and right sides are identical."] },
+      { h: "Good to know", ul: ["This is not AI, so it will not match a studio instrumental.", "Use only music that you own or have the right to use.", "Your song stays on your device."] },
+    ],
+  },
+  {
+    slug: "remove-sound-from-video", metaTitle: "How to Remove Sound from a Video", date: "2026-11-03", tool: "mute-video",
+    title: "How to remove the sound from a video without losing quality",
+    description: "Mute a video by deleting its audio track. The picture is not re-encoded, so it is quick and there is no quality loss.",
+    body: [
+      { p: "Sometimes you want a silent clip: for a presentation, a website background, or to add your own music later. Muting by deleting the audio track is the cleanest way." },
+      { h: "Steps", ul: ["Open Mute Video and add your clip.", "Press Remove sound.", "Download the muted copy."] },
+      { h: "Why it is fast", p: "The tool copies the picture exactly and only drops the audio track, so nothing is re-encoded. That means no loss of quality, and large files finish quickly." },
+      { h: "Next steps", ul: ["Need a shorter clip? Use Video Trimmer first.", "Want a smaller file? Run it through Video Compressor.", "The video stays on your device."] },
+    ],
+  },
 ];
 
 export const postBySlug = (s: string) => posts.find((p) => p.slug === s);

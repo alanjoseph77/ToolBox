@@ -1,5 +1,5 @@
 import {
-  AudioLines, Shrink, Mic, Gauge, ListMusic, ScanFace, Laugh, GitCompare, FileCode2, CodeXml, Barcode, Binary, Braces, Briefcase, Camera, Clapperboard, Combine, ContactRound, Crop, Eraser, FileArchive, FileImage,
+  VolumeX, MicOff, AudioLines, Shrink, Mic, Gauge, ListMusic, ScanFace, Laugh, GitCompare, FileCode2, CodeXml, Barcode, Binary, Braces, Briefcase, Camera, Clapperboard, Combine, ContactRound, Crop, Eraser, FileArchive, FileImage,
   FileOutput, FileSpreadsheet, FileText, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, MessageSquareText,
   Music, Palette, PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, Sparkles,
   SpellCheck, SquareSplitHorizontal, Aperture, Calculator, CaseSensitive, FileX2, Hash, IdCard, IndianRupee, ListChecks, PenTool, Percent, TextCursorInput, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, TextSelect, Type, Wand2, ZoomIn, Film, Droplets, Split, type LucideIcon,
@@ -40,6 +40,8 @@ export const toolIcons: Record<string, LucideIcon> = {
   "signature-maker": PenTool,
   "remove-photo-details": FileX2,
   "mask-aadhaar": IdCard,
+  "mute-video": VolumeX,
+  "vocal-remover": MicOff,
   "audio-converter": AudioLines,
   "audio-trimmer": Scissors,
   "audio-compressor": Shrink,
