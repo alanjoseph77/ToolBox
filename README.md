@@ -86,6 +86,8 @@ Audio tools: Audio Converter (MP3, M4A, WAV, FLAC), Audio Trimmer, Audio Compres
 
 Later additions: Invoice Generator (GST), Edit PDF, Unlock PDF (needs the password; the result keeps pages as pictures), Add Watermark to Image, Rotate & Flip Image, Photo Editor, Photo & Signature Sizer, WhatsApp link, WiFi QR and Contact QR generators, and Income Tax (FY 2025-26 estimate, update the slabs in `lib/finance.ts` every Budget), SIP, FD, PPF, Age, Number to Words and CGPA calculators. On mobile they open the website inside the app.
 
+Documents and spreadsheets: CSV to Excel, Excel to CSV, Excel to PDF, CSV to JSON, JSON to CSV, Word to Text/Markdown/HTML, Text to PDF, Markdown to PDF, HTML to PDF, PDF to PowerPoint (pages become picture slides), Merge Excel and an Excel & CSV viewer. Spreadsheets are read with `read-excel-file` and written with `write-excel-file`; the PowerPoint writer is in `lib/pptx.ts`. Only values are kept, not formulas or formatting, and old `.xls` / `.doc` files are not supported.
+
 Add a tool by registering it in `lib/tools.ts`, creating `tools/<Name>.tsx`, and mapping it in `components/ToolRunner.tsx`.
 
 ## Roadmap

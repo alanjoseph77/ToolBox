@@ -16,6 +16,11 @@ import { vcardString, waLink, wifiString } from "../lib/qrText";
 import { invoiceTotals } from "../lib/invoice";
 import { buildInvoicePdf } from "../lib/invoicePdf";
 import { applyAdjust, neutral } from "../lib/photoFilters";
+import { detectDelimiter, parseCsv, toCsv } from "../lib/csv";
+import { colName, guessType, objectsToRows, rowsToObjects } from "../lib/sheet";
+import { mdToBlocks } from "../lib/markdown";
+import { tablesToPdf } from "../lib/tablePdf";
+import { imagesToPptx } from "../lib/pptx";
 
 let pass = 0, fail = 0;
 const ok = (name: string, cond: boolean, extra = "") => { cond ? pass++ : fail++; console.log(`${cond ? "OK  " : "FAIL"} ${name} ${extra}`); };
@@ -213,6 +218,44 @@ const enc = (s: string) => new TextEncoder().encode(s);
     ok("adjust: warmth raises red and lowers blue", w.data[0] > 100 && w.data[2] < 140);
     const c = mk(); applyAdjust(c, { ...neutral, brightness: 100, contrast: 100 });
     ok("adjust: values stay within 0 to 255", Array.from(c.data).every((v) => v >= 0 && v <= 255));
+  }
+  // CSV and sheets
+  {
+    const r = parseCsv('a,b,c\n1,"x, y","say ""hi"""\n2,"line\nbreak",z\r\n');
+    ok("csv: quotes, commas and line breaks inside values", r.length === 3 && r[1][1] === "x, y" && r[1][2] === 'say "hi"' && r[2][1] === "line\nbreak", JSON.stringify(r));
+    ok("csv: detects semicolons and tabs", detectDelimiter("a;b;c\n1;2;3") === ";" && detectDelimiter("a\tb\n1\t2") === "\t");
+    ok("csv: handles a byte order mark and blank lines", parseCsv("\uFEFFa,b\n\n1,2\n").length === 2);
+    ok("csv: unclosed quote is reported", (() => { try { parseCsv('a,"b'); return false; } catch { return true; } })());
+    ok("csv: writes quotes where needed", toCsv([["a", "b,c", 'd"e', "line\nbreak"]]) === 'a,"b,c","d""e","line\nbreak"\n');
+    ok("csv: round trip", JSON.stringify(parseCsv(toCsv(r))) === JSON.stringify(r));
+    ok("sheet: guesses numbers, keeps codes as text", guessType("42") === 42 && guessType("-3.5") === -3.5 && guessType("007") === "007" && guessType("12345678901234567890") === "12345678901234567890" && guessType("true") === true && guessType("abc") === "abc");
+    const o = rowsToObjects([["name", "name", ""], ["a", "b", "c"]]);
+    ok("sheet: repeated and empty headers are made unique", Object.keys(o[0]).join() === "name,name_2,column3", Object.keys(o[0]).join());
+    const rows = objectsToRows([{ n: "A", addr: { city: "K", pin: "1" }, tags: ["x"] }, { n: "B", extra: 5 }]);
+    ok("sheet: nested JSON is flattened", rows[0].join() === "n,addr.city,addr.pin,tags,extra" && rows[1].join() === 'A,K,1,["x"],' && rows[2].join() === "B,,,,5", JSON.stringify(rows));
+    ok("sheet: column letters", colName(0) === "A" && colName(25) === "Z" && colName(26) === "AA" && colName(701) === "ZZ" && colName(702) === "AAA");
+  }
+  // Markdown
+  {
+    const b = mdToBlocks("# Title\n\nSome **bold** and [a link](http://x.com).\nSecond line.\n\n- one\n* two\n1. three\n\n```\ncode line\n```\n## Sub");
+    ok("markdown: headings and lists", b[0].style === "h1" && b[0].text === "Title" && b.some((x) => x.style === "li" && x.text === "two") && b.some((x) => x.style === "li" && x.text === "three") && b[b.length - 1].style === "h2", JSON.stringify(b));
+    ok("markdown: marks removed, lines joined", b[1].text === "Some bold and a link (http://x.com). Second line.", b[1].text);
+    ok("markdown: code block kept as text", b.some((x) => x.text === "code line"));
+  }
+  // Table PDF and PowerPoint
+  {
+    const rows = [["Name", "Qty"], ...Array.from({ length: 120 }, (_, i) => ["Item " + i, String(i)])];
+    const doc = await PDFDocument.load(await tablesToPdf([{ name: "Stock", rows }]));
+    ok("table pdf: 120 rows run over several pages", doc.getPageCount() >= 2 && doc.getPage(0).getSize().width < doc.getPage(0).getSize().height, `(${doc.getPageCount()} pages)`);
+    const wide = await PDFDocument.load(await tablesToPdf([{ name: "Wide", rows: [Array.from({ length: 20 }, (_, i) => "Column " + i), Array.from({ length: 20 }, () => "some value here")] }]));
+    ok("table pdf: a wide table is landscape", wide.getPage(0).getSize().width > wide.getPage(0).getSize().height);
+    const odd = await PDFDocument.load(await tablesToPdf([{ name: "Odd ₹ ✓", rows: [["₹ 5 ✓ अ", "x".repeat(500)]] }]));
+    ok("table pdf: odd characters and very long words do not break it", odd.getPageCount() >= 1);
+    ok("table pdf: nothing to draw still gives a valid PDF", (await PDFDocument.load(await tablesToPdf([]))).getPageCount() === 1);
+    const jpg = new Uint8Array(await (await import("node:fs")).promises.readFile("/tmp/claude-0/-home-user-ToolBox/02ddb65b-5d64-5a87-96c9-a410541838d1/scratchpad/wt2/page1.jpg"));
+    const zip = imagesToPptx([{ jpeg: jpg, w: 100, h: 200 }, { jpeg: jpg, w: 100, h: 200 }]);
+    ok("pptx: a zip with the required parts", zip[0] === 0x50 && zip[1] === 0x4b && Buffer.from(zip).includes("ppt/slides/slide2.xml") && Buffer.from(zip).includes("[Content_Types].xml"));
+    ok("pptx: no pages is rejected", (() => { try { imagesToPptx([]); return false; } catch { return true; } })());
   }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

@@ -170,6 +170,38 @@ export const posts: Post[] = [
       {"h": "Tips", "ul": ["Crop to fit keeps the proportions. Stretch can distort faces.", "Sign on white paper in dark ink, and take the photo in good light, for a clear signature.", "If the file stays too big, try a larger limit or a plainer background."]},
     ],
   },
+  {
+    slug: "convert-csv-to-excel", metaTitle: "How to Convert CSV to Excel", date: "2026-11-05", tool: "csv-to-excel",
+    title: "How to convert a CSV file to Excel (and keep codes like 007)",
+    description: "Turn a CSV into a proper Excel workbook with real numbers, and avoid losing leading zeros.",
+    body: [
+      {"p": "A CSV file is plain text with values separated by commas. Converting it to .xlsx gives you separate columns and numbers that Excel can add up."},
+      {"h": "Steps", "ul": ["Open CSV to Excel and add your file, or paste the text.", "Leave First row is a header ticked if the first row has column names.", "Press Convert to Excel (.xlsx) and open the downloaded file."]},
+      {"h": "Keep codes and long numbers safe", "p": "Excel can turn codes such as 007 into 7 and shorten long ID numbers. Tick Keep every cell as text to store everything exactly as written."},
+      {"h": "Other separators", "p": "Files from some regions use semicolons or tabs instead of commas. The tool detects the separator, or you can choose it."},
+    ],
+  },
+  {
+    slug: "convert-excel-to-pdf", metaTitle: "How to Convert Excel to PDF", date: "2026-11-05", tool: "excel-to-pdf",
+    title: "How to convert an Excel or CSV file to a PDF table",
+    description: "Share a spreadsheet as a PDF so that anyone can open it. What is kept, what is not, and tips for wide sheets.",
+    body: [
+      {"p": "A PDF opens the same way on every device, which makes it handy for sharing a list, a price table or a report."},
+      {"h": "Steps", "ul": ["Open Excel to PDF and add your .xlsx or .csv file.", "Tick the sheets that you want.", "Press Convert to PDF, then download."]},
+      {"h": "What to expect", "ul": ["The values are drawn as a clean table, with the header row repeated on every page.", "Colours, fonts, merged cells, images and charts are not copied.", "Wide sheets are set in landscape with narrower columns."]},
+      {"h": "For an exact copy of the layout", "p": "Use Print or Save as PDF in Excel itself. That keeps all formatting."},
+    ],
+  },
+  {
+    slug: "convert-pdf-to-powerpoint", metaTitle: "How to Convert PDF to PowerPoint", date: "2026-11-05", tool: "pdf-to-powerpoint",
+    title: "How to turn a PDF into PowerPoint slides",
+    description: "Present a PDF in PowerPoint: each page becomes one slide. How it works, and what to use if you need editable text.",
+    body: [
+      {"p": "If you want to present a PDF in PowerPoint, you can turn every page into a slide."},
+      {"h": "Steps", "ul": ["Open PDF to PowerPoint and add your PDF (up to 100 pages).", "Wait while the slides are built on your device.", "Download the .pptx file and open it in PowerPoint, Keynote or Google Slides."]},
+      {"h": "Good to know", "ul": ["Each slide is a picture of the PDF page, so it looks exactly like the PDF.", "The text on the slides cannot be edited. For editable text, use PDF to Word.", "Scanned PDFs work too, because the pages are pictures."]},
+    ],
+  },
 ];
 
 export const postBySlug = (s: string) => posts.find((p) => p.slug === s);
