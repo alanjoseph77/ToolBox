@@ -36,6 +36,7 @@ export default function ImageWatermark() {
   const [logo, setLogo] = useState<HTMLImageElement | null>(null);
   const [o, setO] = useState<Opts>({ kind: "text", text: "© Your name", color: "#ffffff", size: 6, opacity: 60, angle: 0, pos: "br" });
   const [parts, setParts] = useState<Part[]>([]);
+  const [bad, setBad] = useState(false);
   const { busy, error, run } = useJob();
   const preview = useRef<HTMLCanvasElement>(null);
   const first = files[0];
@@ -45,10 +46,11 @@ export default function ImageWatermark() {
     let cancel = false;
     loadImage(first).then((img) => {
       if (cancel || !preview.current) return;
+      setBad(false);
       const k = Math.min(1, 700 / Math.max(img.width, img.height)), c = preview.current;
       c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
       const g = c.getContext("2d")!; g.drawImage(img, 0, 0, c.width, c.height); drawMark(g, c.width, c.height, o, logo);
-    }).catch(() => {});
+    }).catch(() => { if (!cancel) setBad(true); });
     return () => { cancel = true; };
   }, [first, o, logo]);
 
@@ -69,8 +71,9 @@ export default function ImageWatermark() {
 
   return (
     <div className="space-y-4">
-      <Dropzone accept="image/*" multiple onFiles={(f) => { setFiles(f); setParts([]); }} hint="Add one or many pictures. They stay on your device." />
-      {first && (
+      <Dropzone accept="image/*" multiple onFiles={(f) => { setFiles(f); setParts([]); setBad(false); }} hint="Add one or many pictures. They stay on your device." />
+      {bad && <p className="text-sm text-red-600" role="alert">Could not read this picture. It may be damaged. Remove it and try another.</p>}
+      {first && !bad && (
         <div className="space-y-3 rounded-xl border bg-white p-4">
           <div className="flex gap-2">{(["text", "logo"] as const).map((k) => <button key={k} className={o.kind === k ? "btn !py-1.5" : "btn-ghost !py-1.5"} onClick={() => set("kind", k)}>{k === "text" ? "Text" : "Logo"}</button>)}</div>
           {o.kind === "text" ? (

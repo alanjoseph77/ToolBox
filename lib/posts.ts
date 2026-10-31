@@ -129,6 +129,47 @@ export const posts: Post[] = [
       { h: "Next steps", ul: ["Need a shorter clip? Use Video Trimmer first.", "Want a smaller file? Run it through Video Compressor.", "The video stays on your device."] },
     ],
   },
+  {
+    slug: "make-gst-invoice-online", metaTitle: "How to Make a GST Invoice Online", date: "2026-11-04", tool: "invoice-generator",
+    title: "How to make a GST invoice for free, with CGST, SGST and IGST",
+    description: "A step-by-step guide to making a GST invoice PDF, and when to charge CGST and SGST or IGST.",
+    body: [
+      {"p": "A GST invoice lists what you sold, the tax charged on it and the total. You can make one as a PDF without any software."},
+      {"h": "Steps", "ul": ["Open Invoice Generator and enter your business name, address and GSTIN, and the customer's details.", "Add each item with its quantity, rate and GST rate.", "Tick Different state if the customer is in another state. Then the tax shows as IGST.", "Check the totals, then download the PDF."]},
+      {"h": "CGST, SGST or IGST?", "ul": ["Selling within one state: the GST is split equally into CGST and SGST.", "Selling to another state: the whole GST is charged as IGST."]},
+      {"h": "Good to know", "ul": ["The total is rounded to a whole rupee, and the round off is shown.", "This tool does not give tax advice. Check your invoice details against the GST rules that apply to you.", "Your business details are saved only in your browser."]},
+    ],
+  },
+  {
+    slug: "create-whatsapp-chat-link", metaTitle: "How to Create a WhatsApp Chat Link", date: "2026-11-04", tool: "whatsapp-link-generator",
+    title: "How to create a WhatsApp chat link and QR code with a ready message",
+    description: "Make a wa.me link that opens a chat with your number, with a message already typed, and a QR code to print.",
+    body: [
+      {"p": "A WhatsApp chat link lets customers message you with one tap, without saving your number."},
+      {"h": "Steps", "ul": ["Open WhatsApp Link Generator and enter your number. A 10-digit Indian number gets the 91 country code.", "Type a message if you want one ready for the customer to send.", "Copy the wa.me link, or download the QR code."]},
+      {"h": "Where to use it", "ul": ["Your Instagram or Facebook bio.", "Your website's contact button.", "A printed QR code on a shop board or visiting card."]},
+    ],
+  },
+  {
+    slug: "add-watermark-to-photos", metaTitle: "How to Add a Watermark to Photos", date: "2026-11-04", tool: "image-watermark",
+    title: "How to add a watermark to your photos (text or logo)",
+    description: "Protect your pictures by adding your name or logo, one photo or hundreds at a time.",
+    body: [
+      {"p": "A watermark shows that a picture is yours. You can add text or a logo to many photos in one go."},
+      {"h": "Steps", "ul": ["Open Add Watermark to Image and add your photos.", "Type your text, or choose Logo and add a PNG.", "Set the size, opacity, angle and position, and check the preview.", "Download all the pictures as a ZIP."]},
+      {"h": "Tips", "ul": ["Use Repeat across the picture to make the mark harder to crop out.", "Keep the opacity around 40 to 60 percent so that it does not spoil the photo.", "Keep your originals without the mark."]},
+    ],
+  },
+  {
+    slug: "resize-photo-signature-for-exam-form", metaTitle: "Resize Photo and Signature for Forms", date: "2026-11-04", tool: "photo-signature-sizer",
+    title: "How to resize your photo and signature for an online exam or job form",
+    description: "Get the exact pixel size and file size that an online form asks for, for both the photo and the signature.",
+    body: [
+      {"p": "Online forms often reject pictures that are the wrong size in pixels or too big in KB. Each form states its own limits, so read the instructions first."},
+      {"h": "Steps", "ul": ["Open Photo and Signature Sizer.", "Type the width, height and maximum KB from your form's instructions.", "Add your photo and your signature.", "Download both JPG files and upload them to the form."]},
+      {"h": "Tips", "ul": ["Crop to fit keeps the proportions. Stretch can distort faces.", "Sign on white paper in dark ink, and take the photo in good light, for a clear signature.", "If the file stays too big, try a larger limit or a plainer background."]},
+    ],
+  },
 ];
 
 export const postBySlug = (s: string) => posts.find((p) => p.slug === s);

@@ -28,7 +28,7 @@ export default function UnlockPdf() {
       const bytes = new Uint8Array(await f.arrayBuffer());
       // A PDF with no encryption at all opens normally in pdf-lib, so there is nothing to unlock.
       let encrypted = false;
-      try { await PDFDocument.load(bytes.slice()); } catch (e) { encrypted = /encrypt/i.test((e as Error).message); if (!encrypted) throw e; }
+      try { if ((await PDFDocument.load(bytes.slice())).getPageCount() === 0) throw new Error("empty"); } catch (e) { encrypted = /encrypt/i.test((e as Error).message); if (!encrypted) throw e; }
       if (!encrypted) { setError("This PDF is not password protected, so there is nothing to remove."); setBusy(false); return; }
 
       const pdfjs = await getPdfjs();
