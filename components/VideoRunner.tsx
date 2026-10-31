@@ -14,12 +14,12 @@ interface Props {
   args: (input: string, f: File) => string[];
   controls?: (ctx: VideoCtx) => ReactNode;
   cta: string;
-  result?: "video" | "audio" | "image";
+  result?: "video" | "audio" | "image" | ((f: File) => "video" | "audio" | "image");
   /** What the user adds: audio files get an audio player instead of a video player. */
-  media?: "video" | "audio";
+  media?: "video" | "audio" | "auto";
 }
 
-export default function VideoRunner({ accept = "video/*", outName, mime, args, controls, cta, result = "video", media = "video" }: Props) {
+export default function VideoRunner({ accept = "video/*", outName, mime, args, controls, cta, result: resultProp = "video", media: mediaProp = "video" }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [src, setSrc] = useState("");
   const [duration, setDuration] = useState(0);
@@ -30,6 +30,8 @@ export default function VideoRunner({ accept = "video/*", outName, mime, args, c
   const videoRef = useRef<HTMLMediaElement>(null);
 
   useEffect(() => () => { if (src) URL.revokeObjectURL(src); }, [src]);
+  const media = mediaProp === "auto" ? (file?.type.startsWith("video") ? "video" : "audio") : mediaProp;
+  const result = typeof resultProp === "function" ? (file ? resultProp(file) : "audio") : resultProp;
 
   const pick = (f: File[]) => {
     if (!f[0]) return;
