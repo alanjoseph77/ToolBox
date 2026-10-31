@@ -35,7 +35,13 @@ export default function ScanToPdf() {
     const mine = ++token.current;
     (async () => {
       const next: Item[] = [];
-      for (const it of items) { const c = await process(it.file, it.rot, filter, 360); next.push({ ...it, thumb: c.toDataURL("image/jpeg", 0.7) }); if (mine !== token.current) return; }
+      let failed = false;
+      for (const it of items) {
+        try { const c = await process(it.file, it.rot, filter, 360); next.push({ ...it, thumb: c.toDataURL("image/jpeg", 0.7) }); }
+        catch { failed = true; } // damaged picture: left out of the list below
+        if (mine !== token.current) return;
+      }
+      if (failed && mine === token.current) { setError("A photo could not be read, so it was removed."); setItems(next); return; }
       if (mine === token.current && next.some((n, i) => n.thumb !== items[i]?.thumb)) setItems(next);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

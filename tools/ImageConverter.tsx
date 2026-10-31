@@ -16,10 +16,12 @@ export default function ImageConverter() {
   const [quality, setQuality] = useState(90);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ name: string; size: number }[]>([]);
+  const [error, setError] = useState("");
 
   const run = async () => {
-    setBusy(true); setDone([]);
+    setBusy(true); setDone([]); setError("");
     const out: { name: string; size: number }[] = [];
+    try {
     for (const f of files) {
       const img = await loadImage(f);
       const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
@@ -31,6 +33,7 @@ export default function ImageConverter() {
       download(blob, name); out.push({ name, size: blob.size });
       await new Promise((r) => setTimeout(r, 250));
     }
+    } catch { setError("One of the pictures could not be read. Remove the damaged file and try again."); }
     setDone(out); setBusy(false);
   };
 
@@ -42,6 +45,7 @@ export default function ImageConverter() {
           <p className="text-sm">{files.length} image{files.length > 1 ? "s" : ""} selected</p>
           <div className="flex gap-2">{targets.map((t) => <button key={t.ext} className={t === target ? "btn !py-1.5" : "btn-ghost !py-1.5"} onClick={() => setTarget(t)}>{t.label}</button>)}</div>
           {target.type !== "image/png" && <div><label className="label">Quality: {quality}%</label><input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(+e.target.value)} className="w-full" /></div>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <button className="btn w-full" disabled={busy} onClick={run}>{busy ? "Converting…" : `Convert to ${target.label}`}</button>
           <WaterLoader active={busy} label="Converting your images…" />
           {done.map((d) => <p key={d.name} className="text-sm text-neutral-600">✓ {d.name} · {formatBytes(d.size)}</p>)}

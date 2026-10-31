@@ -8,9 +8,11 @@ import { canvasToBlob, download, loadImage } from "@/lib/files";
 export default function JpgToPdf() {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const build = async () => {
-    setBusy(true);
+    setBusy(true); setError("");
+    try {
     const pdf = await PDFDocument.create();
     for (const f of files) {
       let bytes: Uint8Array; let isPng = false;
@@ -26,6 +28,7 @@ export default function JpgToPdf() {
       pdf.addPage([img.width, img.height]).drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
     }
     download(await pdf.save(), "images.pdf", "application/pdf");
+    } catch { setError("One of the pictures could not be read. Remove the damaged file and try again."); }
     setBusy(false);
   };
 
@@ -44,6 +47,7 @@ export default function JpgToPdf() {
       )}
       <button className="btn w-full" disabled={!files.length || busy} onClick={build}>{busy ? "Creating…" : "Create PDF"}</button>
       <WaterLoader active={busy} label="Building your PDF…" />
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
 }
