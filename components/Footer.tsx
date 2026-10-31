@@ -24,8 +24,18 @@ export default function Footer() {
             </div>
           ))}
         </div>
-        <nav aria-label="Legal" className="mt-10 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t border-neutral-200 pt-6 text-sm text-neutral-500 dark:border-neutral-800">
-          {[["About", "/about"], ["Contact", "/contact"], ["Privacy Policy", "/privacy"], ["Terms of Use", "/terms"]].map(([l, h]) => <Link key={h} href={h} className="hover:text-black dark:hover:text-white">{l}</Link>)}
+        <nav aria-label="Site" className="mt-10 grid grid-cols-2 gap-6 border-t border-neutral-200 pt-8 text-sm sm:grid-cols-4 dark:border-neutral-800">
+          {([
+            ["Product", [["Home", "/"], ["Features", "/features"], ["Pricing", "/pricing"], ["Tools", "/#all"], ["FAQ", "/faq"]]],
+            ["Resources", [["PDF tools", "/tools/pdf"], ["Image tools", "/tools/image"], ["Video tools", "/tools/video"], ["Developer tools", "/tools/developer"], ["Utility tools", "/tools/utility"]]],
+            ["Legal", [["Privacy policy", "/privacy"], ["Terms & conditions", "/terms"], ["Cookies", "/cookies"]]],
+            ["Company", [["About us", "/about"], ["Contact us", "/contact"], ["Blog", "/blog"], ["Press", "/press"]]],
+          ] as [string, string[][]][]).map(([h, links]) => (
+            <div key={h}>
+              <p className="mb-2 font-semibold">{h}</p>
+              <ul className="space-y-1.5 text-neutral-500">{links.map(([l, href]) => <li key={href}><Link href={href} className="hover:text-black dark:hover:text-white">{l}</Link></li>)}</ul>
+            </div>
+          ))}
         </nav>
         <p className="mt-6 text-center text-xs text-neutral-400">© {new Date().getFullYear()} ToolBox · Made by <a href="https://otaga.in" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-white">Otaga</a> · Made in India 🇮🇳</p>
       </div>
