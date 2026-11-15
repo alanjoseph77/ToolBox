@@ -12,6 +12,7 @@ const map: Record<string, ComponentType> = {
   "jpg-to-pdf": load(() => import("@/tools/JpgToPdf")),
   "compress-image": load(() => import("@/tools/CompressImage")),
   "resize-image": load(() => import("@/tools/ResizeImage")),
+  "3d-model-viewer": load(() => import("@/tools/ModelViewer")),
   "remove-background": load(() => import("@/tools/RemoveBackground")),
   "watermark-remover": load(() => import("@/tools/WatermarkRemover")),
   "organize-pdf": load(() => import("@/tools/OrganizePdf")),
