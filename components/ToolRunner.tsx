@@ -25,6 +25,7 @@ const map: Record<string, ComponentType> = {
   "lorem-ipsum-generator": load(() => import("@/tools/LoremIpsum")),
   "timestamp-converter": load(() => import("@/tools/TimestampConverter")),
   "cron-expression-helper": load(() => import("@/tools/CronHelper")),
+  "html-code-playground": load(() => import("@/tools/CodePlayground")),
   "remove-background": load(() => import("@/tools/RemoveBackground")),
   "watermark-remover": load(() => import("@/tools/WatermarkRemover")),
   "organize-pdf": load(() => import("@/tools/OrganizePdf")),
