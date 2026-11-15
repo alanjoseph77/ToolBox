@@ -1,4 +1,4 @@
-import { SquareTerminal, Box, Package, MonitorPlay, Shapes, Minimize2, Move3d, AlignLeft, Timer, Diff, Layers, Star, Clock, Sheet, Table2, FileDown, FileJson, Table, FileType2, Presentation, Rows3, Merge, FileCode,
+import { Send, ClipboardPaste, SquareTerminal, Box, Package, MonitorPlay, Shapes, Minimize2, Move3d, AlignLeft, Timer, Diff, Layers, Star, Clock, Sheet, Table2, FileDown, FileJson, Table, FileType2, Presentation, Rows3, Merge, FileCode,
   Baseline, CalendarDays, Copyright, FilePenLine, FileSignature, GraduationCap, Landmark, LockOpen, MessageCircle, PiggyBank, Receipt, SlidersHorizontal, TrendingUp, Wallet, Wifi, VolumeX, MicOff, AudioLines, Shrink, Mic, Gauge, ListMusic, ScanFace, Laugh, GitCompare, FileCode2, CodeXml, Barcode, Binary, Braces, Briefcase, Camera, Clapperboard, Combine, ContactRound, Crop, Eraser, FileArchive, FileImage,
   FileOutput, FileSpreadsheet, FileText, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, MessageSquareText,
   Music, Palette, PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, Sparkles,
@@ -10,7 +10,7 @@ export const toolIcons: Record<string, LucideIcon> = {
   "merge-pdf": Combine, "split-pdf": Split, "compress-pdf": FileArchive, "jpg-to-pdf": FileImage, "organize-pdf": LayoutGrid,
   "pdf-to-jpg": Images, "protect-pdf": Lock, "sign-pdf": PenLine, "pdf-to-word": FileText, "pdf-to-excel": FileSpreadsheet,
   "word-to-pdf": FileOutput, "pdf-ocr": ScanText, "pdf-summarizer": Sparkles,
-  "compress-image": ImageDown, "resize-image": Scaling, "3d-model-viewer": Box, "html-code-playground": SquareTerminal, "image-to-svg": Shapes, "reduce-image-size-kb": Minimize2, "pdf-to-png": Layers, "favicon-generator": Star, "stl-tools": Move3d, "glb-compressor": Package, "color-palette-from-image": Droplets, "screen-recorder": MonitorPlay, "text-diff": Diff, "lorem-ipsum-generator": AlignLeft, "timestamp-converter": Clock, "cron-expression-helper": Timer, "remove-background": Wand2, "background-replacer": ImagePlus,
+  "compress-image": ImageDown, "resize-image": Scaling, "3d-model-viewer": Box, "send-files": Send, "code-share": ClipboardPaste, "html-code-playground": SquareTerminal, "image-to-svg": Shapes, "reduce-image-size-kb": Minimize2, "pdf-to-png": Layers, "favicon-generator": Star, "stl-tools": Move3d, "glb-compressor": Package, "color-palette-from-image": Droplets, "screen-recorder": MonitorPlay, "text-diff": Diff, "lorem-ipsum-generator": AlignLeft, "timestamp-converter": Clock, "cron-expression-helper": Timer, "remove-background": Wand2, "background-replacer": ImagePlus,
   "watermark-remover": Droplets, "image-converter": RefreshCw, "image-cropper": Crop, "passport-photo-maker": ContactRound,
   "image-upscaler": ZoomIn, "image-to-text": TextSelect,
   "video-compressor": Film, "video-trimmer": Scissors, "video-converter": Repeat, "video-to-gif": Clapperboard,
@@ -102,6 +102,7 @@ export const categoryStyle: Record<Category, { tile: string; text: string; dot: 
   Video: { tile, text, dot, label: "Video tools" },
   Audio: { tile, text, dot, label: "Audio tools" },
   AI: { tile, text, dot, label: "AI tools" },
+  Share: { tile, text, dot, label: "Share tools" },
   Developer: { tile, text, dot, label: "Developer utilities" },
   Utility: { tile, text, dot, label: "Utility tools" },
 };

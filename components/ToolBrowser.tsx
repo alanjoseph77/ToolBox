@@ -36,7 +36,7 @@ export default function ToolBrowser() {
           {(["All", ...categories] as const).map((c) => (
             <button key={c} role="tab" aria-selected={active === c} onClick={() => setActive(c)} className={`chip shrink-0 ${active === c ? "chip-active" : ""}`}>
               {c !== "All" && <span className={`h-2 w-2 rounded-full ${categoryStyle[c].dot}`} />}
-              {c === "All" ? "All" : c}
+              {c === "All" ? "All" : c}{c === "Share" && <span className="rounded-full bg-neutral-900 px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-white dark:bg-white dark:text-black">New</span>}
               <span className="text-xs opacity-70">{c === "All" ? tools.length : tools.filter((t) => t.category === c).length}</span>
             </button>
           ))}

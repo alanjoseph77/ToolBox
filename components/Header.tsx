@@ -15,7 +15,7 @@ export default function Header() {
         </Link>
         <nav className="hidden items-center gap-1 text-sm font-medium text-neutral-600 md:flex">
           {categories.map((c) => [c, categorySeo[c].slug]).map(([l, id]) => (
-            <Link key={id} href={`/tools/${id}`} className="rounded-lg px-3 py-2 hover:bg-neutral-100 hover:text-black dark:hover:bg-neutral-900 dark:hover:text-white">{l}</Link>
+            <Link key={id} href={`/tools/${id}`} className="rounded-lg px-3 py-2 hover:bg-neutral-100 hover:text-black dark:hover:bg-neutral-900 dark:hover:text-white">{l}{l === "Share" && <span className="ml-1.5 rounded-full bg-neutral-900 px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-white dark:bg-white dark:text-black">New</span>}</Link>
           ))}
         </nav>
         <div className="flex items-center gap-2"><CommandPalette /><ThemeToggle /></div>

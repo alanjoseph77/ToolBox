@@ -1,4 +1,4 @@
-export type Category = "PDF" | "Image" | "Video" | "Audio" | "AI" | "Developer" | "Utility";
+export type Category = "PDF" | "Image" | "Video" | "Audio" | "AI" | "Share" | "Developer" | "Utility";
 
 // AI tools are hidden unless NEXT_PUBLIC_ENABLE_AI=true (their code stays in the repo).
 export const AI_ENABLED = process.env.NEXT_PUBLIC_ENABLE_AI === "true";
@@ -59,6 +59,8 @@ const allTools: ToolMeta[] = [
   { slug: "timestamp-converter", name: "Unix Timestamp Converter", description: "Convert Unix time to a readable date and back, in seconds or milliseconds.", category: "Developer", popular: true, keywords: ["epoch", "unix", "timestamp", "date", "time", "milliseconds"] },
   { slug: "cron-expression-helper", name: "Cron Expression Helper", description: "Explain a cron schedule in plain English and see its next run times.", category: "Developer", keywords: ["cron", "crontab", "schedule", "job", "explain"] },
   { slug: "html-code-playground", name: "HTML/CSS/JS Playground", description: "A mini VS Code in your browser: write or open HTML, CSS and JavaScript and see it live.", category: "Developer", popular: true, keywords: ["html", "css", "javascript", "editor", "playground", "code", "vs code", "live preview", "html viewer", "codepen"] },
+  { slug: "send-files", name: "Send Files with a Code", description: "Share files between phones and computers with a 6-digit code. Direct, private, no sign-up.", category: "Share", popular: true, keywords: ["share", "send", "transfer", "airdrop", "file transfer", "code", "nearby share", "send anywhere", "p2p"] },
+  { slug: "code-share", name: "Code Share", description: "Write text or code, get an ID, and anyone with the ID can read it. Optional password.", category: "Share", popular: true, keywords: ["share", "paste", "pastebin", "codeshare", "snippet", "text", "notes", "id", "send text"] },
   { slug: "background-replacer", name: "Background Replacer", description: "Swap the background with a colour, gradient or your own image.", category: "Image", keywords: ["background", "change", "replace"] },
   { slug: "image-upscaler", name: "Image Upscaler", description: "Enlarge images 2\u00d7, 3\u00d7 or 4\u00d7 with smooth, sharpened results.", category: "Image", keywords: ["enlarge", "upscale", "resolution"] },
   { slug: "image-to-text", name: "Image to Text (OCR)", description: "Extract text from photos and screenshots in 8 languages.", category: "Image", keywords: ["ocr", "text", "scan"] },
@@ -148,5 +150,5 @@ const allTools: ToolMeta[] = [
 
 const isAi = (t: ToolMeta) => t.category === "AI" || AI_SLUGS.has(t.slug);
 export const tools: ToolMeta[] = AI_ENABLED ? allTools : allTools.filter((t) => !isAi(t));
-export const categories: Category[] = (["PDF", "Image", "Video", "Audio", "AI", "Developer", "Utility"] as Category[]).filter((c) => tools.some((t) => t.category === c));
+export const categories: Category[] = (["PDF", "Image", "Video", "Audio", "AI", "Share", "Developer", "Utility"] as Category[]).filter((c) => tools.some((t) => t.category === c));
 export const getTool = (slug: string) => tools.find((t) => t.slug === slug);
