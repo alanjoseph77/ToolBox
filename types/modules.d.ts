@@ -4,3 +4,8 @@ declare module "mammoth/mammoth.browser" {
   };
   export default mammoth;
 }
+
+declare module "imagetracerjs" {
+  const ImageTracer: { imagedataToSVG(img: ImageData, options?: Record<string, unknown>): string };
+  export default ImageTracer;
+}
