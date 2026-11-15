@@ -104,7 +104,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
       )}
 
       <section aria-label="How it works" className="mt-10 grid gap-4 sm:grid-cols-3">
-        {[[s[0], s[1]], [s[2], s[3]], ["Download", "Save the result. No watermark, no sign-up."]].map(([title, text], i) => (
+        {[[s[0], s[1]], [s[2], s[3]], t.category === "Share" ? ["Done", "Free, with no sign-up and nothing to install."] : ["Download", "Save the result. No watermark, no sign-up."]].map(([title, text], i) => (
           <div key={title} className="card p-4">
             <span className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">{i + 1}</span>
             <h3 className="text-sm font-semibold">{title}</h3>
