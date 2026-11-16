@@ -89,7 +89,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.name}</h1>
           <p className="mt-1 text-neutral-600">{t.description}</p>
           <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-semibold text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
-            {isAi ? <><Sparkles className="h-3.5 w-3.5" /> Free AI · only what you submit is sent</> : t.slug === "code-share" ? <><BadgeCheck className="h-3.5 w-3.5" /> Text is stored only for the time you choose</> : t.slug === "send-files" ? <><BadgeCheck className="h-3.5 w-3.5" /> Device to device · files are not stored</> : <><BadgeCheck className="h-3.5 w-3.5" /> Runs on your device · no upload</>}
+            {isAi ? <><Sparkles className="h-3.5 w-3.5" /> Free AI · only what you submit is sent</> : t.slug === "code-share" ? <><BadgeCheck className="h-3.5 w-3.5" /> Text is stored only for the time you choose</> : t.slug === "qr-studio" || t.slug === "product-qr" ? <><BadgeCheck className="h-3.5 w-3.5" /> Pages are stored for a year, you can delete them</> : t.slug === "send-files" ? <><BadgeCheck className="h-3.5 w-3.5" /> Device to device · files are not stored</> : <><BadgeCheck className="h-3.5 w-3.5" /> Runs on your device · no upload</>}
           </p>
         </div>
       </header>

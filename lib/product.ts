@@ -44,6 +44,9 @@ export function cleanProduct(raw: unknown): { ok: true; p: Product } | { ok: fal
   return { ok: true, p };
 }
 
+/** WhatsApp links need the country code. A plain 10-digit Indian mobile number (starts with 6 to 9) gets +91. */
+export const waDigits = (n: string) => { const d = n.replace(/\D/g, ""); return n.trim().startsWith("+") ? d : /^[6-9]\d{9}$/.test(d) ? `91${d}` : d.replace(/^0+/, ""); };
+
 const num = (s: string) => { const n = parseFloat(s.replace(/,/g, "").replace(/[^\d.]/g, "")); return isFinite(n) ? n : NaN; };
 export const priceText = (p: Product, v = p.price) => (v ? (/^[\d.,\s]+$/.test(v) ? `${p.currency}${v}` : v) : "");
 export const discount = (p: Product) => { const a = num(p.price), b = num(p.mrp); return a > 0 && b > a ? Math.round((1 - a / b) * 100) : 0; };
@@ -52,7 +55,7 @@ export const discount = (p: Product) => { const a = num(p.price), b = num(p.mrp)
 export function actions(p: Product, pageUrl: string): { key: string; label: string; href: string; primary?: boolean }[] {
   const out: { key: string; label: string; href: string; primary?: boolean }[] = [];
   const msg = `Hi${p.shop ? " " + p.shop : ""}, I am interested in ${p.name}${p.price ? " (" + priceText(p) + ")" : ""}. ${pageUrl}`;
-  if (p.whatsapp) out.push({ key: "wa", label: "Order on WhatsApp", href: `https://wa.me/${p.whatsapp.replace("+", "")}?text=${encodeURIComponent(msg)}`, primary: true });
+  if (p.whatsapp) out.push({ key: "wa", label: "Order on WhatsApp", href: `https://wa.me/${waDigits(p.whatsapp)}?text=${encodeURIComponent(msg)}`, primary: true });
   if (p.phone) out.push({ key: "call", label: "Call the shop", href: `tel:${p.phone}`, primary: !p.whatsapp });
   if (p.upi) { const a = p.currency === "₹" || p.currency === "Rs" ? num(p.price) : NaN; out.push({ key: "upi", label: "Pay with UPI", href: `upi://pay?pa=${encodeURIComponent(p.upi)}&pn=${encodeURIComponent(p.shop || p.name)}${a > 0 ? `&am=${a}` : ""}&cu=INR&tn=${encodeURIComponent(p.name.slice(0, 40))}` }); }
   if (p.website) out.push({ key: "web", label: "Visit website", href: p.website });

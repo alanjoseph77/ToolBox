@@ -26,6 +26,7 @@ const map: Record<string, ComponentType> = {
   "timestamp-converter": load(() => import("@/tools/TimestampConverter")),
   "cron-expression-helper": load(() => import("@/tools/CronHelper")),
   "html-code-playground": load(() => import("@/tools/CodePlayground")),
+  "qr-studio": load(() => import("@/tools/QrStudio")),
   "product-qr": load(() => import("@/tools/ProductQr")),
   "send-files": load(() => import("@/tools/SendFiles")),
   "code-share": load(() => import("@/tools/CodeShare")),

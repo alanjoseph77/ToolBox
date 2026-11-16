@@ -60,9 +60,9 @@ export default function ProductView({ id }: { id: string }) {
         <div className="grid gap-2" data-testid="pv-actions">
           {acts.map((a) => {
             const I = ICONS[a.key] ?? Globe;
-            return <a key={a.key} href={a.href} data-key={a.key} target={a.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer nofollow" className="btn w-full" style={a.primary ? { background: T.accent, color: T.accentInk, borderColor: T.accent } : { background: "transparent", color: T.ink, borderColor: `${T.muted}66` }}><I className="h-4 w-4" aria-hidden />{a.label}</a>;
+            return <a key={a.key} href={a.href} data-key={a.key} target={a.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer nofollow" className="btn w-full border" style={a.primary ? { background: T.accent, color: T.accentInk, borderColor: T.accent } : { background: "transparent", color: T.ink, borderColor: `${T.muted}66` }}><I className="h-4 w-4" aria-hidden />{a.label}</a>;
           })}
-          <button className="btn w-full" style={{ background: "transparent", color: T.ink, borderColor: `${T.muted}66` }} onClick={share}><Share2 className="h-4 w-4" aria-hidden />Share this product</button>
+          <button className="btn w-full border" style={{ background: "transparent", color: T.ink, borderColor: `${T.muted}66` }} onClick={share}><Share2 className="h-4 w-4" aria-hidden />Share this product</button>
         </div>
         {p.address && <p className="flex gap-2 text-sm opacity-70"><MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />{p.address}</p>}
       </div>

@@ -14,12 +14,21 @@ export default function Privacy() {
       <p>ToolBox is a product of <a href="https://otaga.in" target="_blank" rel="noopener">Otaga</a>. This policy explains what happens to your information when you use ToolBox.</p>
 
       <h2>Your files stay on your device</h2>
-      <p>The PDF, image, video and utility tools process your files locally in your browser. Your files, text and images are not uploaded to our servers.</p>
+      <p>The PDF, image, video, audio and utility tools process your files locally in your browser. Your files, text and images are not uploaded to our servers. The only exceptions are the sharing tools described in the next section.</p>
+
+      <h2>Share tools: what we store</h2>
+      <p>Three tools need to keep content on our server so that another person can open it. We store only what you type or add to them, and nothing else.</p>
+      <ul>
+        <li><b>QR Code Studio and Shop Product QR Code.</b> The page content you enter (for example text, prices, contact details, links and pictures you add) and a private edit key. It is kept for one year and the year starts again each time you save. Anyone who has the page link or scans the QR code can see the page. If you use the Feedback type, the star ratings and comments that visitors send are stored with the page and are readable only by the page owner.</li>
+        <li><b>Code Share.</b> The text you share, kept for 1 hour, 1 day or 7 days as you choose. If you set a password, the text is encrypted in your browser first and we cannot read it.</li>
+        <li><b>Send Files.</b> Files go directly from one device to the other and are not stored on our server.</li>
+      </ul>
+      <p>You can delete a QR page or Code Share text at any time with the delete button using your edit link, and it is removed from our storage. Pages are also removed automatically when they expire. Do not use these tools to share anything unlawful or confidential. To report a page, use the Report link on it or contact us.</p>
 
       <h2>What we collect</h2>
       <ul>
         <li><b>Technical logs.</b> Our hosting provider (Vercel) may record standard request data such as IP address, browser type and the pages requested, for security and reliability.</li>
-        <li><b>Preferences on your device.</b> We store your theme choice and a list of recently used tools in your browser&apos;s local storage. This never leaves your device and you can clear it at any time.</li>
+        <li><b>Preferences and drafts on your device.</b> We store your theme choice, a list of recently used tools and drafts of QR pages you are making in your browser&apos;s local storage. This stays on your device and you can clear it at any time.</li>
         <li><b>No accounts.</b> You do not need to sign up, so we hold no profile information about you.</li>
       </ul>
 

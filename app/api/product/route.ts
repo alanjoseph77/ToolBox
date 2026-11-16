@@ -31,12 +31,13 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   if (!storeUsable) return off();
-  const id = req.nextUrl.searchParams.get("id")?.toLowerCase().trim() ?? "";
+  const id = req.nextUrl.searchParams.get("id")?.toLowerCase().trim() ?? "", key = req.nextUrl.searchParams.get("key");
   if (!ID_RE.test(id)) return err("This link does not look right.", 400);
   const raw = await getKey(`pc:${id}`);
   if (!raw) return err("This product page was not found. It may have been removed or expired.", 404);
   const r = JSON.parse(raw) as Rec;
-  return NextResponse.json({ product: r.p, updated: r.updated }, { headers: { "Cache-Control": "no-store" } });
+  if (key !== null && !same(r.token, key)) return err("That edit link is not valid.", 403);
+  return NextResponse.json({ product: r.p, updated: r.updated, ...(key !== null ? { editable: true } : {}) }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PUT(req: NextRequest) {

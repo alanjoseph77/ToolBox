@@ -20,6 +20,9 @@ Needs a small database, because the other person opens the text later. Without o
 
 Pads are deleted automatically after 1 hour, 1 day or 7 days. With a password, the text is encrypted in the browser (AES-GCM) before it is stored.
 
+## QR Code Studio (`/qr-studio`, pages at `/q/<id>`)
+16 QR types (Website, PDF, Images, vCard Plus, Video, List of links, Social Media, MP3, Business, Coupon, Apps, Landing page, Product, Event, Menu, Feedback). Website and the "inside the QR" vCard need no storage. All others use the same database as Code Share and are kept for a year (renewed on save). Every created page returns a private edit link (`/qr-studio?edit=<id>&key=<key>`) that works from any phone. Feedback answers are stored in `qf:<id>`. Types and their rules are defined once in `lib/qrTypes.ts`.
+
 ## Shop Product QR Code (`/product-qr`, pages at `/p/<id>`)
 Uses the same database as Code Share (no extra setup). Each product page is stored for a year and renewed on every edit. Without the database keys the tool still works in a reduced "packed" mode: the details travel inside the QR code itself, with no photo.
 Templates: `/product-qr/templates` shows 9 shop designs (colours, poster layout, QR style, sample text); the tool applies one with `/product-qr?template=<id>`. Add or change templates in `lib/productTemplates.ts`, colours in `lib/productThemes.ts`.
