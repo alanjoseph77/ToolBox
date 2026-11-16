@@ -56,3 +56,12 @@
 .dark [class~="bg-red-50"] { background-color: rgb(127 29 29 / .25); }
 .dark mark { color: #000; }
 .dark pre { background-color: #0a0a0a; }
+
+
+/* Phones: form fields need 16px text, or iPhones zoom the page in when you tap them. Touch screens get 44px tap targets. */
+@media (max-width: 639px) {
+  :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]) { font-size: 16px; }
+}
+@media (pointer: coarse) {
+  .chip { min-height: 44px; }
+}

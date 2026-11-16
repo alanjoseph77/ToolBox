@@ -1,8 +1,9 @@
 import { publishResult } from "./handoff";
 
-export function download(data: Blob | Uint8Array, filename: string, type = "application/octet-stream") {
+/** Saves a file. `offerNext` (default on) shows the "continue with another tool" bar; the QR tools turn it off because it covers their buttons on a phone. */
+export function download(data: Blob | Uint8Array, filename: string, type = "application/octet-stream", offerNext = true) {
   const blob = data instanceof Blob ? data : new Blob([data as BlobPart], { type });
-  publishResult(blob, filename, type === "application/octet-stream" ? blob.type : type); // offers "continue with…" tools
+  if (offerNext) publishResult(blob, filename, type === "application/octet-stream" ? blob.type : type); // offers "continue with…" tools
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

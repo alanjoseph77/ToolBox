@@ -77,8 +77,8 @@ export default function QrStudio() {
 
   const qr = useMemo(() => qrSvg(text, style, ecc), [text, style, ecc]);
   const nameBase = (type?.id ?? "qr") + "-qr";
-  const png = async () => download(await svgToPng(qr, 1400), `${nameBase}.png`, "image/png");
-  const svg = () => download(new Blob([qr.svg], { type: "image/svg+xml" }), `${nameBase}.svg`);
+  const png = async () => download(await svgToPng(qr, 1400), `${nameBase}.png`, "image/png", false);
+  const svg = () => download(new Blob([qr.svg], { type: "image/svg+xml" }), `${nameBase}.svg`, "image/svg+xml", false);
   const copy = (t: string, m: string) => navigator.clipboard?.writeText(t).then(() => flash(m)).catch(() => flash("Could not copy."));
   const editLink = created ? `${origin}/qr-studio?edit=${created.id}&key=${created.token}` : "";
   const card = "space-y-4 rounded-2xl border bg-white p-4 sm:p-5";
@@ -117,7 +117,7 @@ export default function QrStudio() {
         {hosted && (
           <div><p className="mb-2 text-sm font-medium">Colours of your page</p>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Page colours">{THEMES.map((t) => (
-              <button key={t.id} role="radio" aria-checked={data.theme === t.id} data-testid={`qs-theme-${t.id}`} onClick={() => setData({ ...data, theme: t.id })} className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm ${data.theme === t.id ? "border-neutral-900 ring-2 ring-neutral-900" : "border-neutral-300"}`}>
+              <button key={t.id} role="radio" aria-checked={data.theme === t.id} data-testid={`qs-theme-${t.id}`} onClick={() => setData({ ...data, theme: t.id })} className={`flex min-h-[44px] items-center gap-2 rounded-full border px-3 py-2 text-sm ${data.theme === t.id ? "border-neutral-900 ring-2 ring-neutral-900" : "border-neutral-300"}`}>
                 <span className="flex h-5 w-5 overflow-hidden rounded-full border"><span className="h-full w-1/2" style={{ background: t.card }} /><span className="h-full w-1/2" style={{ background: t.accent }} /></span>{t.name}</button>))}</div></div>
         )}
       </section>
@@ -128,7 +128,7 @@ export default function QrStudio() {
       </section>
 
       {hosted ? (
-        !created ? <button className="btn w-full" disabled={busy} onClick={create} data-testid="qs-create">{busy ? "Creating…" : "Create my QR code"}</button> : (
+        !created ? <div className="sticky bottom-3 z-30 rounded-2xl bg-white/70 p-1 shadow-lg backdrop-blur"><button className="btn w-full" disabled={busy} onClick={create} data-testid="qs-create">{busy ? "Creating…" : "Create my QR code"}</button></div> : (
           <section className={`${card} border-neutral-900`} data-testid="qs-done">
             <h2 className="text-lg font-bold">3. Your QR code is ready</h2>
             <div className="flex flex-wrap gap-2"><button className="btn" onClick={png} data-testid="qs-dl-png">Download PNG</button><button className="btn-ghost" onClick={svg} data-testid="qs-dl-svg">Download SVG (for print shops)</button></div>

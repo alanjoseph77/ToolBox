@@ -12,7 +12,7 @@ export default function ThemeToggle() {
     try { localStorage.setItem("theme", next ? "dark" : "light"); } catch { /* ignore */ }
   };
   return (
-    <button onClick={toggle} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} className="btn-ghost !min-h-0 !rounded-full !p-2.5">
+    <button onClick={toggle} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} className="btn-ghost !min-h-0 !rounded-full !p-2.5 max-md:!h-11 max-md:!w-11">
       {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>
   );

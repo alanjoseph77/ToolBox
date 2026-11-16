@@ -34,7 +34,7 @@ export default function CommandPalette() {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} aria-label="Search tools" className="btn-ghost !min-h-0 !justify-between gap-6 !rounded-full !py-2 !pl-3 !pr-2 text-neutral-500 sm:!min-w-[220px]">
+      <button onClick={() => setOpen(true)} aria-label="Search tools" className="btn-ghost !min-h-0 !justify-between gap-6 !rounded-full !py-2 !pl-3 !pr-2 text-neutral-500 max-sm:!h-11 max-sm:!w-11 max-sm:!justify-center max-sm:!p-0 sm:!min-w-[220px]">
         <span className="flex items-center gap-2"><Search className="h-4 w-4" /><span className="hidden sm:inline">Search tools</span></span>
         <kbd className="hidden rounded-md border border-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold sm:inline dark:border-neutral-600">Ctrl K</kbd>
       </button>

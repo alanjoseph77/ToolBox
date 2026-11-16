@@ -79,8 +79,8 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
       <JsonLd data={jsonLd} />
       <RecordVisit slug={t.slug} />
       <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1 text-sm text-neutral-500">
-        <Link href="/" className="hover:text-black dark:hover:text-white">Home</Link><ChevronRight className="h-3.5 w-3.5" />
-        <Link href={`/tools/${t.category.toLowerCase()}`} className="hover:text-black dark:hover:text-white">{categoryStyle[t.category].label}</Link><ChevronRight className="h-3.5 w-3.5" />
+        <Link href="/" className="inline-block py-2.5 hover:text-black dark:hover:text-white">Home</Link><ChevronRight className="h-3.5 w-3.5" />
+        <Link href={`/tools/${t.category.toLowerCase()}`} className="inline-block py-2.5 hover:text-black dark:hover:text-white">{categoryStyle[t.category].label}</Link><ChevronRight className="h-3.5 w-3.5" />
         <span className="font-medium text-neutral-700">{t.name}</span>
       </nav>
       <header className="mb-6 flex items-start gap-4">

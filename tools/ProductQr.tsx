@@ -119,9 +119,9 @@ export default function ProductQr() {
     const t = setTimeout(async () => { try { const b = await makePoster(p, await svgToPng(qr, 900), layout); if (live) { url = URL.createObjectURL(b); if (lastPoster.current) URL.revokeObjectURL(lastPoster.current); lastPoster.current = url; setPosterUrl(url); } } catch { /* preview only */ } }, 700);
     return () => { live = false; clearTimeout(t); };
   }, [p, qr, layout, ready]);
-  const png = async () => download(await svgToPng(qr, 1400), `${(p.name || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}-qr.png`, "image/png");
-  const svgDl = () => download(new Blob([qr.svg], { type: "image/svg+xml" }), `${(p.name || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}-qr.svg`);
-  const poster = async () => { try { download(await makePoster(p, await svgToPng(qr, 900), layout), "product-poster.png", "image/png"); } catch { setError("Could not make the poster."); } };
+  const png = async () => download(await svgToPng(qr, 1400), `${(p.name || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}-qr.png`, "image/png", false);
+  const svgDl = () => download(new Blob([qr.svg], { type: "image/svg+xml" }), `${(p.name || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}-qr.svg`, "image/svg+xml", false);
+  const poster = async () => { try { download(await makePoster(p, await svgToPng(qr, 900), layout), "product-poster.png", "image/png", false); } catch { setError("Could not make the poster."); } };
   const copy = (t: string, m: string) => { navigator.clipboard?.writeText(t).then(() => flash(m)).catch(() => flash("Could not copy.")); };
 
   const f = (label: string, id: string, el: React.ReactNode, hint?: string) => <div><label className="label" htmlFor={id}>{label}</label>{el}{hint && <p className="mt-1 text-xs text-neutral-500">{hint}</p>}</div>;
@@ -184,17 +184,17 @@ export default function ProductQr() {
         {sample && <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900" data-testid="pq-sample"><span>You are using the <b>{sample}</b> sample. Replace the text and photo with your own product.</span><button className="btn-ghost !py-1.5" onClick={clearSample}>Clear the sample</button></div>}
         <div><p className="mb-2 text-sm font-medium">Start from a template</p>
           <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">{TEMPLATES.map((t) => <button key={t.id} data-testid={`pq-tpl-${t.id}`} className="chip shrink-0" onClick={() => applyTemplate(t)}><span aria-hidden>{t.emoji}</span>{t.name}</button>)}</div></div>
-        <div className="grid gap-5 md:grid-cols-[1fr_220px]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
           <div className="space-y-4">
             <div><p className="mb-2 text-sm font-medium">Colours of your product page and poster</p>
               <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Colour theme">{THEMES.map((t) => (
-                <button key={t.id} role="radio" aria-checked={p.theme === t.id} data-testid={`pq-theme-${t.id}`} onClick={() => set("theme", t.id)} className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm ${p.theme === t.id ? "border-neutral-900 ring-2 ring-neutral-900" : "border-neutral-300"}`}>
+                <button key={t.id} role="radio" aria-checked={p.theme === t.id} data-testid={`pq-theme-${t.id}`} onClick={() => set("theme", t.id)} className={`flex min-h-[44px] items-center gap-2 rounded-full border px-3 py-2 text-sm ${p.theme === t.id ? "border-neutral-900 ring-2 ring-neutral-900" : "border-neutral-300"}`}>
                   <span className="flex h-5 w-5 overflow-hidden rounded-full border"><span className="h-full w-1/2" style={{ background: t.card }} /><span className="h-full w-1/2" style={{ background: t.accent }} /></span>{t.name}</button>))}</div></div>
             <div><p className="mb-2 text-sm font-medium">Poster layout</p>
               <div className="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Poster layout">{LAYOUTS.map((l) => (
                 <button key={l.id} role="radio" aria-checked={layout === l.id} data-testid={`pq-layout-${l.id}`} onClick={() => setLayout(l.id)} className={`rounded-xl border p-3 text-left text-sm ${layout === l.id ? "border-neutral-900 ring-2 ring-neutral-900" : "border-neutral-300"}`}><b>{l.name}</b><span className="mt-0.5 block text-xs text-neutral-500">{l.hint}</span></button>))}</div></div>
           </div>
-          <div>{posterUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={posterUrl} alt="Poster preview" data-testid="pq-poster-prev" className="mx-auto w-full max-w-[220px] rounded-xl border shadow-sm" /> : <div className="mx-auto h-[300px] w-[220px] animate-pulse rounded-xl bg-neutral-100" />}
+          <div className="order-first md:order-last">{posterUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={posterUrl} alt="Poster preview" data-testid="pq-poster-prev" className="mx-auto w-full max-w-[170px] rounded-xl border shadow-sm md:max-w-[220px]" /> : <div className="mx-auto h-[300px] w-[220px] animate-pulse rounded-xl bg-neutral-100" />}
             <p className="mt-1 text-center text-xs text-neutral-500">Poster preview</p></div>
         </div>
       </section>
@@ -208,7 +208,7 @@ export default function ProductQr() {
       {note && <p className="text-sm text-green-700" aria-live="polite" data-testid="pq-note">{note}</p>}
 
       {!created ? (
-        <button className="btn w-full" disabled={busy || !p.name.trim()} onClick={create} data-testid="pq-create">{busy ? "Creating…" : "Create my QR code"}</button>
+        <div className="sticky bottom-3 z-30 rounded-2xl bg-white/70 p-1 shadow-lg backdrop-blur"><button className="btn w-full" disabled={busy || !p.name.trim()} onClick={create} data-testid="pq-create">{busy ? "Creating…" : "Create my QR code"}</button></div>
       ) : (
         <section className={`${card} border-neutral-900`} data-testid="pq-done">
           <h2 className="text-lg font-bold">5. Your QR code is ready</h2>
