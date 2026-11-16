@@ -20,5 +20,9 @@ Needs a small database, because the other person opens the text later. Without o
 
 Pads are deleted automatically after 1 hour, 1 day or 7 days. With a password, the text is encrypted in the browser (AES-GCM) before it is stored.
 
+## Shop Product QR Code (`/product-qr`, pages at `/p/<id>`)
+Uses the same database as Code Share (no extra setup). Each product page is stored for a year and renewed on every edit. Without the database keys the tool still works in a reduced "packed" mode: the details travel inside the QR code itself, with no photo.
+Product pages are `noindex` and `/p/` is disallowed in `robots.txt`.
+
 ## Local testing
 Without the database keys, `npm run dev` keeps pads in server memory (lost on restart). In production, memory is not used.
