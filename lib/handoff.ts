@@ -13,7 +13,7 @@ export function kindOf(type: string, name: string): Kind | null {
 
 /** Which tools make sense after a result of each kind (the current tool is filtered out by the UI). */
 export const nextTools: Record<Kind, string[]> = {
-  image: ["image-pipeline", "compress-image", "resize-image", "image-converter", "image-cropper", "jpg-to-pdf", "remove-background", "image-upscaler", "remove-photo-details"],
+  image: ["image-enhancer", "invert-image", "image-pipeline", "compress-image", "resize-image", "image-converter", "image-cropper", "jpg-to-pdf", "remove-background", "image-upscaler", "remove-photo-details"],
   pdf: ["compress-pdf", "merge-pdf", "split-pdf", "rotate-pdf", "watermark-pdf", "add-page-numbers", "protect-pdf", "sign-pdf", "edit-pdf-details", "pdf-to-jpg"],
   video: ["video-compressor", "video-trimmer", "video-converter", "video-to-gif", "video-to-mp3"],
 };

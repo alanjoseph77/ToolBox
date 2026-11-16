@@ -24,7 +24,7 @@ export default function ResultBar() {
       <div className="flex items-center gap-2 text-sm">
         <Link2 className="h-4 w-4 shrink-0" aria-hidden />
         <span className="min-w-0 flex-1 truncate"><b>{result.name}</b> <span className="text-neutral-500">({formatBytes(result.blob.size)})</span> is ready. Keep going:</span>
-        <button aria-label="Dismiss" onClick={() => { setHidden(true); clearLastResult(); }} className="rounded p-1 hover:bg-neutral-100 dark:hover:bg-neutral-900"><X className="h-4 w-4" /></button>
+        <button aria-label="Dismiss" onClick={() => { setHidden(true); clearLastResult(); }} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900"><X className="h-4 w-4" /></button>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
         {options.map((t) => (

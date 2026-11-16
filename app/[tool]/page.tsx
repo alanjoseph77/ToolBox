@@ -119,7 +119,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <div className="card divide-y">
             {seo.faqs.map(([q, a]) => (
               <details key={q} className="group p-4">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">{q}<ChevronRight className="h-4 w-4 shrink-0 transition group-open:rotate-90" aria-hidden /></summary>
+                <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 font-semibold">{q}<ChevronRight className="h-4 w-4 shrink-0 transition group-open:rotate-90" aria-hidden /></summary>
                 <p className="mt-2 text-sm leading-relaxed text-neutral-600">{a}</p>
               </details>
             ))}
