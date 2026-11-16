@@ -4,13 +4,14 @@ import Link from "next/link";
 import { AudioLines, CalendarDays, Contact, FileText, Globe, Images, LayoutTemplate, ListChecks, MessageSquareHeart, ShoppingBag, Smartphone, Store, ThumbsUp, Ticket, UtensilsCrossed, Video, type LucideIcon } from "lucide-react";
 import QrForm, { blank } from "@/components/QrForm";
 import QrStyler from "@/components/QrStyler";
+import EditLinkBox from "@/components/EditLinkBox";
 import { download } from "@/lib/files";
 import { THEMES } from "@/lib/productThemes";
 import { QR_TYPES, cleanData, isHosted, typeOf, type Data, type QrType } from "@/lib/qrTypes";
 import { DEFAULT_STYLE, qrSvg, svgToPng, type QrStyle } from "@/lib/qrStyle";
 
 const ICONS: Record<string, LucideIcon> = { Globe, FileText, Images, Contact, Video, ListChecks, ThumbsUp, AudioLines, Store, Ticket, Smartphone, LayoutTemplate, CalendarDays, UtensilsCrossed, MessageSquareHeart };
-interface Created { id: string; token: string }
+interface Created { id: string; token: string; saved?: boolean }
 interface Answers { count: number; average: number; entries: { r: number; c: string; n: string; t: number }[] }
 const LS = "toolbox-qr-studio-v1";
 const SAMPLE = "abcdefgh";
@@ -40,8 +41,8 @@ export default function QrStudio() {
     (async () => {
       if (edit && key) {
         const r = await fetch(`/api/qr?id=${encodeURIComponent(edit)}&key=${encodeURIComponent(key)}`, { cache: "no-store" }).catch(() => null), j = await r?.json().catch(() => ({}));
-        if (r?.ok && typeOf(j.type)) { setTypeId(j.type); setData(j.data); setCreated({ id: edit, token: key }); } else setError(j?.error || "That edit link did not work. It may have expired or been deleted.");
-      } else if (pre) choose(pre);
+        if (r?.ok && typeOf(j.type)) { setTypeId(j.type); setData(j.data); setCreated({ id: edit, token: key, saved: true }); } else setError(j?.error || "That edit link did not work. It may have expired or been deleted.");
+      } else if (pre && !(() => { try { return JSON.parse(localStorage.getItem(LS) || "null")?.typeId === pre.id; } catch { return false; } })()) choose(pre);
       else { try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s?.typeId && typeOf(s.typeId)) { setTypeId(s.typeId); setData(s.data ?? {}); if (s.style) setStyle({ ...DEFAULT_STYLE, ...s.style, logo: "" }); if (s.created) setCreated(s.created); } } catch { /* nothing saved */ } }
       setReady(true);
     })();
@@ -80,6 +81,7 @@ export default function QrStudio() {
   const png = async () => download(await svgToPng(qr, 1400), `${nameBase}.png`, "image/png", false);
   const svg = () => download(new Blob([qr.svg], { type: "image/svg+xml" }), `${nameBase}.svg`, "image/svg+xml", false);
   const copy = (t: string, m: string) => navigator.clipboard?.writeText(t).then(() => flash(m)).catch(() => flash("Could not copy."));
+  const leave = () => !created || created.saved || window.confirm("You have not saved your private edit link yet. Without it you cannot edit or delete this page later. Leave anyway?");
   const editLink = created ? `${origin}/qr-studio?edit=${created.id}&key=${created.token}` : "";
   const card = "space-y-4 rounded-2xl border bg-white p-4 sm:p-5";
 
@@ -106,7 +108,7 @@ export default function QrStudio() {
   const Icon = ICONS[type.icon] ?? Globe;
   return (
     <div className="space-y-5" data-testid="qs-editor" data-type={type.id}>
-      <div className="flex flex-wrap items-center justify-between gap-2"><button className="btn-ghost !py-1.5" onClick={() => { setTypeId(null); setCreated(null); }} data-testid="qs-back">← All types</button>
+      <div className="flex flex-wrap items-center justify-between gap-2"><button className="btn-ghost !py-1.5" onClick={() => { if (leave()) { setTypeId(null); setCreated(null); } }} data-testid="qs-back">← All types</button>
         <span className="flex items-center gap-2 text-sm font-semibold"><Icon className="h-5 w-5" aria-hidden />{type.name}</span></div>
       {error && <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert" data-testid="qs-error">{error}</p>}
       {note && <p className="text-sm text-green-700" aria-live="polite" data-testid="qs-note">{note}</p>}
@@ -133,9 +135,8 @@ export default function QrStudio() {
             <h2 className="text-lg font-bold">3. Your QR code is ready</h2>
             <div className="flex flex-wrap gap-2"><button className="btn" onClick={png} data-testid="qs-dl-png">Download PNG</button><button className="btn-ghost" onClick={svg} data-testid="qs-dl-svg">Download SVG (for print shops)</button></div>
             <div className="space-y-2 text-sm"><p className="font-medium">Your page</p><div className="flex gap-2"><input readOnly aria-label="Page link" data-testid="qs-link" className="input text-xs" value={link} /><button className="btn-ghost" onClick={() => copy(link, "Link copied.")}>Copy</button><a className="btn-ghost" href={link} target="_blank" rel="noreferrer" data-testid="qs-open">Open</a></div></div>
-            <div className="space-y-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900"><p className="font-semibold">Save your private edit link</p><p>It lets you change or delete this page from any phone, even if you clear your browser. Keep it safe: anyone who has it can edit the page.</p>
-              <div className="flex gap-2"><input readOnly aria-label="Edit link" data-testid="qs-editlink" className="input text-xs" value={editLink} /><button className="btn-ghost" onClick={() => copy(editLink, "Edit link copied. Paste it somewhere safe, like WhatsApp to yourself.")} data-testid="qs-copy-edit">Copy</button></div></div>
-            <div className="flex flex-wrap gap-2 border-t pt-3"><button className="btn" disabled={busy} onClick={update} data-testid="qs-update">Save changes to this page</button><button className="btn-ghost" disabled={busy} onClick={() => { setTypeId(null); setCreated(null); }}>Make another QR</button><button className="btn-ghost text-red-700" disabled={busy} onClick={remove}>Delete this page</button></div>
+            <EditLinkBox prefix="qs" editUrl={editLink} pageUrl={link} title={String(data.title ?? data.name ?? data.headline ?? type.name)} saved={!!created.saved} onSaved={() => setCreated((c) => (c ? { ...c, saved: true } : c))} />
+            <div className="flex flex-wrap gap-2 border-t pt-3"><button className="btn" disabled={busy} onClick={update} data-testid="qs-update">Save changes to this page</button><button className="btn-ghost" disabled={busy} onClick={() => { if (leave()) { setTypeId(null); setCreated(null); } }}>Make another QR</button><button className="btn-ghost text-red-700" disabled={busy} onClick={remove}>Delete this page</button></div>
             <p className="text-xs text-neutral-500">The page stays online for a year and renews each time you save. After that, or after you delete it, the QR code stops working.</p>
             {type.id === "feedback" && (
               <div className="space-y-2 border-t pt-3" data-testid="qs-answers"><div className="flex items-center justify-between"><p className="font-semibold">Answers so far</p><button className="btn-ghost !py-1.5 text-sm" onClick={loadAnswers}>Refresh</button></div>

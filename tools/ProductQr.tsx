@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QrStyler, { type LogoOption } from "@/components/QrStyler";
+import EditLinkBox from "@/components/EditLinkBox";
 import { download, loadImage } from "@/lib/files";
 import { jpegWithinKb } from "@/lib/photoSize";
 import { CURRENCIES, EMPTY_PRODUCT, cleanProduct, discount, packProduct, priceText, type Product } from "@/lib/product";
@@ -9,7 +10,7 @@ import { makePoster } from "@/lib/poster";
 import { THEMES } from "@/lib/productThemes";
 import { LAYOUTS, TEMPLATES, samplePhoto, templateOf, type PosterLayout, type Template } from "@/lib/productTemplates";
 
-interface Created { id: string; token: string; mode: "hosted" | "packed" }
+interface Created { id: string; token: string; mode: "hosted" | "packed"; saved?: boolean }
 const LS = "toolbox-product-qr-v1";
 const SAMPLE_ID = "abcdefgh";                              // only used for the preview before the real link exists
 
@@ -53,7 +54,7 @@ export default function ProductQr() {
     try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s) { if (s.p) setP({ ...EMPTY_PRODUCT, ...s.p }); if (s.style) setStyle({ ...DEFAULT_STYLE, ...s.style, logo: "" }); if (s.shopLogo) setShopLogo(s.shopLogo); if (s.created) setCreated(s.created); if (s.layout) setLayout(s.layout); } } catch { /* nothing saved */ }
     const q = new URLSearchParams(location.search), eid = q.get("edit"), ekey = q.get("key");
     if (eid && ekey) {                                                         // the private edit link: open this page for editing from any phone
-      fetch(`/api/product?id=${encodeURIComponent(eid)}&key=${encodeURIComponent(ekey)}`, { cache: "no-store" }).then(async (r) => { const j = await r.json().catch(() => ({})); if (r.ok) { setP({ ...EMPTY_PRODUCT, ...j.product }); setCreated({ id: eid, token: ekey, mode: "hosted" }); } else setError(j.error || "That edit link did not work."); }).catch(() => setError("Could not open the edit link."));
+      fetch(`/api/product?id=${encodeURIComponent(eid)}&key=${encodeURIComponent(ekey)}`, { cache: "no-store" }).then(async (r) => { const j = await r.json().catch(() => ({})); if (r.ok) { setP({ ...EMPTY_PRODUCT, ...j.product }); setCreated({ id: eid, token: ekey, mode: "hosted", saved: true }); } else setError(j.error || "That edit link did not work."); }).catch(() => setError("Could not open the edit link."));
     } else { const t = templateOf(q.get("template")); if (t) applyTemplate(t, true); }
     setReady(true);
   }, []);
@@ -220,13 +221,10 @@ export default function ProductQr() {
           </div>
           <div className="space-y-2 text-sm"><p className="font-medium">Your product page</p>
             <div className="flex gap-2"><input readOnly aria-label="Product page link" data-testid="pq-link" className="input text-xs" value={created.mode === "packed" ? `${origin}/p/q#…` : pageUrl} /><button className="btn-ghost" onClick={() => copy(pageUrl, "Link copied.")}>Copy</button><a className="btn-ghost" href={pageUrl} target="_blank" rel="noreferrer" data-testid="pq-open">Open</a></div></div>
-          {created.mode === "hosted" && (
-            <div className="space-y-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900"><p className="font-semibold">Save your private edit link</p><p>It lets you change or delete this page from any phone, even if you clear your browser. Keep it safe: anyone who has it can edit the page.</p>
-              <div className="flex gap-2"><input readOnly aria-label="Edit link" data-testid="pq-editlink" className="input text-xs" value={`${origin}/product-qr?edit=${created.id}&key=${created.token}`} /><button className="btn-ghost" data-testid="pq-copy-edit" onClick={() => copy(`${origin}/product-qr?edit=${created.id}&key=${created.token}`, "Edit link copied. Paste it somewhere safe, like WhatsApp to yourself.")}>Copy</button></div></div>
-          )}
+          {created.mode === "hosted" && <EditLinkBox prefix="pq" editUrl={`${origin}/product-qr?edit=${created.id}&key=${created.token}`} pageUrl={pageUrl} title={p.name || "Product"} saved={!!created.saved} onSaved={() => setCreated((c) => (c ? { ...c, saved: true } : c))} />}
           <div className="flex flex-wrap gap-2 border-t pt-3">
             {created.mode === "hosted" && <button className="btn" disabled={busy} onClick={update} data-testid="pq-update">Save changes to this page</button>}
-            <button className="btn-ghost" disabled={busy} onClick={reset}>New product</button>
+            <button className="btn-ghost" disabled={busy} onClick={() => { if (!created || created.saved || created.mode === "packed" || window.confirm("You have not saved your private edit link yet. Without it you cannot edit or delete this page later. Start a new product anyway?")) reset(); }}>New product</button>
             <button className="btn-ghost text-red-700" disabled={busy} onClick={remove}>Delete this page</button>
           </div>
           <p className="text-xs text-neutral-500">Change the price or photo any time with <b>Save changes</b>: the printed QR code stays the same. The page stays online for a year and renews each time you save.</p>
