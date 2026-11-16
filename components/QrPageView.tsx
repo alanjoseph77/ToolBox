@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { BadgeCheck, Calendar, Check, Copy, Download, ExternalLink, Flag, Globe, Mail, MapPin, MessageCircle, Phone, Play, Star } from "lucide-react";
 import { CONTACT_EMAIL } from "@/lib/site";
 import { themeOf, type Theme } from "@/lib/productThemes";
@@ -74,20 +74,34 @@ function Body({ type, d, T, id, url }: { type: string; d: D; T: Theme; id: strin
   }
 }
 
-function Gallery({ d, T }: { d: D; T: Theme }) {
+/** Full-screen picture viewer: arrows, keyboard, swipe, tap outside to close. */
+function Lightbox({ images, start, onClose }: { images: string[]; start: number; onClose: () => void }) {
+  const [i, setI] = useState(start), n = images.length, x0 = useRef<number | null>(null);      // a ref, so a quick swipe is never missed
+  const go = (d: number) => setI((v) => (v + d + n) % n);
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); };
+    window.addEventListener("keydown", k); const prev = document.body.style.overflow; document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", k); document.body.style.overflow = prev; };
+  }); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4" role="dialog" aria-modal="true" onClick={onClose} data-testid="qv-lightbox"
+      onTouchStart={(e) => { x0.current = e.touches[0].clientX; }} onTouchEnd={(e) => { if (x0.current !== null && n > 1) { const dx = e.changedTouches[0].clientX - x0.current; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); } x0.current = null; }}>
+      <img src={images[i]} alt={`Picture ${i + 1} of ${n}`} className="max-h-full max-w-full rounded-lg object-contain" data-testid="qv-lightbox-img" onClick={(e) => e.stopPropagation()} />
+      {n > 1 && <>
+        <button className="absolute left-2 top-1/2 h-12 w-12 -translate-y-1/2 rounded-full bg-white/20 text-2xl text-white" aria-label="Previous picture" onClick={(e) => { e.stopPropagation(); go(-1); }}>‹</button>
+        <button className="absolute right-2 top-1/2 h-12 w-12 -translate-y-1/2 rounded-full bg-white/20 text-2xl text-white" aria-label="Next picture" onClick={(e) => { e.stopPropagation(); go(1); }}>›</button>
+        <p className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-sm text-white" data-testid="qv-lightbox-count">{i + 1} / {n}</p></>}
+      <button className="absolute right-3 top-3 h-11 w-11 rounded-full bg-white/20 text-xl text-white" aria-label="Close" onClick={(e) => { e.stopPropagation(); onClose(); }}>✕</button>
+    </div>
+  );
+}
+
+function Gallery({ d }: { d: D; T: Theme }) {
   const imgs = arr(d.images) as unknown as string[]; const [open, setOpen] = useState(-1);
-  useEffect(() => { if (open < 0) return; const k = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(-1); if (e.key === "ArrowRight") setOpen((o) => (o + 1) % imgs.length); if (e.key === "ArrowLeft") setOpen((o) => (o - 1 + imgs.length) % imgs.length); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [open, imgs.length]);
   return (
     <Pad><H1>{s(d.title)}</H1>{d.description && <Muted>{s(d.description)}</Muted>}
-      <div className="grid grid-cols-2 gap-2" data-testid="qv-gallery">{imgs.map((src, i) => <button key={i} onClick={() => setOpen(i)} className="overflow-hidden rounded-xl border" aria-label={`Open picture ${i + 1}`}><img src={src} alt={`Picture ${i + 1}`} className="aspect-square w-full object-cover" /></button>)}</div>
-      {open >= 0 && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4" role="dialog" aria-modal="true" onClick={() => setOpen(-1)} data-testid="qv-lightbox">
-          <img src={imgs[open]} alt={`Picture ${open + 1}`} className="max-h-full max-w-full rounded-lg object-contain" />
-          {imgs.length > 1 && <><button className="absolute left-2 top-1/2 h-12 w-12 -translate-y-1/2 rounded-full bg-white/20 text-2xl text-white" aria-label="Previous" onClick={(e) => { e.stopPropagation(); setOpen((open - 1 + imgs.length) % imgs.length); }}>‹</button><button className="absolute right-2 top-1/2 h-12 w-12 -translate-y-1/2 rounded-full bg-white/20 text-2xl text-white" aria-label="Next" onClick={(e) => { e.stopPropagation(); setOpen((open + 1) % imgs.length); }}>›</button></>}
-          <button className="absolute right-3 top-3 h-11 w-11 rounded-full bg-white/20 text-xl text-white" aria-label="Close">✕</button>
-        </div>
-      )}
-      <span className="hidden">{T.id}</span>
+      <div className="grid grid-cols-2 gap-2" data-testid="qv-gallery">{imgs.map((src, i) => <button key={i} onClick={() => setOpen(i)} className="overflow-hidden rounded-xl border" aria-label={`Open picture ${i + 1}`}><img src={src} alt={`Picture ${i + 1}`} loading="lazy" className="aspect-square w-full object-cover" /></button>)}</div>
+      {open >= 0 && <Lightbox images={imgs} start={open} onClose={() => setOpen(-1)} />}
     </Pad>
   );
 }
@@ -198,7 +212,7 @@ function Event({ d, T, url }: { d: D; T: Theme; url: string }) {
 }
 
 function Menu({ d, T }: { d: D; T: Theme }) {
-  const [q, setQ] = useState(""); const cur = s(d.currency) || "₹";
+  const [q, setQ] = useState(""); const cur = s(d.currency) || "₹"; const [box, setBox] = useState<{ images: string[]; start: number } | null>(null);
   const secs: D[] = arr(d.sections).map((sec) => ({ ...sec, items: arr(sec.items).filter((it) => !q || `${s(it.name)} ${s(it.desc)}`.toLowerCase().includes(q.toLowerCase())) })).filter((sec) => sec.items.length || (!q && !arr(sec.items).length));
   return (
     <>
@@ -211,11 +225,15 @@ function Menu({ d, T }: { d: D; T: Theme }) {
           {secs.map((sec, i) => (
             <section key={i} id={`sec-${i}`}><h2 className="mb-2 text-lg font-extrabold" style={{ color: T.accent === "#111111" ? T.ink : T.accent }}>{s(sec.name)}</h2>
               <ul className="divide-y" style={{ borderColor: `${T.muted}22` }}>{arr(sec.items).map((it, j) => (
-                <li key={j} className="flex justify-between gap-3 py-2.5" data-testid="qv-dish"><div className="min-w-0"><p className="flex items-center gap-2 font-semibold">{it.veg && <span className={`inline-block h-3 w-3 rounded-sm border-2 ${it.veg === "veg" ? "border-green-600" : "border-red-600"}`} title={it.veg === "veg" ? "Veg" : "Non-veg"}><span className={`m-auto mt-[1px] block h-1 w-1 rounded-full ${it.veg === "veg" ? "bg-green-600" : "bg-red-600"}`} /></span>}{s(it.name)}</p>{it.desc && <p className="text-sm opacity-70">{s(it.desc)}</p>}</div>
+                <li key={j} className="flex items-start gap-3 py-3" data-testid="qv-dish">
+                  {arr(it.photos).length > 0 && <button type="button" className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border" aria-label={`See photos of ${s(it.name)}`} data-testid="qv-dish-photo" onClick={() => setBox({ images: arr(it.photos) as unknown as string[], start: 0 })}>
+                    <img src={(arr(it.photos) as unknown as string[])[0]} alt={s(it.name)} loading="lazy" className="h-full w-full object-cover" />{arr(it.photos).length > 1 && <span className="absolute bottom-1 right-1 rounded-full bg-black/70 px-1.5 text-[11px] font-bold text-white">+{arr(it.photos).length - 1}</span>}</button>}
+                  <div className="min-w-0 flex-1"><p className="flex items-center gap-2 font-semibold">{it.veg && <span className={`inline-block h-3 w-3 shrink-0 rounded-sm border-2 ${it.veg === "veg" ? "border-green-600" : "border-red-600"}`} title={it.veg === "veg" ? "Veg" : "Non-veg"}><span className={`m-auto mt-[1px] block h-1 w-1 rounded-full ${it.veg === "veg" ? "bg-green-600" : "bg-red-600"}`} /></span>}{s(it.name)}</p>{it.desc && <p className="text-sm opacity-70">{s(it.desc)}</p>}</div>
                   {it.price && <p className="shrink-0 font-bold">{/^[\d.,\s]+$/.test(s(it.price)) ? `${cur}${s(it.price)}` : s(it.price)}</p>}</li>))}</ul></section>
           ))}
           {secs.length === 0 && <p className="text-sm opacity-70">No dishes match your search.</p>}
         </div>
+        {box && <Lightbox images={box.images} start={box.start} onClose={() => setBox(null)} />}
         <div className="grid gap-2">{d.whatsapp && <Btn T={T} primary href={wa(s(d.whatsapp), `Hi ${s(d.name)}, I would like to order:`)} label="Order on WhatsApp" icon={I(MessageCircle)} />}{d.phone && <Btn T={T} primary={!d.whatsapp} href={`tel:${s(d.phone)}`} label="Call to order" icon={I(Phone)} />}{d.address && <Btn T={T} href={maps(s(d.address))} label="Get directions" icon={I(MapPin)} />}</div>
       </Pad>
     </>

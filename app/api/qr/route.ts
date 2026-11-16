@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes, randomInt } from "node:crypto";
 import { cleanData, typeOf } from "@/lib/qrTypes";
-import { same, type Rec } from "@/lib/qrServer";
+import { TTL, dropImages, externalizeImages, refsIn, same, type Rec } from "@/lib/qrServer";
 import { delKey, getKey, setKey, storeUsable } from "@/lib/shareStore";
 
 export const runtime = "nodejs";
 
-const TTL = 365 * 24 * 3600;
 const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
 const ID_RE = /^[a-hj-km-np-z2-9]{8}$/;
 const err = (message: string, status: number) => NextResponse.json({ error: message }, { status });
@@ -24,7 +23,10 @@ export async function POST(req: NextRequest) {
   const token = randomBytes(12).toString("hex"), now = Date.now();
   for (let i = 0; i < 8; i++) {
     const id = Array.from({ length: 8 }, () => ALPHABET[randomInt(ALPHABET.length)]).join("");
-    if (await setKey(`qp:${id}`, JSON.stringify({ type: t.id, d: c.d, token, created: now, updated: now } satisfies Rec), TTL, true)) return NextResponse.json({ id, token });
+    if (!(await setKey(`qp:${id}`, JSON.stringify({ type: t.id, d: {}, token, created: now, updated: now } satisfies Rec), TTL, true))) continue;   // reserve the id
+    const d = await externalizeImages(id, t, c.d);
+    await setKey(`qp:${id}`, JSON.stringify({ type: t.id, d, token, created: now, updated: now } satisfies Rec), TTL);
+    return NextResponse.json({ id, token });
   }
   return err("Could not create the page. Please try again.", 500);
 }
@@ -49,7 +51,9 @@ export async function PUT(req: NextRequest) {
   const r = JSON.parse(raw) as Rec, t = typeOf(r.type)!;
   if (!same(r.token, b.token)) return err("Only the person who created this page can change it.", 403);
   const c = cleanData(t, b?.data); if (!c.ok) return err(c.error, 400);
-  await setKey(`qp:${id}`, JSON.stringify({ ...r, d: c.d, updated: Date.now() } satisfies Rec), TTL);
+  const d = await externalizeImages(id, t, c.d), keep = new Set(refsIn(t, d));
+  await setKey(`qp:${id}`, JSON.stringify({ ...r, d, updated: Date.now() } satisfies Rec), TTL);
+  await dropImages(id, refsIn(t, r.d).filter((x) => !keep.has(x)));                 // pictures the owner removed
   return NextResponse.json({ ok: true });
 }
 
@@ -59,6 +63,8 @@ export async function DELETE(req: NextRequest) {
   const raw = ID_RE.test(id) ? await getKey(`qp:${id}`) : null;
   if (!raw) return NextResponse.json({ ok: true });
   if (typeof b?.token !== "string" || !same((JSON.parse(raw) as Rec).token, b.token)) return err("Only the person who created this page can delete it.", 403);
+  const rec = JSON.parse(raw) as Rec, t = typeOf(rec.type);
+  if (t) await dropImages(id, refsIn(t, rec.d));
   await delKey(`qp:${id}`); await delKey(`qf:${id}`);
   return NextResponse.json({ ok: true });
 }

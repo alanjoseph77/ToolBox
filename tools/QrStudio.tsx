@@ -7,7 +7,7 @@ import QrStyler from "@/components/QrStyler";
 import EditLinkBox from "@/components/EditLinkBox";
 import { download } from "@/lib/files";
 import { THEMES } from "@/lib/productThemes";
-import { QR_TYPES, cleanData, isHosted, typeOf, type Data, type QrType } from "@/lib/qrTypes";
+import { MAX_IMAGES, QR_TYPES, cleanData, isHosted, listImages, typeOf, type Data, type QrType } from "@/lib/qrTypes";
 import { DEFAULT_STYLE, qrSvg, svgToPng, type QrStyle } from "@/lib/qrStyle";
 
 const ICONS: Record<string, LucideIcon> = { Globe, FileText, Images, Contact, Video, ListChecks, ThumbsUp, AudioLines, Store, Ticket, Smartphone, LayoutTemplate, CalendarDays, UtensilsCrossed, MessageSquareHeart };
@@ -50,6 +50,7 @@ export default function QrStudio() {
   useEffect(() => { if (!ready || !typeId) return; try { localStorage.setItem(LS, JSON.stringify({ typeId, data, style: { ...style, logo: "" }, created })); } catch { /* storage full or off */ } }, [ready, typeId, data, style, created]);
 
   const hosted = type ? isHosted(type, data) : false;
+  const imgCount = type ? listImages(type, data).length : 0;
   const cleaned = useMemo(() => (type ? cleanData(type, data) : null), [type, data]);
   const link = created ? `${origin}/q/${created.id}` : "";
   const text = !type ? "" : hosted ? (link || `${origin}/q/${SAMPLE}`) : (cleaned?.ok ? (type.staticText?.(cleaned.d) ?? "") : "") || `${origin}/`;
@@ -116,6 +117,7 @@ export default function QrStudio() {
       <section className={card}>
         <h2 className="text-lg font-bold">1. Add your content</h2>
         <QrForm fields={type.fields} data={data} onChange={setData} onError={setError} />
+        {hosted && type.fields.some((f) => f.kind === "image" || f.kind === "images" || f.kind === "list") && imgCount > 0 && <p className="text-sm text-neutral-600" data-testid="qs-imgcount">Pictures on this page: <b>{imgCount}</b> of {MAX_IMAGES}. {imgCount > MAX_IMAGES * 0.85 ? "You are close to the limit." : "Each is shrunk automatically so the page loads fast."}</p>}
         {hosted && (
           <div><p className="mb-2 text-sm font-medium">Colours of your page</p>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Page colours">{THEMES.map((t) => (

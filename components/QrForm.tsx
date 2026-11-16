@@ -21,8 +21,8 @@ function ImageInput({ f, value, onChange, onError }: { f: Field; value: string; 
 function Images({ f, value, onChange, onError }: { f: Field; value: string[]; onChange: (v: string[]) => void; onError: (m: string) => void }) {
   const ref = useRef<HTMLInputElement>(null), max = f.maxItems ?? 5;
   return (
-    <div className="flex flex-wrap gap-3">
-      {value.map((src, i) => <div key={i} className="relative">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src} alt={`Picture ${i + 1}`} className="h-24 w-24 rounded-xl border object-cover" /><button type="button" aria-label={`Remove picture ${i + 1}`} className="absolute -right-2 -top-2 h-7 w-7 rounded-full border bg-white text-sm shadow" onClick={() => onChange(value.filter((_, j) => j !== i))}>✕</button></div>)}
+    <div className="flex flex-wrap gap-4">
+      {value.map((src, i) => <div key={i} className="relative">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src} alt={`Picture ${i + 1}`} className="h-24 w-24 rounded-xl border object-cover" /><button type="button" aria-label={`Remove picture ${i + 1}`} className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full border bg-white text-base shadow" onClick={() => onChange(value.filter((_, j) => j !== i))}>✕</button></div>)}
       {value.length < max && <button type="button" className="flex h-24 w-24 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-300 text-sm text-neutral-500" onClick={() => ref.current?.click()}><span className="text-2xl">＋</span>Add</button>}
       <input ref={ref} type="file" accept="image/*" multiple hidden data-testid={`qf-${f.key}-input`} onChange={async (e) => {
         const files = Array.from(e.target.files ?? []).slice(0, max - value.length); e.target.value = ""; const out = [...value];
@@ -58,12 +58,12 @@ function ListInput({ f, value, onChange, onError, id }: { f: Field; value: V[]; 
       {value.map((row, i) => (
         <div key={i} className="space-y-2 rounded-xl border bg-neutral-50 p-3">
           <div className="grid gap-2 sm:grid-cols-2">{subs.map((sf, k) => (sf.kind === "list" ? null : (
-            <div key={sf.key} className={subs.length === 1 ? "sm:col-span-2" : ""}><label className="label" htmlFor={`${id}-${i}-${sf.key}`}>{sf.label}</label><FieldInput f={sf} value={row[sf.key]} onChange={(v) => setRow(i, sf.key, v)} onError={onError} id={`${id}-${i}-${sf.key}`} /></div>)))}</div>
+            <div key={sf.key} className={subs.length === 1 || sf.kind === "images" || sf.kind === "textarea" ? "sm:col-span-2" : ""}><label className="label" htmlFor={`${id}-${i}-${sf.key}`}>{sf.label}</label><FieldInput f={sf} value={row[sf.key]} onChange={(v) => setRow(i, sf.key, v)} onError={onError} id={`${id}-${i}-${sf.key}`} /></div>)))}</div>
           {subs.filter((sf) => sf.kind === "list").map((sf) => <div key={sf.key}><p className="label">{sf.label}</p><ListInput f={sf} value={(row[sf.key] as V[]) ?? []} onChange={(v) => setRow(i, sf.key, v)} onError={onError} id={`${id}-${i}-${sf.key}`} /></div>)}
-          <button type="button" className="text-sm text-red-700 underline" onClick={() => onChange(value.filter((_, j) => j !== i))}>Remove</button>
+          <button type="button" className="-ml-1 min-h-[44px] px-1 text-sm text-red-700 underline" onClick={() => onChange(value.filter((_, j) => j !== i))}>Remove</button>
         </div>
       ))}
-      {value.length < max && <button type="button" className="btn-ghost !py-1.5 text-sm" data-testid={`qf-${f.key}-add`} onClick={() => onChange([...value, blank(subs)])}>+ Add {f.of && f.of.length === 1 ? f.of[0].label.toLowerCase() : "another"}</button>}
+      {value.length < max && <button type="button" className="btn-ghost !py-1.5 text-sm" data-testid={`qf-${f.key}-add`} onClick={() => onChange([...value, blank(subs)])}>+ Add {f.addLabel ?? (f.of && f.of.length === 1 ? f.of[0].label.toLowerCase() : "another")}</button>}
     </div>
   );
 }
