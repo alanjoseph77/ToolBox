@@ -1,12 +1,15 @@
 // The product card a shop owner publishes behind a QR code. These rules run in the browser (form) and on the server (API),
 // so a hand-made request cannot slip in unsafe links or oversized data.
+import { THEME_IDS, type ThemeId } from "./productThemes";
+
 export interface Product {
+  theme: ThemeId;                                                // look of the customer page and poster
   name: string; price: string; mrp: string; currency: string; desc: string; image: string;
   stock: "" | "in" | "limited" | "out"; offer: string; extra: { k: string; v: string }[];
   shop: string; website: string; whatsapp: string; phone: string; upi: string; address: string; email: string; instagram: string;
 }
 
-export const EMPTY_PRODUCT: Product = { name: "", price: "", mrp: "", currency: "₹", desc: "", image: "", stock: "in", offer: "", extra: [], shop: "", website: "", whatsapp: "", phone: "", upi: "", address: "", email: "", instagram: "" };
+export const EMPTY_PRODUCT: Product = { theme: "clean", name: "", price: "", mrp: "", currency: "₹", desc: "", image: "", stock: "in", offer: "", extra: [], shop: "", website: "", whatsapp: "", phone: "", upi: "", address: "", email: "", instagram: "" };
 export const CURRENCIES = ["₹", "$", "€", "£", "AED", "SAR", "৳", "Rs"];
 export const MAX_IMAGE_CHARS = 260_000;                          // the photo is stored as a small JPEG data URL
 
@@ -22,6 +25,7 @@ const handle = (v: string) => v.trim().replace(/^https?:\/\/(www\.)?instagram\.c
 export function cleanProduct(raw: unknown): { ok: true; p: Product } | { ok: false; error: string } {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const p: Product = {
+    theme: (THEME_IDS.includes(str(r.theme, 12)) ? str(r.theme, 12) : "clean") as ThemeId,
     name: str(r.name, 90), price: str(r.price, 20), mrp: str(r.mrp, 20), currency: CURRENCIES.includes(str(r.currency, 4)) ? str(r.currency, 4) : "₹",
     desc: str(r.desc, 1200), image: "", stock: (["in", "limited", "out", ""] as const).includes(r.stock as never) ? (r.stock as Product["stock"]) : "", offer: str(r.offer, 80),
     extra: (Array.isArray(r.extra) ? r.extra : []).slice(0, 5).map((e) => ({ k: str((e as Record<string, unknown>)?.k, 30), v: str((e as Record<string, unknown>)?.v, 80) })).filter((e) => e.k && e.v),

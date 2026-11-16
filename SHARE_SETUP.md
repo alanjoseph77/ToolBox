@@ -22,6 +22,7 @@ Pads are deleted automatically after 1 hour, 1 day or 7 days. With a password, t
 
 ## Shop Product QR Code (`/product-qr`, pages at `/p/<id>`)
 Uses the same database as Code Share (no extra setup). Each product page is stored for a year and renewed on every edit. Without the database keys the tool still works in a reduced "packed" mode: the details travel inside the QR code itself, with no photo.
+Templates: `/product-qr/templates` shows 9 shop designs (colours, poster layout, QR style, sample text); the tool applies one with `/product-qr?template=<id>`. Add or change templates in `lib/productTemplates.ts`, colours in `lib/productThemes.ts`.
 Product pages are `noindex` and `/p/` is disallowed in `robots.txt`.
 
 ## Local testing

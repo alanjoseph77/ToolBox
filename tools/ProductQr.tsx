@@ -5,10 +5,13 @@ import { download, loadImage } from "@/lib/files";
 import { jpegWithinKb } from "@/lib/photoSize";
 import { CURRENCIES, EMPTY_PRODUCT, cleanProduct, discount, packProduct, priceText, type Product } from "@/lib/product";
 import { DEFAULT_STYLE, qrSvg, svgToPng, type QrStyle } from "@/lib/qrStyle";
+import { makePoster } from "@/lib/poster";
+import { THEMES } from "@/lib/productThemes";
+import { LAYOUTS, TEMPLATES, samplePhoto, templateOf, type PosterLayout, type Template } from "@/lib/productTemplates";
 
 interface Created { id: string; token: string; mode: "hosted" | "packed" }
 const LS = "toolbox-product-qr-v1";
-const SAMPLE_ID = "k7f2m9xa";
+const SAMPLE_ID = "abcdefgh";                              // only used for the preview before the real link exists
 
 /** Photo → small JPEG data URL (kept under ~150 KB so the page loads fast on mobile data). */
 async function compress(file: Blob, max = 900, kb = 150): Promise<string> {
@@ -27,41 +30,6 @@ async function thumb(src: string, px = 160): Promise<string> {
   return c.toDataURL("image/jpeg", 0.85);
 }
 
-function wrap(g: CanvasRenderingContext2D, text: string, maxW: number, maxLines: number): string[] {
-  const words = text.split(/\s+/), lines: string[] = []; let cur = "";
-  for (const w of words) { const t = cur ? `${cur} ${w}` : w; if (g.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }
-  if (cur) lines.push(cur);
-  if (lines.length > maxLines) { lines.length = maxLines; lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*\S*$/, "") + "…"; }
-  return lines;
-}
-
-/** A printable / WhatsApp-ready poster: photo, name, price, QR code and shop contact. */
-async function makePoster(p: Product, qrPng: Blob): Promise<Blob> {
-  const W = 1080, H = 1500, c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d")!;
-  g.fillStyle = "#ffffff"; g.fillRect(0, 0, W, H);
-  const font = (w: number, s: number) => `${w} ${s}px Inter, Arial, Helvetica, sans-serif`;
-  let y = 70; g.textBaseline = "alphabetic"; g.textAlign = "center";
-  if (p.shop) { g.fillStyle = "#525252"; g.font = font(700, 40); g.fillText(p.shop.slice(0, 40).toUpperCase(), W / 2, y + 30); y += 70; }
-  if (p.image) {
-    const img = new Image(); img.src = p.image; await img.decode(); const bw = 880, bh = 560, x = (W - bw) / 2, k = Math.max(bw / img.width, bh / img.height);
-    g.save(); g.beginPath(); g.roundRect(x, y, bw, bh, 36); g.clip(); g.drawImage(img, x + (bw - img.width * k) / 2, y + (bh - img.height * k) / 2, img.width * k, img.height * k); g.restore(); y += bh + 50;
-  } else y += 20;
-  g.fillStyle = "#0a0a0a"; g.font = font(800, 62); const nl = wrap(g, p.name, 900, 2); nl.forEach((l, i) => g.fillText(l, W / 2, y + 56 + i * 70)); y += nl.length * 70 + 20;
-  if (p.price) {
-    g.font = font(800, 84); const pt = priceText(p), pw = g.measureText(pt).width; let mw = 0, mt = "";
-    if (p.mrp) { g.font = font(500, 44); mt = priceText(p, p.mrp); mw = g.measureText(mt).width + 28; }
-    const x0 = (W - pw - mw) / 2; g.textAlign = "left"; g.fillStyle = "#0a0a0a"; g.font = font(800, 84); g.fillText(pt, x0, y + 80);
-    if (p.mrp) { g.font = font(500, 44); g.fillStyle = "#9ca3af"; g.fillText(mt, x0 + pw + 28, y + 80); g.fillRect(x0 + pw + 28, y + 64, g.measureText(mt).width, 3); }
-    g.textAlign = "center"; y += 110;
-    const off = discount(p); if (off > 0 || p.offer) { const t = p.offer || `${off}% OFF`; g.font = font(800, 38); const w = g.measureText(t).width + 56; g.fillStyle = "#0a0a0a"; g.beginPath(); g.roundRect((W - w) / 2, y, w, 66, 33); g.fill(); g.fillStyle = "#fff"; g.fillText(t, W / 2, y + 46); y += 90; }
-  }
-  const q = new Image(); q.src = URL.createObjectURL(qrPng); await q.decode();
-  const qs = Math.min(520, H - y - 190), qw = qs * (q.width / q.height); g.drawImage(q, (W - qw) / 2, H - 150 - qs, qw, qs);
-  g.fillStyle = "#525252"; g.font = font(600, 34); const line = [p.whatsapp || p.phone, p.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")].filter(Boolean).join("   •   ");
-  g.fillText(line.slice(0, 60), W / 2, H - 80); g.fillStyle = "#a3a3a3"; g.font = font(500, 26); g.fillText("Made with ToolBox · toolbox.otaga.in", W / 2, H - 36);
-  return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error("png"))), "image/png"));
-}
-
 export default function ProductQr() {
   const [p, setP] = useState<Product>(EMPTY_PRODUCT);
   const [style, setStyle] = useState<QrStyle>(DEFAULT_STYLE);
@@ -74,14 +42,19 @@ export default function ProductQr() {
   const [note, setNote] = useState("");
   const [origin, setOrigin] = useState("https://toolbox.otaga.in");
   const [ready, setReady] = useState(false);
+  const [layout, setLayout] = useState<PosterLayout>("classic");
+  const [sample, setSample] = useState("");                       // name of the template whose sample content is still in the form
+  const [posterUrl, setPosterUrl] = useState("");
   const photo = useRef<HTMLInputElement>(null);
+  const lastPoster = useRef("");
 
   useEffect(() => {
     setOrigin(location.origin);
-    try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s) { if (s.p) setP({ ...EMPTY_PRODUCT, ...s.p }); if (s.style) setStyle({ ...DEFAULT_STYLE, ...s.style, logo: "" }); if (s.shopLogo) setShopLogo(s.shopLogo); if (s.created) setCreated(s.created); } } catch { /* nothing saved */ }
+    try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s) { if (s.p) setP({ ...EMPTY_PRODUCT, ...s.p }); if (s.style) setStyle({ ...DEFAULT_STYLE, ...s.style, logo: "" }); if (s.shopLogo) setShopLogo(s.shopLogo); if (s.created) setCreated(s.created); if (s.layout) setLayout(s.layout); } } catch { /* nothing saved */ }
+    const t = templateOf(new URLSearchParams(location.search).get("template")); if (t) applyTemplate(t, true);
     setReady(true);
   }, []);
-  useEffect(() => { if (!ready) return; try { localStorage.setItem(LS, JSON.stringify({ p, style: { ...style, logo: "" }, shopLogo, created })); } catch { /* storage full or off */ } }, [p, style, shopLogo, created, ready]);
+  useEffect(() => { if (!ready) return; try { localStorage.setItem(LS, JSON.stringify({ p, style: { ...style, logo: "" }, shopLogo, created, layout })); } catch { /* storage full or off */ } }, [p, style, shopLogo, created, layout, ready]);
   useEffect(() => { if (p.image) thumb(p.image).then(setThumbP).catch(() => setThumbP("")); else setThumbP(""); }, [p.image]);
   useEffect(() => { if (created?.mode !== "packed") return; let live = true; packProduct(p).then((s) => live && setPacked(s)); return () => { live = false; }; }, [created?.mode, p]);
 
@@ -91,6 +64,17 @@ export default function ProductQr() {
   const logos: LogoOption[] = useMemo(() => [...(thumbP ? [{ key: "photo", label: "Product photo", src: thumbP }] : []), ...(shopLogo ? [{ key: "shop", label: "Shop logo", src: shopLogo }] : [])], [thumbP, shopLogo]);
   const set = <K extends keyof Product>(k: K, v: Product[K]) => setP((o) => ({ ...o, [k]: v }));
   const flash = (m: string) => { setNote(m); setTimeout(() => setNote(""), 3000); };
+
+  /** Takes over a template's look. Its sample text and picture are added only if the form is still empty. */
+  const applyTemplate = (t: Template, fromLink = false) => {
+    setStyle({ ...DEFAULT_STYLE, ...t.style, logo: "" }); setLayout(t.layout);
+    let saved: { p?: Product } | null = null; try { saved = JSON.parse(localStorage.getItem(LS) || "null"); } catch { /* none */ }
+    const hasContent = fromLink ? !!saved?.p?.name : !!p.name.trim();        // from a link the form has not loaded yet, so look at the saved draft
+    if (!hasContent) { setP({ ...EMPTY_PRODUCT, ...t.product, theme: t.theme, image: samplePhoto(t) } as Product); setSample(t.name); }
+    else { setP((o) => ({ ...o, theme: t.theme })); setSample(""); }
+    if (!fromLink) flash(hasContent ? `Applied the ${t.name} look. Your text is unchanged.` : `Loaded the ${t.name} sample. Replace it with your own product.`);
+  };
+  const clearSample = () => { setP({ ...EMPTY_PRODUCT, theme: p.theme }); setSample(""); };
 
   const api = useCallback(async (method: string, body: unknown) => {
     const r = await fetch("/api/product", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }), j = await r.json().catch(() => ({}));
@@ -103,6 +87,7 @@ export default function ProductQr() {
   const create = async () => {
     setError("");
     const c = cleanProduct(p); if (!c.ok) { setError(c.error); return; }
+    if (sample && templateOf(TEMPLATES.find((t) => t.name === sample)?.id)?.product.name === p.name && !window.confirm("This still has the sample product from the template. Create the QR code anyway?")) return;
     setBusy(true);
     try {
       const r = await api("POST", { product: c.p });
@@ -126,9 +111,14 @@ export default function ProductQr() {
   const reset = () => { setP(EMPTY_PRODUCT); setCreated(null); setError(""); };
 
   const qr = useMemo(() => qrSvg(text, style, ecc), [text, style, ecc]);
+  useEffect(() => {                                                   // small live preview of the poster
+    if (!ready) return; let live = true, url = "";   // eslint-disable-line prefer-const
+    const t = setTimeout(async () => { try { const b = await makePoster(p, await svgToPng(qr, 900), layout); if (live) { url = URL.createObjectURL(b); if (lastPoster.current) URL.revokeObjectURL(lastPoster.current); lastPoster.current = url; setPosterUrl(url); } } catch { /* preview only */ } }, 700);
+    return () => { live = false; clearTimeout(t); };
+  }, [p, qr, layout, ready]);
   const png = async () => download(await svgToPng(qr, 1400), `${(p.name || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}-qr.png`, "image/png");
   const svgDl = () => download(new Blob([qr.svg], { type: "image/svg+xml" }), `${(p.name || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}-qr.svg`);
-  const poster = async () => { try { download(await makePoster(p, await svgToPng(qr, 900)), "product-poster.png", "image/png"); } catch { setError("Could not make the poster."); } };
+  const poster = async () => { try { download(await makePoster(p, await svgToPng(qr, 900), layout), "product-poster.png", "image/png"); } catch { setError("Could not make the poster."); } };
   const copy = (t: string, m: string) => { navigator.clipboard?.writeText(t).then(() => flash(m)).catch(() => flash("Could not copy.")); };
 
   const f = (label: string, id: string, el: React.ReactNode, hint?: string) => <div><label className="label" htmlFor={id}>{label}</label>{el}{hint && <p className="mt-1 text-xs text-neutral-500">{hint}</p>}</div>;
@@ -186,8 +176,28 @@ export default function ProductQr() {
         {f("Shop address", "address", <textarea id="address" data-testid="pq-address" className="input h-20" maxLength={200} value={p.address} onChange={(e) => set("address", e.target.value)} placeholder="Shop number, street, city" />, "Adds a Get directions button.")}
       </section>
 
+      <section className={card} data-testid="pq-design">
+        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-lg font-bold">3. Pick a design</h2><a href="/product-qr/templates" className="text-sm font-medium underline" data-testid="pq-all-templates">See all templates with previews →</a></div>
+        {sample && <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900" data-testid="pq-sample"><span>You are using the <b>{sample}</b> sample. Replace the text and photo with your own product.</span><button className="btn-ghost !py-1.5" onClick={clearSample}>Clear the sample</button></div>}
+        <div><p className="mb-2 text-sm font-medium">Start from a template</p>
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">{TEMPLATES.map((t) => <button key={t.id} data-testid={`pq-tpl-${t.id}`} className="chip shrink-0" onClick={() => applyTemplate(t)}><span aria-hidden>{t.emoji}</span>{t.name}</button>)}</div></div>
+        <div className="grid gap-5 md:grid-cols-[1fr_220px]">
+          <div className="space-y-4">
+            <div><p className="mb-2 text-sm font-medium">Colours of your product page and poster</p>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Colour theme">{THEMES.map((t) => (
+                <button key={t.id} role="radio" aria-checked={p.theme === t.id} data-testid={`pq-theme-${t.id}`} onClick={() => set("theme", t.id)} className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm ${p.theme === t.id ? "border-neutral-900 ring-2 ring-neutral-900" : "border-neutral-300"}`}>
+                  <span className="flex h-5 w-5 overflow-hidden rounded-full border"><span className="h-full w-1/2" style={{ background: t.card }} /><span className="h-full w-1/2" style={{ background: t.accent }} /></span>{t.name}</button>))}</div></div>
+            <div><p className="mb-2 text-sm font-medium">Poster layout</p>
+              <div className="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Poster layout">{LAYOUTS.map((l) => (
+                <button key={l.id} role="radio" aria-checked={layout === l.id} data-testid={`pq-layout-${l.id}`} onClick={() => setLayout(l.id)} className={`rounded-xl border p-3 text-left text-sm ${layout === l.id ? "border-neutral-900 ring-2 ring-neutral-900" : "border-neutral-300"}`}><b>{l.name}</b><span className="mt-0.5 block text-xs text-neutral-500">{l.hint}</span></button>))}</div></div>
+          </div>
+          <div>{posterUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={posterUrl} alt="Poster preview" data-testid="pq-poster-prev" className="mx-auto w-full max-w-[220px] rounded-xl border shadow-sm" /> : <div className="mx-auto h-[300px] w-[220px] animate-pulse rounded-xl bg-neutral-100" />}
+            <p className="mt-1 text-center text-xs text-neutral-500">Poster preview</p></div>
+        </div>
+      </section>
+
       <section className={card}>
-        <h2 className="text-lg font-bold">3. Style your QR code</h2>
+        <h2 className="text-lg font-bold">4. Style your QR code</h2>
         <QrStyler text={text} style={style} onChange={setStyle} logos={logos} ecc={ecc} />
       </section>
 
@@ -198,7 +208,7 @@ export default function ProductQr() {
         <button className="btn w-full" disabled={busy || !p.name.trim()} onClick={create} data-testid="pq-create">{busy ? "Creating…" : "Create my QR code"}</button>
       ) : (
         <section className={`${card} border-neutral-900`} data-testid="pq-done">
-          <h2 className="text-lg font-bold">4. Your QR code is ready</h2>
+          <h2 className="text-lg font-bold">5. Your QR code is ready</h2>
           {created.mode === "packed" && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">This QR code holds the details itself, so it has no photo and is denser. When the site owner switches on storage, create it again to include the photo.</p>}
           <div className="flex flex-wrap gap-2">
             <button className="btn" onClick={png} data-testid="pq-dl-png">Download PNG</button>
