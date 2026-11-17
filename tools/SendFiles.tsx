@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { download, formatBytes } from "@/lib/files";
+import PasteButton, { usePasteTarget } from "@/components/PasteButton";
 
 // Files travel straight from one device to the other (WebRTC). A small "matchmaker" service only introduces the two
 // devices using the code; it never sees the files. Set NEXT_PUBLIC_PEER_* to use your own matchmaker, NEXT_PUBLIC_TURN_* for a relay.
@@ -133,6 +134,8 @@ export default function SendFiles() {
 
   useEffect(() => { const c = new URLSearchParams(location.search).get("code"); if (c && /^\d{6}$/.test(c)) { setMode("receive"); setCodeIn(c); receive(c); } }, [receive]);
 
+  const pickBox = useRef<HTMLLabelElement>(null);
+  usePasteTarget(pickBox, (f) => setFiles((x) => [...x, ...f]));
   const pick = (list: FileList | null) => { if (list) setFiles((f) => [...f, ...Array.from(list)]); };
   const total = files.reduce((n, f) => n + f.size, 0);
   const tab = (m: "send" | "receive", l: string) => <button role="tab" aria-selected={mode === m} onClick={() => { setMode(m); setError(""); }} className={`chip ${mode === m ? "chip-active" : ""}`}>{l}</button>;
@@ -144,8 +147,9 @@ export default function SendFiles() {
 
       {mode === "send" && !code && (
         <div className="space-y-3">
-          <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-300 bg-white p-6 text-center">
-            <span className="font-semibold">Tap to choose files</span><span className="text-sm text-neutral-500">any type, as many as you like</span>
+          <label ref={pickBox} className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-300 bg-white p-6 text-center">
+            <span className="font-semibold">Tap to choose files</span><span className="text-sm text-neutral-500">any type, as many as you like<span className="hidden sm:inline">, or paste with Ctrl+V</span></span>
+            <span className="mt-3"><PasteButton small label="Paste a copied image" onFiles={(f) => setFiles((x) => [...x, ...f])} /></span>
             <input data-testid="sf-pick" type="file" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
           </label>
           {files.length > 0 && (

@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QrStyler, { type LogoOption } from "@/components/QrStyler";
+import PasteButton, { usePasteTarget } from "@/components/PasteButton";
 import EditLinkBox from "@/components/EditLinkBox";
 import { download, loadImage } from "@/lib/files";
 import { jpegWithinKb } from "@/lib/photoSize";
@@ -85,7 +86,9 @@ export default function ProductQr() {
     return { status: r.status, ok: r.ok, j };
   }, []);
 
+  const photoBox = useRef<HTMLDivElement>(null);
   const pickPhoto = async (f?: File) => { if (!f) return; setError(""); try { set("image", await compress(f)); } catch { setError("Could not use that photo. Try another one."); } };
+  usePasteTarget(photoBox, (f) => pickPhoto(f[0]));
   const pickLogo = async (f?: File) => { if (!f) return; try { setShopLogo(await thumb(await blobUrl(f), 200)); } catch { setError("Could not use that logo."); } };
 
   const create = async () => {
@@ -134,12 +137,13 @@ export default function ProductQr() {
       <section className={card}>
         <h2 className="text-lg font-bold">1. Product</h2>
         <div className="flex flex-wrap items-start gap-4">
-          <div>
+          <div ref={photoBox}>
             <p className="label">Photo</p>
             {p.image ? (
               <div className="space-y-2">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={p.image} alt="Product" data-testid="pq-photo" className="h-36 w-36 rounded-xl border object-cover" />
                 <div className="flex gap-2"><button className="btn-ghost !py-1.5 text-sm" onClick={() => photo.current?.click()}>Change</button><button className="btn-ghost !py-1.5 text-sm" onClick={() => set("image", "")}>Remove</button></div></div>
             ) : <button className="flex h-36 w-36 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-neutral-300 text-center text-sm text-neutral-500" onClick={() => photo.current?.click()}><span className="text-2xl">＋</span>Add photo</button>}
+            <div className="mt-2"><PasteButton small label="Paste photo" onFiles={(f) => pickPhoto(f[0])} /></div>
             <input ref={photo} data-testid="pq-photo-input" type="file" accept="image/*" hidden onChange={(e) => { pickPhoto(e.target.files?.[0]); e.target.value = ""; }} />
           </div>
           <div className="min-w-[220px] flex-1 space-y-4">

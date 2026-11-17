@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { compressPhoto } from "@/lib/photoData";
+import PasteButton, { usePasteTarget } from "./PasteButton";
 import type { Data, Field } from "@/lib/qrTypes";
 
 type V = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -8,22 +9,27 @@ type V = Record<string, any>; // eslint-disable-line @typescript-eslint/no-expli
 const blank = (fields: Field[]): V => Object.fromEntries(fields.map((f) => [f.key, f.kind === "list" || f.kind === "images" ? [] : (f.kind === "select" ? f.options?.[0]?.[0] ?? "" : "")]));
 
 function ImageInput({ f, value, onChange, onError }: { f: Field; value: string; onChange: (v: string) => void; onError: (m: string) => void }) {
-  const ref = useRef<HTMLInputElement>(null);
+  const ref = useRef<HTMLInputElement>(null), box = useRef<HTMLDivElement>(null);
+  const use = async (file?: File) => { if (!file) return; try { onChange(await compressPhoto(file, f.kb ?? 100)); } catch { onError("Could not use that picture. Try another one."); } };
+  usePasteTarget(box, (files) => void use(files[0]));
   return (
-    <div className="flex items-center gap-3">
+    <div ref={box} className="flex flex-wrap items-center gap-3">
       {value ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={value} alt="" className="h-20 w-20 rounded-xl border object-cover" /> : <button type="button" className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-300 text-xs text-neutral-500" onClick={() => ref.current?.click()}><span className="text-xl">＋</span>Add</button>}
-      <div className="flex gap-2">{value && <><button type="button" className="btn-ghost !py-1.5 text-sm" onClick={() => ref.current?.click()}>Change</button><button type="button" className="btn-ghost !py-1.5 text-sm" onClick={() => onChange("")}>Remove</button></>}</div>
+      <div className="flex gap-2">{value && <><button type="button" className="btn-ghost !py-1.5 text-sm" onClick={() => ref.current?.click()}>Change</button><button type="button" className="btn-ghost !py-1.5 text-sm" onClick={() => onChange("")}>Remove</button></>}<PasteButton small label="Paste" onFiles={(files) => void use(files[0])} /></div>
       <input ref={ref} type="file" accept="image/*" hidden data-testid={`qf-${f.key}-input`} onChange={async (e) => { const file = e.target.files?.[0]; e.target.value = ""; if (!file) return; try { onChange(await compressPhoto(file, f.kb ?? 100)); } catch { onError("Could not use that picture. Try another one."); } }} />
     </div>
   );
 }
 
 function Images({ f, value, onChange, onError }: { f: Field; value: string[]; onChange: (v: string[]) => void; onError: (m: string) => void }) {
-  const ref = useRef<HTMLInputElement>(null), max = f.maxItems ?? 5;
+  const ref = useRef<HTMLInputElement>(null), box = useRef<HTMLDivElement>(null), max = f.maxItems ?? 5;
+  const add = async (files: File[]) => { const out = [...value]; for (const file of files.slice(0, max - value.length)) { try { out.push(await compressPhoto(file, f.kb ?? 100)); } catch { onError("One picture could not be used."); } } onChange(out); };
+  usePasteTarget(box, (files) => void add(files), value.length < max);
   return (
-    <div className="flex flex-wrap gap-4">
+    <div ref={box} className="flex flex-wrap items-center gap-4">
       {value.map((src, i) => <div key={i} className="relative">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src} alt={`Picture ${i + 1}`} className="h-24 w-24 rounded-xl border object-cover" /><button type="button" aria-label={`Remove picture ${i + 1}`} className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full border bg-white text-base shadow" onClick={() => onChange(value.filter((_, j) => j !== i))}>✕</button></div>)}
       {value.length < max && <button type="button" className="flex h-24 w-24 flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-300 text-sm text-neutral-500" onClick={() => ref.current?.click()}><span className="text-2xl">＋</span>Add</button>}
+      {value.length < max && <PasteButton small label="Paste" onFiles={(files) => void add(files)} />}
       <input ref={ref} type="file" accept="image/*" multiple hidden data-testid={`qf-${f.key}-input`} onChange={async (e) => {
         const files = Array.from(e.target.files ?? []).slice(0, max - value.length); e.target.value = ""; const out = [...value];
         for (const file of files) { try { out.push(await compressPhoto(file, f.kb ?? 100)); } catch { onError("One picture could not be used."); } } onChange(out);

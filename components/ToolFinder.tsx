@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, AudioLines, ChevronRight, FileText, Image as Ima
 import { HAVES, haveOf, type HaveId } from "@/lib/finder";
 import { toolIcons } from "@/lib/icons";
 import { handOffFile } from "@/lib/handoff";
+import PasteButton, { usePasteTarget } from "./PasteButton";
 
 const ICON: Record<HaveId, LucideIcon> = { pdf: FileText, photo: ImageIcon, video: Video, audio: AudioLines, text: Type, none: Sparkles };
 const kb = (n: number) => n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
@@ -19,6 +20,7 @@ export default function ToolFinder() {
   const [note, setNote] = useState("");
   const top = useRef<HTMLElement>(null);
   const pickRef = useRef<HTMLInputElement>(null);
+  const dropBox = useRef<HTMLLabelElement>(null);
   const h = HAVES.find((x) => x.id === have);
 
   const choose = (id: HaveId | null, keepFile = false) => {
@@ -32,6 +34,7 @@ export default function ToolFinder() {
     if (!id) { setNote(`ToolBox has no tools for “${f.name}” yet. Pick what kind of file it is above.`); return; }
     setFile(f); choose(id, true);
   };
+  usePasteTarget(dropBox, (f) => takeFile(f[0]));
   const open = (slug: string) => { if (file) handOffFile(file, slug); router.push(`/${slug}`); };
 
   const step1 = (
@@ -51,10 +54,11 @@ export default function ToolFinder() {
         })}
       </div>
       <div className="my-5 flex items-center gap-3 text-xs font-semibold text-neutral-400 before:h-px before:flex-1 before:bg-neutral-200 after:h-px after:flex-1 after:bg-neutral-200 dark:before:bg-neutral-800 dark:after:bg-neutral-800">or</div>
-      <label onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); takeFile(e.dataTransfer.files[0]); }}
+      <label ref={dropBox} onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); takeFile(e.dataTransfer.files[0]); }}
         className={`flex min-h-[88px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition ${drag ? "border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900" : "border-neutral-300 hover:border-neutral-900 dark:border-neutral-700 dark:hover:border-white"}`}>
         <span className="flex items-center gap-2 font-bold"><Upload className="h-4 w-4" aria-hidden /> Choose or drop a file</span>
-        <span className="mt-1 text-xs text-neutral-500">We show what you can do with it. It stays on your device.</span>
+        <span className="mt-1 text-xs text-neutral-500">We show what you can do with it. It stays on your device.<span className="hidden sm:inline"> You can also paste a copied picture (Ctrl+V).</span></span>
+        <span className="mt-3"><PasteButton small label="Paste a copied image" onFiles={(f) => takeFile(f[0])} /></span>
         <input ref={pickRef} type="file" className="sr-only" data-testid="finder-file" onChange={(e) => { takeFile(e.target.files?.[0]); e.target.value = ""; }} />
       </label>
       {note && <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300" role="status">{note}</p>}

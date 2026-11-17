@@ -5,6 +5,7 @@ import Dropzone from "@/components/Dropzone";
 import { canvasToBlob, download, loadImage } from "@/lib/files";
 import { removeBg } from "@/lib/bgremoval";
 import { callAi } from "@/lib/ai";
+import PasteButton from "./PasteButton";
 
 type Bg = { kind: "color"; c1: string } | { kind: "gradient"; c1: string; c2: string } | { kind: "image"; img: HTMLImageElement };
 const swatches = ["#ffffff", "#000000", "#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -73,7 +74,8 @@ export default function BackgroundStudio({ ai = false }: { ai?: boolean }) {
               <div className="flex gap-2">{[["#3b82f6", "#8b5cf6"], ["#f97316", "#ec4899"], ["#22c55e", "#0ea5e9"], ["#0f172a", "#475569"]].map(([a, b]) => (
                 <button key={a} aria-label={`${a} to ${b}`} onClick={() => setBg({ kind: "gradient", c1: a, c2: b })} className="h-8 w-12 rounded border" style={{ background: `linear-gradient(135deg,${a},${b})` }} />))}</div></div>
             <div><label className="label">Your own image</label>
-              <input type="file" accept="image/*" className="text-sm" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setBg({ kind: "image", img: await loadImage(f) }); }} /></div>
+              <div className="flex flex-wrap items-center gap-2"><input type="file" accept="image/*" className="text-sm" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setBg({ kind: "image", img: await loadImage(f) }); }} />
+              <PasteButton small label="Paste" onFiles={async (f) => setBg({ kind: "image", img: await loadImage(f[0]) })} /></div></div>
             <div className="grid grid-cols-2 gap-2"><button className="btn" onClick={() => save("image/png")}>Download PNG</button><button className="btn-ghost" onClick={() => save("image/jpeg")}>Download JPG</button></div>
           </div>
         </div>

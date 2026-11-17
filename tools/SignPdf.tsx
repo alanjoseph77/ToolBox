@@ -4,6 +4,7 @@ import { PDFDocument } from "pdf-lib";
 import Dropzone from "@/components/Dropzone";
 import { download, loadImage } from "@/lib/files";
 import { openPdf, renderPage } from "@/lib/pdfjs";
+import PasteButton from "@/components/PasteButton";
 
 export default function SignPdf() {
   const [file, setFile] = useState<File | null>(null);
@@ -78,6 +79,7 @@ export default function SignPdf() {
             <div className="flex flex-wrap items-center gap-2">
               <button className="btn-ghost !py-1.5" onClick={clearPad}>Clear</button>
               <label className="btn-ghost !py-1.5 cursor-pointer">Upload image<input type="file" accept="image/png,image/jpeg" hidden onChange={(e) => upload(Array.from(e.target.files ?? []))} /></label>
+              <PasteButton small label="Paste signature" onFiles={(f) => void upload(f)} />
               {sig && <span className="text-sm text-neutral-900 dark:text-white">✓ Signature ready</span>}
             </div>
           </div>

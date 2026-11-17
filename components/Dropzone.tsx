@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { matchesAccept, takePending } from "@/lib/handoff";
 import { FileUp } from "lucide-react";
+import PasteButton, { usePasteTarget } from "./PasteButton";
 
 // Some systems hand over files without a MIME type, so fall back to the extension.
 const EXT_TYPES: Record<string, string> = { pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif", bmp: "image/bmp", mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm", mkv: "video/x-matroska" };
@@ -26,14 +27,18 @@ export default function Dropzone({ accept, multiple, onFiles, hint }: {
     try { await onFiles(ok); } catch { setMsg(`Could not open that file. It may be damaged, or not ${wanted(accept)}.`); }
   };
   const ref = useRef<HTMLInputElement>(null);
+  const box = useRef<HTMLDivElement>(null);
   const [over, setOver] = useState(false);
+  // Copy a picture anywhere, then Ctrl/Cmd+V (or the Paste button) puts it here. No need to save it first.
+  usePasteTarget(box, (f) => void deliver(multiple ? f : f.slice(0, 1)));
+  const takesImages = /^\s*(\*|\*\/\*)?\s*$/.test(accept) || /image/.test(accept);
   // a file handed over from the previous tool (chaining) loads straight away
   useEffect(() => { const f = takePending(accept, window.location.pathname); if (f) void deliver([f]); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <>
-    <div
-      role="button" tabIndex={0}
+    <div ref={box}
+      role="button" tabIndex={0} data-testid="dropzone"
       onClick={() => ref.current?.click()}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ref.current?.click(); } }}
       onDragOver={(e) => { e.preventDefault(); setOver(true); }}
@@ -46,8 +51,9 @@ export default function Dropzone({ accept, multiple, onFiles, hint }: {
       </span>
       <div>
         <p className="text-base font-semibold">Tap to choose {multiple ? "files" : "a file"}</p>
-        <p className="mt-0.5 text-sm text-neutral-500">or drag and drop here</p>
+        <p className="mt-0.5 text-sm text-neutral-500">or drag and drop here{takesImages && <span className="hidden sm:inline">, or paste with Ctrl+V</span>}</p>
       </div>
+      {takesImages && <PasteButton small onFiles={(f) => void deliver(multiple ? f : f.slice(0, 1))} label="Paste a copied image" />}
       <p className="max-w-sm text-xs text-neutral-400">{hint ?? "Files never leave your device."}</p>
       <input ref={ref} type="file" hidden accept={accept} multiple={multiple}
         onChange={(e) => { void deliver(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
