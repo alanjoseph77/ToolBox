@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, AudioLines, ChevronRight, FileText, Image as ImageIcon, Sparkles, Type, Upload, Video, Wrench, X, type LucideIcon } from "lucide-react";
@@ -22,6 +22,8 @@ export default function ToolFinder() {
   const pickRef = useRef<HTMLInputElement>(null);
   const dropBox = useRef<HTMLLabelElement>(null);
   const h = HAVES.find((x) => x.id === have);
+  const [thumb, setThumb] = useState("");
+  useEffect(() => { if (!file?.type.startsWith("image/")) { setThumb(""); return; } const u = URL.createObjectURL(file); setThumb(u); return () => URL.revokeObjectURL(u); }, [file]);
 
   const choose = (id: HaveId | null, keepFile = false) => {
     setHave(id); setNote(""); if (!keepFile) setFile(null);
@@ -74,7 +76,9 @@ export default function ToolFinder() {
       </p>
       <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">What do you want to do?</h2>
       {file && (
-        <p className="mt-3 flex items-center gap-2 rounded-xl bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-900" data-testid="finder-filename">
+        <p className="mt-3 flex items-center gap-3 rounded-xl bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-900" data-testid="finder-filename">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {thumb && <img src={thumb} alt="Your picture" data-testid="finder-thumb" className="h-12 w-12 shrink-0 rounded-lg border border-white object-cover dark:border-black" />}
           <span className="min-w-0 flex-1 truncate"><b>{file.name}</b> <span className="text-neutral-500">· {kb(file.size)} · opens in the tool you pick</span></span>
           <button onClick={() => setFile(null)} aria-label="Forget this file" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-800"><X className="h-4 w-4" /></button>
         </p>
