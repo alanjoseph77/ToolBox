@@ -1,3 +1,4 @@
+import { toolExtra } from "@/lib/seoExtra";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -46,6 +47,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
   const t = getTool((await params).tool);
   if (!t) notFound();
   const seo = toolSeo[t.slug];
+  const extra = toolExtra[t.slug];
   const s = steps[t.category];
   const related = tools.filter((x) => x.category === t.category && x.slug !== t.slug).slice(0, 4);
   const isAi = t.category === "AI" || t.slug === "pdf-summarizer";
@@ -100,6 +102,19 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         <section aria-label={`About ${t.name}`} className="mt-12 space-y-3">
           <h2 className="text-xl font-bold">About {t.name}</h2>
           <p className="leading-relaxed text-neutral-600">{seo.intro}</p>
+        </section>
+      )}
+
+      {extra && (
+        <section aria-label={`When to use ${t.name}`} className="mt-10 grid gap-6 sm:grid-cols-2">
+          <div>
+            <h2 className="mb-3 text-lg font-bold">When to use it</h2>
+            <ul className="space-y-2 text-sm leading-relaxed text-neutral-600">{extra.uses.map((u) => <li key={u} className="flex gap-2"><span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />{u}</li>)}</ul>
+          </div>
+          <div>
+            <h2 className="mb-3 text-lg font-bold">Tips for a good result</h2>
+            <ul className="space-y-2 text-sm leading-relaxed text-neutral-600">{extra.tips.map((u) => <li key={u} className="flex gap-2"><span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />{u}</li>)}</ul>
+          </div>
         </section>
       )}
 

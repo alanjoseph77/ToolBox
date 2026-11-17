@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 import { categories, tools } from "@/lib/tools";
 import { categorySeo } from "@/lib/seo";
 import { posts } from "@/lib/posts";
-import { SITE } from "@/lib/site";
+import { CONTENT_UPDATED, SITE } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  const now = new Date(CONTENT_UPDATED);
   return [
     { url: SITE, lastModified: now, changeFrequency: "weekly", priority: 1 },
     ...categories.map((c) => ({ url: `${SITE}/tools/${categorySeo[c].slug}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 })),
