@@ -55,3 +55,8 @@ export function takePending(accept: string, pathname: string): File | null {
   pending = null;
   return p.file;
 }
+
+/** A file the user picked somewhere else (e.g. the home page finder) that the next tool should open with. */
+export function handOffFile(file: File, target: string) {
+  pending = { file, target, at: Date.now() };
+}

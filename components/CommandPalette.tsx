@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CornerDownLeft, Search } from "lucide-react";
 import { tools } from "@/lib/tools";
+import { searchTools } from "@/lib/search";
 import ToolIcon from "./ToolIcon";
 
 /** Header search button + Ctrl/Cmd+K quick finder. */
@@ -13,10 +14,10 @@ export default function CommandPalette() {
   const [idx, setIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const results = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    const list = s ? tools.filter((t) => [t.name, t.description, ...t.keywords].join(" ").toLowerCase().includes(s)) : tools.filter((t) => t.popular);
-    return list.slice(0, 8);
+  const { results, corrected } = useMemo(() => {
+    if (!q.trim()) return { results: tools.filter((t) => t.popular).slice(0, 8), corrected: null };
+    const r = searchTools(q, 8);
+    return { results: r.hits.map((h) => h.tool), corrected: r.corrected };
   }, [q]);
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function CommandPalette() {
             </div>
             <ul className="max-h-[50vh] overflow-auto p-2">
               {!q.trim() && <li className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Popular</li>}
+              {corrected && <li className="px-3 pb-1 pt-1 text-xs text-neutral-500">Showing results for <b className="text-neutral-900 dark:text-white">{corrected}</b></li>}
               {results.map((t, i) => (
                 <li key={t.slug}>
                   <button onMouseEnter={() => setIdx(i)} onClick={() => go(t.slug)}
@@ -63,7 +65,7 @@ export default function CommandPalette() {
                   </button>
                 </li>
               ))}
-              {!results.length && <li className="px-3 py-8 text-center text-sm text-neutral-500">No tool found for “{q}”.</li>}
+              {!results.length && <li className="px-3 py-8 text-center text-sm text-neutral-500">No tool found for “{q}”. Try “pdf”, “photo” or “video”.</li>}
             </ul>
           </div>
         </div>

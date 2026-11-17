@@ -1,6 +1,10 @@
-import { Gauge, IndianRupee, ShieldCheck, Smartphone, Sparkles, UserX, type LucideIcon } from "lucide-react";
+import { AudioLines, Bot, Code2, FileText, Gauge, Image as ImageIcon, IndianRupee, ScanQrCode, ShieldCheck, Smartphone, Sparkles, UserX, Video, Wrench, type LucideIcon } from "lucide-react";
+import type { Category } from "@/lib/tools";
 import Link from "next/link";
-import ToolSearch from "@/components/ToolSearch";
+import SmartSearch from "@/components/SmartSearch";
+import ToolFinder from "@/components/ToolFinder";
+import { categories } from "@/lib/tools";
+import { categorySeo } from "@/lib/seo";
 import ToolBrowser from "@/components/ToolBrowser";
 import { tools } from "@/lib/tools";
 import { SITE } from "@/lib/site";
@@ -13,6 +17,9 @@ const features: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: Gauge, title: "Exact file sizes", text: "Hit 50 KB, 100 KB or 200 KB targets for forms and exams." },
 ];
 
+const catIcon: Record<Category, LucideIcon> = { PDF: FileText, Image: ImageIcon, Video, Audio: AudioLines, AI: Bot, Share: ScanQrCode, Developer: Code2, Utility: Wrench };
+const catName: Partial<Record<Category, string>> = { Share: "Share & QR", Utility: "Everyday" };
+
 export default function Home() {
   return (
     <div className="space-y-14">
@@ -20,11 +27,23 @@ export default function Home() {
       <section className="relative -mt-4 px-0 pb-4 pt-12 text-center">
         <p className="mx-auto mb-5 inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-neutral-800 dark:border-neutral-700 dark:bg-black dark:text-neutral-200"><Sparkles className="h-3.5 w-3.5" /> {tools.length} free tools · 100% private · no sign-up</p>
         <h1 className="mx-auto max-w-3xl animate-fade-up text-4xl font-extrabold tracking-tight sm:text-6xl">
-          All your tools <span className="gradient-text">in one place</span>
+          What do you want to <span className="gradient-text">do</span> today?
         </h1>
-        <p className="mx-auto mb-8 mt-4 max-w-xl text-base text-neutral-600 dark:text-neutral-300 sm:text-lg">Compress PDFs, remove backgrounds, convert files, edit videos and more. Fast, free and private on your device.</p>
-        <ToolSearch />
+        <p className="mx-auto mb-8 mt-4 max-w-xl text-base text-neutral-600 dark:text-neutral-300 sm:text-lg">All your tools in one place: PDF, photos, video, audio, QR codes and more. Fast, free and private on your device.</p>
+        <SmartSearch />
+        <nav aria-label="Browse by type" className="-mx-4 mt-8 flex justify-start gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:justify-center">
+          {categories.map((c) => { const Icon = catIcon[c]; return (
+            <Link key={c} href={`/tools/${categorySeo[c].slug}`} className="group flex w-[76px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-1 text-xs font-semibold text-neutral-600 hover:text-black dark:text-neutral-300 dark:hover:text-white" data-testid={`cat-${c}`}>
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100 text-neutral-900 transition group-hover:bg-neutral-900 group-hover:text-white dark:bg-neutral-900 dark:text-white dark:group-hover:bg-white dark:group-hover:text-black"><Icon className="h-6 w-6" aria-hidden /></span>
+              <span className="text-center leading-tight">{catName[c] ?? c}</span>
+            </Link>); })}
+        </nav>
       </section>
+
+      <div className="space-y-3">
+        <p className="text-center text-sm text-neutral-500">Don&apos;t know the tool&apos;s name? Answer two quick questions.</p>
+        <ToolFinder />
+      </div>
 
       <section aria-label="Why ToolBox" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {features.map(({ icon: Icon, title, text }) => (
