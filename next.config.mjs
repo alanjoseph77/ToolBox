@@ -8,7 +8,15 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/vendor/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] }];
+    const noindex = [{ key: "X-Robots-Tag", value: "noindex" }];
+    return [
+      { source: "/vendor/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      // App files, not pages: keep them out of Google's page reports.
+      { source: "/manifest.webmanifest", headers: noindex },
+      { source: "/favicon.ico", headers: noindex },
+      { source: "/icon.svg", headers: noindex },
+      { source: "/apple-icon.png", headers: noindex },
+    ];
   },
   webpack: (config, { isServer, webpack }) => {
     // @gltf-transform ships a Node file helper that imports "node:fs"; in the browser it is never used

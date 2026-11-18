@@ -20,6 +20,9 @@ export const posts: Post[] = [
       { p: "A masked Aadhaar shows only the last 4 digits of the number. When a business or institution accepts a masked copy, sharing that instead of the full card is the safer choice." },
       { h: "Steps", ul: ["Open Mask Aadhaar and add a photo, scan or PDF of the card.", "The tool reads the number on your device and covers the first 8 digits.", "If a number is missed, drag a box over it yourself.", "Check the result carefully, then download it."] },
       { h: "Good to know", ul: ["The card is never uploaded. The reading happens in your browser.", "Blurry or tilted photos are the most common reason a number is missed.", "Some places need the full number. Mask it only where a masked copy is accepted."] },
+      {"h": "Where a masked Aadhaar is usually enough", "ul": ["Hotel check-in and travel bookings.", "Rental agreements and society or hostel registration.", "Many private KYC requests where only identity proof is needed."]},
+      {"p": "UIDAI itself offers masked Aadhaar downloads and encourages sharing it where the full number is not required. If an organisation asks for the full number for a legal reason, such as some bank or government services, follow their rule."},
+      {"h": "Common questions", "ul": ["Does it work on a PDF e-Aadhaar? Yes. Add the PDF; you can open the password-protected e-Aadhaar first with Unlock PDF if you know the password.", "What about the QR code on the card? The QR can hold details too. Cover it with a box as well if you do not want it shared.", "Is it safe? The card stays on your phone or computer. Nothing is sent to a server."]},
     ],
   },
   {
@@ -51,6 +54,8 @@ export const posts: Post[] = [
       { p: "Most phone photos store hidden details called EXIF data: the GPS location where the picture was taken, the date and time, and the phone model. If you share the original file, that information can go with it." },
       { h: "Steps", ul: ["Open Remove Photo Details and add your photos.", "See what each photo contains, including any saved location.", "Download the clean copies, or all of them as one ZIP."] },
       { h: "Good to know", ul: ["Many social networks strip this data when you post, but sending a photo as a file, by email or in a listing often keeps it.", "You can also switch off location for the camera in your phone settings.", "Check a clean copy by running it through the tool again. It should show nothing."] },
+      {"h": "Why it matters", "ul": ["Photos taken at home can reveal your home address to anyone who gets the original file.", "Listings on selling sites may show where you live through the photo data.", "Photos of children shared as files can reveal their school or route."]},
+      {"h": "Common questions", "ul": ["Does WhatsApp remove it? WhatsApp usually strips location from photos sent normally, but not from photos sent as documents.", "Will the picture lose quality? No. Only the hidden details are removed; the picture looks the same.", "Can I do many photos at once? Yes. Add them together and download all clean copies as one ZIP."]},
     ],
   },
   {
@@ -83,6 +88,8 @@ export const posts: Post[] = [
       { p: "Before you post a photo of a street, a crowd or a car for sale, you may want to hide faces and number plates." },
       { h: "Steps", ul: ["Open Blur Face and add your photo.", "Drag over each face or plate. In some browsers, Find faces marks faces for you.", "Choose Blur or Pixelate and the strength, then check the preview.", "Download the blurred picture."] },
       { h: "Tips", ul: ["Pixelate hides detail more strongly than blur. Use a high strength on small plates.", "Blurred areas are changed in the saved file, so the detail cannot be brought back from it.", "Keep your original photo in a safe place in case you need it."] },
+      {"h": "When to blur", "ul": ["Posting a car for sale on OLX or Facebook Marketplace without showing the number plate.", "Sharing school or event photos where other children are visible.", "Posting a street or shop photo with strangers in it.", "Sending a screenshot that shows names, phone numbers or addresses."]},
+      {"h": "Common questions", "ul": ["Can someone un-blur it? Not from the saved file. Weak blur on large text can sometimes still be read, so use Pixelate or a high strength.", "Does it work on group photos? Yes. Mark each face; you can add as many areas as you like.", "Is the photo uploaded? No. It is edited in your browser and saved straight to your device."]},
     ],
   },
   {
@@ -94,6 +101,8 @@ export const posts: Post[] = [
       { h: "Steps", ul: ["Open Audio Trimmer and add the song.", "Play it and press Use current position at the start and the end of the part you want.", "Press Trim audio and download the clip."] },
       { h: "Set it as your ringtone", ul: ["Android: copy the clip to your phone, then open Settings, Sound and choose it as your ringtone.", "iPhone: ringtones need a special format, so use a ringtone app or GarageBand for the last step."] },
       { h: "Good to know", ul: ["Trimming does not re-encode the audio, so the quality stays the same.", "Only use music that you have the right to use.", "Your file stays on your device."] },
+      {"h": "Choosing the best part", "ul": ["Start just before the hook or chorus so it is recognisable from the first ring.", "Avoid a long quiet intro; callers often hang up in the first 10 seconds.", "For notification tones, 3 to 5 seconds is enough."]},
+      {"h": "Common questions", "ul": ["Can I use a song from a video? Yes. Use Video to MP3 first, then trim the MP3.", "The start sounds abrupt. Begin a fraction of a second earlier, at a beat, for a cleaner start.", "Which format do phones need? Android plays MP3 directly. iPhone needs an M4R ringtone, made with a ringtone app or GarageBand."]},
     ],
   },
   {
@@ -105,6 +114,9 @@ export const posts: Post[] = [
       { h: "Steps", ul: ["Open Audio Compressor and add your file.", "Choose a lower quality, such as 96 kbps. For speech, tick Mono.", "Press Compress audio, listen to the result, then download."] },
       { h: "Rough guide", ul: ["320 kbps: best quality, biggest file.", "128 kbps: good for most music.", "64 to 96 kbps: fine for voice notes, lectures and podcasts.", "48 kbps mono: smallest, for speech only."] },
       { h: "Tip", p: "A WAV recording can shrink more than ten times when it becomes an MP3. If you only need part of a recording, trim it first with Audio Trimmer." },
+      {"h": "Common situations", "ul": ["A lecture or meeting recording too big to send on WhatsApp or email.", "Podcast episodes that take too long to upload.", "Voice notes saved as WAV by a recorder app."]},
+      {"h": "Common questions", "ul": ["Will it sound worse? At 96 kbps speech sounds the same to most people. Music loses some sparkle below 128 kbps.", "Should I use mono? For a single voice, yes. Mono halves the data without losing the voice.", "Can I compress a video's sound? Use Video to MP3 to get the audio first, then compress it here."]},
+      {"p": "Compression runs in your browser, so private recordings such as interviews or classes never leave your device."},
     ],
   },
   {
@@ -179,6 +191,8 @@ export const posts: Post[] = [
       {"h": "Steps", "ul": ["Open CSV to Excel and add your file, or paste the text.", "Leave First row is a header ticked if the first row has column names.", "Press Convert to Excel (.xlsx) and open the downloaded file."]},
       {"h": "Keep codes and long numbers safe", "p": "Excel can turn codes such as 007 into 7 and shorten long ID numbers. Tick Keep every cell as text to store everything exactly as written."},
       {"h": "Other separators", "p": "Files from some regions use semicolons or tabs instead of commas. The tool detects the separator, or you can choose it."},
+      {"h": "Where CSV files come from", "ul": ["Bank and UPI statements exported from net banking.", "Order and customer lists from online shops and Google Forms.", "Reports downloaded from billing or attendance software."]},
+      {"h": "Common questions", "ul": ["Why does my CSV open in one column? It probably uses semicolons or tabs. The tool detects them, so the .xlsx has proper columns.", "Dates look wrong. Tick Keep every cell as text to keep them exactly as written, then format them in Excel.", "Are Hindi or Tamil names kept? Yes. Text is read as UTF-8, so Indian languages stay correct."]},
     ],
   },
   {
@@ -190,6 +204,9 @@ export const posts: Post[] = [
       {"h": "Steps", "ul": ["Open Excel to PDF and add your .xlsx or .csv file.", "Tick the sheets that you want.", "Press Convert to PDF, then download."]},
       {"h": "What to expect", "ul": ["The values are drawn as a clean table, with the header row repeated on every page.", "Colours, fonts, merged cells, images and charts are not copied.", "Wide sheets are set in landscape with narrower columns."]},
       {"h": "For an exact copy of the layout", "p": "Use Print or Save as PDF in Excel itself. That keeps all formatting."},
+      {"h": "When this is useful", "ul": ["Sending a price list or rate card to customers on WhatsApp.", "Sharing marks, attendance or a timetable with parents who do not have Excel.", "Attaching a quotation or stock list to an email so it cannot be edited by mistake."]},
+      {"h": "Common questions", "ul": ["Will my formulas show? No. The PDF shows the values the formulas give, which is what readers need.", "Can I choose only some sheets? Yes. Tick only the sheets you want in the PDF.", "My table is cut on the right. Very wide sheets are set in landscape; removing empty or unneeded columns first gives bigger, easier text."]},
+      {"p": "The file is read and converted in your browser, so price lists and marks sheets are not uploaded anywhere."},
     ],
   },
   {
