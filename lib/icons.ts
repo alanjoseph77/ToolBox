@@ -1,4 +1,4 @@
-import { WandSparkles, Contrast, ScanQrCode, Store, Send, ClipboardPaste, SquareTerminal, Box, Package, MonitorPlay, Shapes, Minimize2, Move3d, AlignLeft, Timer, Diff, Layers, Star, Clock, Sheet, Table2, FileDown, FileJson, Table, FileType2, Presentation, Rows3, Merge, FileCode,
+import { ClipboardList, WandSparkles, Contrast, ScanQrCode, Store, Send, ClipboardPaste, SquareTerminal, Box, Package, MonitorPlay, Shapes, Minimize2, Move3d, AlignLeft, Timer, Diff, Layers, Star, Clock, Sheet, Table2, FileDown, FileJson, Table, FileType2, Presentation, Rows3, Merge, FileCode,
   Baseline, CalendarDays, Copyright, FilePenLine, FileSignature, GraduationCap, Landmark, LockOpen, MessageCircle, PiggyBank, Receipt, SlidersHorizontal, TrendingUp, Wallet, Wifi, VolumeX, MicOff, AudioLines, Shrink, Mic, Gauge, ListMusic, ScanFace, Laugh, GitCompare, FileCode2, CodeXml, Barcode, Binary, Braces, Briefcase, Camera, Clapperboard, Combine, ContactRound, Crop, Eraser, FileArchive, FileImage,
   FileOutput, FileSpreadsheet, FileText, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, MessageSquareText,
   Music, Palette, PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, Sparkles,
@@ -84,6 +84,7 @@ export const toolIcons: Record<string, LucideIcon> = {
   "pdf-to-markdown": FileCode2,
   "fill-pdf-form": TextCursorInput,
   "upi-qr-generator": IndianRupee,
+  "google-form-generator": ClipboardList,
   "emi-calculator": Calculator,
   "gst-calculator": Percent,
   "hash-generator": Hash,

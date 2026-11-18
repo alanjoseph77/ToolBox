@@ -92,3 +92,5 @@ Add a tool by registering it in `lib/tools.ts`, creating `tools/<Name>.tsx`, and
 
 ## Roadmap
 Phase 2 accounts and limits · Phase 3 OCR, video, batch and tool chaining · Phase 4 Expo React Native app.
+
+Google Form Generator: type or paste questions (a) b) c) options, `*` marks the right answer) and get a Google Apps Script (`.gs`). Paste it into script.google.com and press Run; Google creates the form or self-grading quiz in the user's own Drive, optionally with a response sheet. Nothing is sent to ToolBox. `lib/gform.ts` holds the paste reader and the script writer.

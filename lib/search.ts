@@ -2,7 +2,7 @@
 // and sizes like "50kb". Pure functions, no network, fast enough to run on every key press.
 import { tools, type ToolMeta as Tool } from "./tools";
 
-const STOP = new Set(["a", "an", "the", "to", "into", "in", "on", "of", "for", "from", "and", "or", "my", "me", "i", "want", "need", "how", "do", "can", "with", "make", "online", "free", "tool", "tools", "please", "file", "files", "it", "this", "is", "app", "converter"]);
+const STOP = new Set(["a", "an", "the", "to", "into", "in", "on", "of", "for", "from", "and", "or", "my", "me", "i", "want", "need", "how", "do", "can", "with", "make", "online", "free", "tool", "tools", "please", "file", "files", "it", "this", "is", "app", "converter", "maker", "creator", "builder"]);
 
 // Everyday word -> words the tools use. Kept small and obvious.
 const SYN: Record<string, string[]> = {
@@ -27,6 +27,7 @@ const SYN: Record<string, string[]> = {
   send: ["send", "share"], transfer: ["send", "share"], share: ["share", "send"], bluetooth: ["send"], airdrop: ["send"], paste: ["share", "code"],
   menu: ["menu"], restaurant: ["menu"], hotel: ["menu"], shop: ["shop", "product"], store: ["shop", "product"], product: ["product"], business: ["business", "product", "contact"],
   qrcode: ["qr"], barcode: ["barcode"],
+  gform: ["google", "form"], googleform: ["google", "form"], forms: ["form"], survey: ["form", "survey"], questionnaire: ["form"], mcq: ["quiz", "form"], quiz: ["quiz", "form"], gs: ["gs", "apps", "script"], appscript: ["apps", "script"],
   gif: ["gif"], meme: ["meme"], logo: ["logo", "svg", "favicon"], icon: ["favicon", "icon"], vector: ["svg"],
   loan: ["emi"], interest: ["emi", "fd", "sip"], tax: ["tax", "gst"], invoice: ["invoice", "bill"], bill: ["invoice"], salary: ["tax"],
   aadhar: ["aadhaar"], adhar: ["aadhaar"], adhaar: ["aadhaar"], visa: ["passport"], exam: ["kb", "passport", "signature"], form: ["kb", "fill"],

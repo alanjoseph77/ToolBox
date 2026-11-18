@@ -137,6 +137,7 @@ const map: Record<string, ComponentType> = {
   "mask-aadhaar": load(() => import("@/tools/MaskAadhaar")),
   "fill-pdf-form": load(() => import("@/tools/FillPdfForm")),
   "upi-qr-generator": load(() => import("@/tools/UpiQrGenerator")),
+  "google-form-generator": load(() => import("@/tools/GoogleFormGenerator")),
   "emi-calculator": load(() => import("@/tools/EmiCalculator")),
   "gst-calculator": load(() => import("@/tools/GstCalculator")),
   "hash-generator": load(() => import("@/tools/HashGenerator")),

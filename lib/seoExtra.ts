@@ -144,6 +144,7 @@ export const toolExtra: Record<string, ToolExtra> = {
   "merge-excel": { uses: ["Combine monthly sheets into one workbook.", "Merge CSV exports from different branches.", "Stack rows from many files into one sheet."], tips: ["Use one sheet mode when columns match."] },
   "spreadsheet-viewer": { uses: ["Open an Excel file on a phone without an app.", "Search a big CSV quickly.", "Sort a table to find values."], tips: ["Tap a column to sort."] },
   "upi-qr-generator": { uses: ["Make a payment QR for a shop counter.", "Collect money at events.", "Add a pay QR to invoices."], tips: ["Check the UPI ID carefully.", "Leave the amount empty so customers can type it."] },
+  "google-form-generator": { uses: ["Turn a 30-question MCQ test into a self-grading Google Forms quiz in a minute.", "Make a registration or admission form for a school, event or society.", "Create the same feedback form for many branches without clicking through it each time."], tips: ["Paste the whole question paper and mark answers with * to save the most time.", "Run the script once per form; each run makes a new copy."] },
   "emi-calculator": { uses: ["Check EMI before taking a home or car loan.", "Compare loan tenures.", "See total interest paid."], tips: ["A longer tenure lowers EMI but increases interest.", "Use the schedule to plan prepayments."] },
   "gst-calculator": { uses: ["Add GST to a price for a bill.", "Find the price before GST.", "Split GST into CGST and SGST."], tips: ["Use Remove GST when the price already includes tax."] },
 };

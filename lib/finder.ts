@@ -64,6 +64,7 @@ export const HAVES: Have[] = [
   ] },
   { id: "none", label: "Nothing yet", sub: "QR, calculators", more: { href: "/tools/utility", label: "See all everyday tools" }, actions: [
     { label: "Make a QR code", sub: "Menu, links, business card…", slug: "qr-studio", popular: true },
+    { label: "Make a Google Form or quiz", sub: "From your list of questions", slug: "google-form-generator" },
     { label: "QR code for a product", sub: "Photo, price, order on WhatsApp", slug: "product-qr" },
     { label: "Send files to another phone", sub: "With a 6-digit code", slug: "send-files" },
     { label: "Work out a loan EMI", sub: "Monthly EMI and interest", slug: "emi-calculator" },
