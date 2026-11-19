@@ -20,7 +20,7 @@ export default function ToolFinder() {
   const [note, setNote] = useState("");
   const top = useRef<HTMLElement>(null);
   const pickRef = useRef<HTMLInputElement>(null);
-  const dropBox = useRef<HTMLLabelElement>(null);
+  const dropBox = useRef<HTMLDivElement>(null);
   const h = HAVES.find((x) => x.id === have);
   const [thumb, setThumb] = useState("");
   useEffect(() => { if (!file?.type.startsWith("image/")) { setThumb(""); return; } const u = URL.createObjectURL(file); setThumb(u); return () => URL.revokeObjectURL(u); }, [file]);
@@ -56,13 +56,15 @@ export default function ToolFinder() {
         })}
       </div>
       <div className="my-5 flex items-center gap-3 text-xs font-semibold text-neutral-400 before:h-px before:flex-1 before:bg-neutral-200 after:h-px after:flex-1 after:bg-neutral-200 dark:before:bg-neutral-800 dark:after:bg-neutral-800">or</div>
-      <label ref={dropBox} onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); takeFile(e.dataTransfer.files[0]); }}
+      <div ref={dropBox} role="button" tabIndex={0} aria-label="Choose or drop a file" data-testid="finder-box" onClick={() => pickRef.current?.click()}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickRef.current?.click(); } }}
+        onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); takeFile(e.dataTransfer.files[0]); }}
         className={`flex min-h-[88px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition ${drag ? "border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900" : "border-neutral-300 hover:border-neutral-900 dark:border-neutral-700 dark:hover:border-white"}`}>
         <span className="flex items-center gap-2 font-bold"><Upload className="h-4 w-4" aria-hidden /> Choose or drop a file</span>
         <span className="mt-1 text-xs text-neutral-500">We show what you can do with it. It stays on your device.<span className="hidden sm:inline"> You can also paste a copied picture (Ctrl+V).</span></span>
         <span className="mt-3"><PasteButton small label="Paste a copied image" onFiles={(f) => takeFile(f[0])} /></span>
-        <input ref={pickRef} type="file" className="sr-only" data-testid="finder-file" onChange={(e) => { takeFile(e.target.files?.[0]); e.target.value = ""; }} />
-      </label>
+        <input ref={pickRef} type="file" hidden data-testid="finder-file" onChange={(e) => { takeFile(e.target.files?.[0]); e.target.value = ""; }} />
+      </div>
       {note && <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300" role="status">{note}</p>}
     </div>
   );

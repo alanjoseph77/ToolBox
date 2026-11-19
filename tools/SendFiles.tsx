@@ -134,7 +134,7 @@ export default function SendFiles() {
 
   useEffect(() => { const c = new URLSearchParams(location.search).get("code"); if (c && /^\d{6}$/.test(c)) { setMode("receive"); setCodeIn(c); receive(c); } }, [receive]);
 
-  const pickBox = useRef<HTMLLabelElement>(null);
+  const pickBox = useRef<HTMLDivElement>(null), pickInput = useRef<HTMLInputElement>(null);
   usePasteTarget(pickBox, (f) => setFiles((x) => [...x, ...f]));
   const pick = (list: FileList | null) => { if (list) setFiles((f) => [...f, ...Array.from(list)]); };
   const total = files.reduce((n, f) => n + f.size, 0);
@@ -147,11 +147,13 @@ export default function SendFiles() {
 
       {mode === "send" && !code && (
         <div className="space-y-3">
-          <label ref={pickBox} className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-300 bg-white p-6 text-center">
+          <div ref={pickBox} role="button" tabIndex={0} aria-label="Choose files to send" data-testid="sf-box" onClick={() => pickInput.current?.click()}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickInput.current?.click(); } }}
+            className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-300 bg-white p-6 text-center">
             <span className="font-semibold">Tap to choose files</span><span className="text-sm text-neutral-500">any type, as many as you like<span className="hidden sm:inline">, or paste with Ctrl+V</span></span>
             <span className="mt-3"><PasteButton small label="Paste a copied image" onFiles={(f) => setFiles((x) => [...x, ...f])} /></span>
-            <input data-testid="sf-pick" type="file" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
-          </label>
+            <input ref={pickInput} data-testid="sf-pick" type="file" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
+          </div>
           {files.length > 0 && (
             <div className="rounded-xl border bg-white p-3 text-sm">
               <ul className="divide-y">{files.map((f, i) => <li key={i} className="flex items-center justify-between gap-2 py-1.5"><span className="truncate">{f.name}</span><span className="shrink-0 text-neutral-500">{formatBytes(f.size)} <button className="ml-2 text-red-600" aria-label={`Remove ${f.name}`} onClick={() => setFiles(files.filter((_, k) => k !== i))}>✕</button></span></li>)}</ul>
