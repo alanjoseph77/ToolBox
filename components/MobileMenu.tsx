@@ -45,7 +45,7 @@ export default function MobileMenu({ items }: { items: MenuItem[] }) {
             </div>
             <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label="Sections">
               <Link href="/" className={row}><span className="flex items-center gap-3"><Home className="h-4 w-4 text-neutral-500" aria-hidden />Home</span></Link>
-              <Link href="/#all" className={row}><span className="flex items-center gap-3"><LayoutGrid className="h-4 w-4 text-neutral-500" aria-hidden />All tools</span></Link>
+              <Link href="/tools" className={row}><span className="flex items-center gap-3"><LayoutGrid className="h-4 w-4 text-neutral-500" aria-hidden />All tools</span></Link>
               <p className="px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-wide text-neutral-500">Sections</p>
               {items.map((i) => (
                 <Link key={i.href} href={i.href} data-testid="menu-item" className={`${row} ${path === i.href ? "bg-neutral-100 dark:bg-neutral-900" : ""}`}>

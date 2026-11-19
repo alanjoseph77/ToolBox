@@ -1,77 +1,72 @@
-import { AudioLines, Bot, Code2, FileText, QrCode, Gauge, Image as ImageIcon, IndianRupee, ScanQrCode, ShieldCheck, Smartphone, Sparkles, UserX, Video, Wrench, type LucideIcon } from "lucide-react";
-import type { Category } from "@/lib/tools";
+import { AudioLines, Bot, ChevronRight, Code2, FileText, Image as ImageIcon, QrCode, ScanQrCode, Video, Wrench, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import SmartSearch from "@/components/SmartSearch";
-import ToolFinder from "@/components/ToolFinder";
-import { categories } from "@/lib/tools";
+import FinderCard from "@/components/FinderCard";
+import RecentTools from "@/components/RecentTools";
+import ToolIcon from "@/components/ToolIcon";
+import { categories, tools, type Category } from "@/lib/tools";
 import { categorySeo } from "@/lib/seo";
-import ToolBrowser from "@/components/ToolBrowser";
-import { tools } from "@/lib/tools";
+import { QR_SLUGS } from "@/lib/qrHub";
 import { SITE } from "@/lib/site";
 import JsonLd from "@/components/JsonLd";
 
-const features: { icon: LucideIcon; title: string; text: string }[] = [
-  { icon: ShieldCheck, title: "Private by design", text: "Files are processed on your device and never uploaded." },
-  { icon: UserX, title: "No account needed", text: "Open a tool and get it done. No sign-up, no waiting." },
-  { icon: Smartphone, title: "Built for mobile", text: "Big touch targets and fast pages that work great on Android." },
-  { icon: Gauge, title: "Exact file sizes", text: "Hit 50 KB, 100 KB or 200 KB targets for forms and exams." },
-];
-
+// The home page is kept short on purpose: search, the sections, 8 popular tools, and a way in for people who
+// don't know a tool's name. The full list lives on /tools and on each section's page.
 const catIcon: Record<Category, LucideIcon> = { PDF: FileText, Image: ImageIcon, Video, Audio: AudioLines, AI: Bot, Share: ScanQrCode, Developer: Code2, Utility: Wrench };
-const catName: Partial<Record<Category, string>> = { Share: "Share & QR", Utility: "Everyday" };
+const catName: Partial<Record<Category, string>> = { Utility: "Everyday" };
+const POPULAR = ["compress-pdf", "remove-background", "reduce-image-size-kb", "merge-pdf", "qr-code-generator", "send-files", "pdf-to-word", "image-enhancer"];
 
 export default function Home() {
+  const sections = [
+    ...categories.slice(0, 2).map((c) => ({ key: c as string, href: `/tools/${categorySeo[c].slug}`, Icon: catIcon[c], label: catName[c] ?? c, n: tools.filter((t) => t.category === c).length })),
+    { key: "QR", href: "/qr-codes", Icon: QrCode, label: "QR codes", n: QR_SLUGS.length },
+    ...categories.slice(2).map((c) => ({ key: c as string, href: `/tools/${categorySeo[c].slug}`, Icon: catIcon[c], label: catName[c] ?? c, n: tools.filter((t) => t.category === c).length })),
+  ];
+  const popular = POPULAR.map((s) => tools.find((t) => t.slug === s)).filter((t): t is (typeof tools)[number] => !!t);
+
   return (
-    <div className="space-y-14">
+    <div className="mx-auto max-w-5xl">
       <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "ToolBox tools", itemListElement: tools.map((t, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE}/${t.slug}`, name: t.name })) }} />
-      <section className="relative -mt-4 px-0 pb-4 pt-12 text-center">
-        <p className="mx-auto mb-5 inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-neutral-800 dark:border-neutral-700 dark:bg-black dark:text-neutral-200"><Sparkles className="h-3.5 w-3.5" /> {tools.length} free tools · 100% private · no sign-up</p>
-        <h1 className="mx-auto max-w-3xl animate-fade-up text-4xl font-extrabold tracking-tight sm:text-6xl">
-          What do you want to <span className="gradient-text">do</span> today?
-        </h1>
-        <p className="mx-auto mb-8 mt-4 max-w-xl text-base text-neutral-600 dark:text-neutral-300 sm:text-lg">All your tools in one place: PDF, photos, video, audio, QR codes and more. Fast, free and private on your device.</p>
+
+      <section className="pt-6 text-center sm:pt-12">
+        <h1 className="mx-auto max-w-3xl animate-fade-up text-[2rem] font-extrabold leading-tight tracking-tight sm:text-6xl">What do you want to <span className="gradient-text">do</span> today?</h1>
+        <p className="mx-auto mb-6 mt-3 text-sm text-neutral-500 sm:mb-8 sm:text-base">{tools.length} free tools · files stay on your device · no sign-up</p>
         <SmartSearch />
-        <nav aria-label="Browse by type" className="-mx-4 mt-8 flex justify-start gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:justify-center">
-          {[...categories.slice(0, 2).map((c) => ({ key: c as string, href: `/tools/${categorySeo[c].slug}`, Icon: catIcon[c], label: catName[c] ?? c })),
-            { key: "QR", href: "/qr-codes", Icon: QrCode, label: "QR codes" },
-            ...categories.slice(2).map((c) => ({ key: c as string, href: `/tools/${categorySeo[c].slug}`, Icon: catIcon[c], label: catName[c] ?? c }))].map(({ key, href, Icon, label }) => { const c = key; return (
-            <Link key={c} href={href} className="group flex w-[76px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-1 text-xs font-semibold text-neutral-600 hover:text-black dark:text-neutral-300 dark:hover:text-white" data-testid={`cat-${c}`}>
+      </section>
+
+      <nav aria-label="Browse by type" className="mt-8 sm:mt-10">
+        <h2 className="mb-3 text-lg font-bold sm:sr-only">Browse</h2>
+        <div className="grid grid-cols-4 gap-x-2 gap-y-4 sm:grid-cols-8">
+          {sections.map(({ key, href, Icon, label, n }) => (
+            <Link key={key} href={href} className="group flex flex-col items-center gap-1.5 rounded-2xl text-xs font-semibold text-neutral-700 hover:text-black dark:text-neutral-300 dark:hover:text-white" data-testid={`cat-${key}`}>
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100 text-neutral-900 transition group-hover:bg-neutral-900 group-hover:text-white dark:bg-neutral-900 dark:text-white dark:group-hover:bg-white dark:group-hover:text-black"><Icon className="h-6 w-6" aria-hidden /></span>
-              <span className="text-center leading-tight">{label}</span>
-            </Link>); })}
-        </nav>
-      </section>
-
-      <div className="space-y-3">
-        <p className="text-center text-sm text-neutral-500">Don&apos;t know the tool&apos;s name? Answer two quick questions.</p>
-        <ToolFinder />
-      </div>
-
-      <section aria-label="Why ToolBox" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {features.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="flex gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-900 ring-1 ring-neutral-200 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800"><Icon className="h-5 w-5" aria-hidden /></span>
-            <div><h3 className="text-sm font-semibold">{title}</h3><p className="text-sm text-neutral-500">{text}</p></div>
-          </div>
-        ))}
-      </section>
-
-      <ToolBrowser />
-
-      <section aria-label="About ToolBox" className="mx-auto max-w-3xl space-y-3 text-center">
-        <h2 className="text-2xl font-bold">Free online PDF, image and video tools</h2>
-        <p className="leading-relaxed text-neutral-600">ToolBox by Otaga brings the tools you use every day into one fast, private place. Merge, split and compress PDFs, convert PDF to Word or Excel, compress photos to an exact size like 50 KB, resize and crop images, remove backgrounds, make passport photos, trim and convert videos, create GIFs and QR codes, and use handy developer utilities. Everything runs in your browser, so your files never leave your device, and there is no sign-up or watermark.</p>
-      </section>
-
-      <section className="flex flex-col items-start gap-4 overflow-hidden rounded-2xl border border-neutral-900 bg-neutral-950 p-6 text-white sm:flex-row sm:items-center sm:justify-between sm:p-8 dark:border-neutral-700 dark:bg-neutral-950">
-        <div className="flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20"><IndianRupee className="h-6 w-6" aria-hidden /></span>
-          <div><h2 className="text-xl font-bold">Made for India</h2><p className="mt-1 max-w-xl text-sm text-white/85">Passport and visa photos, exam-form images under 50 KB, signature sizes and document scans, all with presets ready to go.</p></div>
+              <span className="text-center leading-tight">{label}<span className="block text-[11px] font-medium text-neutral-400">{n}</span></span>
+            </Link>
+          ))}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/passport-photo-maker" className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-neutral-200">Passport photo</Link>
-          <Link href="/compress-image" className="rounded-xl border border-white/30 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Compress to 50 KB</Link>
+      </nav>
+
+      <RecentTools />
+
+      <section aria-labelledby="popular" className="mt-10">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 id="popular" className="text-lg font-bold">Popular</h2>
+          <Link href="/tools" className="flex items-center gap-0.5 text-sm font-semibold text-neutral-600 hover:text-black dark:text-neutral-300 dark:hover:text-white" data-testid="all-tools-link">All {tools.length} tools <ChevronRight className="h-4 w-4" /></Link>
         </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {popular.map((t) => (
+            <Link key={t.slug} href={`/${t.slug}`} className="flex min-h-[60px] items-center gap-3 rounded-2xl bg-neutral-50 p-3 text-sm font-semibold leading-snug transition hover:bg-neutral-100 dark:bg-neutral-950 dark:hover:bg-neutral-900" data-testid="popular-tile">
+              <ToolIcon tool={t} /><span className="min-w-0">{t.name}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <FinderCard />
+
+      <section aria-label="About ToolBox" className="mx-auto mt-12 max-w-2xl text-center">
+        <p className="text-xs font-semibold text-neutral-500">🔒 Files stay on your device · No sign-up, no watermark · Works great on phones · Made in India</p>
+        <p className="mt-3 text-xs leading-relaxed text-neutral-400">ToolBox by Otaga: compress and merge PDFs, convert PDF to Word, compress photos to 50 KB for forms, remove backgrounds, make passport photos and QR codes, trim videos and more, free in your browser.</p>
       </section>
     </div>
   );

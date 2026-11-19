@@ -32,23 +32,12 @@ export async function generateMetadata({ params }: { params: Promise<{ tool: str
   };
 }
 
-const steps: Record<string, [string, string, string, string]> = {
-  PDF: ["Add your PDF", "Choose a file from your phone or computer. It never leaves your device.", "Adjust and run", "Pick your options, then tap the main button."],
-  Image: ["Add your image", "Choose a photo or drop one in. It stays on your device.", "Adjust and run", "Set size, format or area, then tap the main button."],
-  Video: ["Add your video", "Choose a clip. It is processed locally in your browser.", "Adjust and run", "Pick quality or timing, then start. Long videos take a moment."],
-  Audio: ["Add your audio", "Choose a file or record one. It is processed on your device.", "Adjust and run", "Pick your options, then tap the main button."],
-  AI: ["Add your content", "Paste text or add an image. Only what the AI needs is sent.", "Generate", "Review the result, then copy or download it."],
-  Share: ["Choose what to share", "Pick your files, or write your text. You get a short code or ID.", "Give the code to the other person", "They enter it on their device and receive it. Sharing stops when you close the page or it expires."],
-  Developer: ["Paste your input", "Everything runs in your browser. Nothing is sent anywhere.", "Get the result", "Copy it with one tap."],
-  Utility: ["Enter or add your data", "All calculations happen right in your browser.", "Use the result", "Copy it or download it."],
-};
 
 export default async function ToolPage({ params }: { params: Promise<{ tool: string }> }) {
   const t = getTool((await params).tool);
   if (!t) notFound();
   const seo = toolSeo[t.slug];
   const extra = toolExtra[t.slug];
-  const s = steps[t.category];
   const related = tools.filter((x) => x.category === t.category && x.slug !== t.slug).slice(0, 4);
   const isAi = t.category === "AI" || t.slug === "pdf-summarizer";
   const url = `${SITE}/${t.slug}`;
@@ -117,16 +106,6 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           </div>
         </section>
       )}
-
-      <section aria-label="How it works" className="mt-10 grid gap-4 sm:grid-cols-3">
-        {[[s[0], s[1]], [s[2], s[3]], t.category === "Share" ? ["Done", "Free, with no sign-up and nothing to install."] : ["Download", "Save the result. No watermark, no sign-up."]].map(([title, text], i) => (
-          <div key={title} className="card p-4">
-            <span className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">{i + 1}</span>
-            <h3 className="text-sm font-semibold">{title}</h3>
-            <p className="mt-1 text-sm text-neutral-500">{text}</p>
-          </div>
-        ))}
-      </section>
 
       {seo && (
         <section aria-label="Frequently asked questions" className="mt-12">

@@ -12,7 +12,7 @@ const ICON: Record<HaveId, LucideIcon> = { pdf: FileText, photo: ImageIcon, vide
 const kb = (n: number) => n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
 
 /** Home page: "What do you have?" then "What do you want to do?". Side by side on wide screens, one after the other on phones. */
-export default function ToolFinder() {
+export default function ToolFinder({ initialFile = null }: { initialFile?: File | null } = {}) {
   const router = useRouter();
   const [have, setHave] = useState<HaveId | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -37,6 +37,7 @@ export default function ToolFinder() {
     setFile(f); choose(id, true);
   };
   usePasteTarget(dropBox, (f) => takeFile(f[0]));
+  useEffect(() => { if (initialFile) takeFile(initialFile); else top.current?.scrollIntoView({ block: "nearest" }); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
   const open = (slug: string) => { if (file) handOffFile(file, slug); router.push(`/${slug}`); };
 
   const step1 = (

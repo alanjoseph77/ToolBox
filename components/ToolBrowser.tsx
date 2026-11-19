@@ -25,13 +25,8 @@ export default function ToolBrowser() {
         </section>
       )}
 
-      <section aria-labelledby="popular">
-        <h2 id="popular" className="mb-3 text-xl font-bold">Popular tools</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{tools.filter((t) => t.popular).map((t) => <ToolCard key={t.slug} tool={t} />)}</div>
-      </section>
-
       <section aria-labelledby="all">
-        <h2 id="all" className="mb-3 text-xl font-bold">All tools <span className="text-base font-medium text-neutral-400">({tools.length})</span></h2>
+        <h2 id="all" className="sr-only">All tools</h2>
         <div className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" role="tablist" aria-label="Tool categories">
           {(["All", ...categories] as const).map((c) => (
             <button key={c} role="tab" aria-selected={active === c} onClick={() => setActive(c)} className={`chip shrink-0 ${active === c ? "chip-active" : ""}`}>

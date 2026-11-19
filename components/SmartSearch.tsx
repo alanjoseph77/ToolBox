@@ -50,11 +50,6 @@ export default function SmartSearch() {
         {q && <button onClick={() => { setQ(""); input.current?.focus(); }} aria-label="Clear search" className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-4 w-4" /></button>}
       </div>
 
-      {!q.trim() && (
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {TRY.map((s) => <button key={s} onClick={() => pick(s)} className="chip !py-1 text-xs">{s}</button>)}
-        </div>
-      )}
 
       {showing && (
         <div className="absolute inset-x-0 top-[calc(100%+8px)] z-30 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl animate-pop dark:border-neutral-800 dark:bg-black" data-testid="search-results">
