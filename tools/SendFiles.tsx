@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { Maximize2, Users, X } from "lucide-react";
 import QRCode from "qrcode";
 import { download, formatBytes } from "@/lib/files";
+import { makeZip } from "@/lib/zip";
 import PasteButton, { usePasteTarget } from "@/components/PasteButton";
 
 // Files travel straight from one device to the other (WebRTC). A small "matchmaker" service only introduces the two
@@ -319,6 +320,8 @@ export default function SendFiles() {
                   {rxStat.stalled && !rxStat.paused && <p className="mt-2 text-amber-800" data-testid="sf-rx-stalled">Nothing has arrived for 15 seconds. Ask the sender to open the ToolBox page again and keep the screen on. A weak connection can also cause this; moving closer to Wi-Fi helps.</p>}
                 </div>
               )}
+              {phase === "done" && <p className="text-sm font-semibold text-green-700">All {rx.length} file{rx.length === 1 ? "" : "s"} received.</p>}
+              {phase === "done" && rx.length > 1 && <SaveAll files={rx} />}
               {rx.map((f, i) => (
                 <div key={i} className="rounded-xl border bg-white p-3 text-sm">
                   <div className="flex items-center justify-between gap-2"><span className="truncate font-medium">{f.name}</span><span className="shrink-0 text-neutral-500">{formatBytes(f.size)}</span></div>
@@ -326,7 +329,6 @@ export default function SendFiles() {
                     : <div className="mt-2 h-2 rounded bg-neutral-200"><div className="h-2 rounded bg-neutral-900" style={{ width: `${pct(f.got, f.size)}%` }} /></div>}
                 </div>
               ))}
-              {phase === "done" && rx.length > 1 && <button className="btn w-full" onClick={async () => { for (const f of rx) if (f.blob) { download(f.blob, f.name, f.type || "application/octet-stream"); await sleep(400); } }}>Download all</button>}
               {phase === "done" && <p className="text-sm text-green-700" data-testid="sf-done">All files received.</p>}
             </div>
           )}
@@ -350,6 +352,49 @@ export default function SendFiles() {
       )}
 
       <p className="text-xs text-neutral-500">Files go directly from one device to the other and are never stored on our servers. Both devices need an internet connection (Wi-Fi or mobile data) and the sender must keep the page open. You approve every person who enters your code, unless you switch on Workshop mode.</p>
+    </div>
+  );
+}
+
+const isApple = () => typeof navigator !== "undefined" && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+const unique = (names: string[]) => { const seen = new Map<string, number>(); return names.map((n) => { const k = seen.get(n) ?? 0; seen.set(n, k + 1); return k ? n.replace(/(\.[^.]*)?$/, ` (${k})$1`) : n; }); };
+
+/** Saving many received files at once. iPhone Safari allows only one download at a time, so offer the share sheet
+ *  ("Save 22 Images" puts them in Photos) and a single ZIP; computers can also download each file. */
+function SaveAll({ files }: { files: Got[] }) {
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const ready = files.filter((f) => f.blob);
+  const names = unique(ready.map((f) => f.name));
+  const asFiles = () => ready.map((f, i) => new File([f.blob!], names[i], { type: f.type || "application/octet-stream" }));
+  const media = ready.every((f) => /^(image|video)\//.test(f.type));
+  const canShare = typeof navigator !== "undefined" && typeof navigator.canShare === "function" && (() => { try { return navigator.canShare({ files: asFiles() }); } catch { return false; } })();
+  const apple = isApple();
+  const share = async () => {
+    setMsg("");
+    try { await navigator.share({ files: asFiles() }); }
+    catch (e) { if ((e as Error)?.name !== "AbortError") setMsg("The share menu could not open with this many files. Use “Download all as one ZIP” instead."); }
+  };
+  const zip = async () => {
+    setMsg(""); setBusy(true);
+    try {
+      const entries = await Promise.all(ready.map(async (f, i) => ({ name: names[i], data: new Uint8Array(await f.blob!.arrayBuffer()) })));
+      download(new Blob([makeZip(entries) as BlobPart], { type: "application/zip" }), `toolbox-files-${ready.length}.zip`, "application/zip", false);
+      if (apple) setMsg("On iPhone the ZIP goes to the Files app (Downloads). Tap it there to open the files.");
+    } catch { setMsg("Could not make the ZIP. Try saving the files one by one."); }
+    setBusy(false);
+  };
+  return (
+    <div className="space-y-2 rounded-xl border bg-white p-3" data-testid="sf-saveall">
+      {canShare && (
+        <>
+          <button className="btn w-full" onClick={share} data-testid="sf-share-all">{media ? `Save all ${ready.length} to Photos` : `Save or share all ${ready.length}`}</button>
+          {apple && media && <p className="text-xs text-neutral-500">In the menu that opens, tap <b>Save {ready.length} {ready.every((f) => f.type.startsWith("image/")) ? "Images" : "Items"}</b>.</p>}
+        </>
+      )}
+      <button className={canShare ? "btn-ghost w-full" : "btn w-full"} onClick={zip} disabled={busy} data-testid="sf-zip-all">{busy ? "Making the ZIP…" : `Download all as one ZIP (${formatBytes(ready.reduce((n, f) => n + f.size, 0))})`}</button>
+      {!apple && <button className="btn-ghost w-full" onClick={async () => { for (const f of ready) { download(f.blob!, f.name, f.type || "application/octet-stream", false); await sleep(400); } }} data-testid="sf-each">Download each file</button>}
+      {msg && <p className="text-sm text-neutral-600" role="status" data-testid="sf-save-msg">{msg}</p>}
     </div>
   );
 }
