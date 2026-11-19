@@ -31,9 +31,9 @@ export default function MobileMenu({ items }: { items: MenuItem[] }) {
   return (
     <>
       <button ref={btn} type="button" aria-label="Open menu" aria-expanded={open} aria-controls="mobile-menu" data-testid="menu-open" onClick={() => setOpen(true)}
-        className="flex h-11 w-11 items-center justify-center rounded-xl border border-neutral-200 text-neutral-800 md:hidden dark:border-neutral-800 dark:text-white"><Menu className="h-5 w-5" aria-hidden /></button>
+        className="flex h-11 w-11 items-center justify-center rounded-xl border border-neutral-200 text-neutral-800 lg:hidden dark:border-neutral-800 dark:text-white"><Menu className="h-5 w-5" aria-hidden /></button>
       {mounted && createPortal(
-        <div className={`fixed inset-0 z-[60] md:hidden ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
+        <div className={`fixed inset-0 z-[60] lg:hidden ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
           <div onClick={() => setOpen(false)} data-testid="menu-overlay" className={`absolute inset-0 bg-black/50 transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`} />
           <aside id="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu" data-testid="menu-panel"
             className={`absolute left-0 top-0 flex h-full w-[84%] max-w-[320px] flex-col bg-white shadow-2xl transition-transform duration-200 dark:bg-neutral-950 ${open ? "translate-x-0" : "-translate-x-full"}`}>

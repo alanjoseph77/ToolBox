@@ -35,9 +35,9 @@ export default function CommandPalette() {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} aria-label="Search tools" className="btn-ghost !min-h-0 !justify-between gap-6 !rounded-full !py-2 !pl-3 !pr-2 text-neutral-500 max-sm:!h-11 max-sm:!w-11 max-sm:!justify-center max-sm:!p-0 sm:!min-w-[220px]">
-        <span className="flex items-center gap-2"><Search className="h-4 w-4" /><span className="hidden sm:inline">Search tools</span></span>
-        <kbd className="hidden rounded-md border border-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold sm:inline dark:border-neutral-600">Ctrl K</kbd>
+      <button onClick={() => setOpen(true)} aria-label="Search tools" className="btn-ghost !min-h-0 !justify-between gap-6 !rounded-full !py-2 !pl-3 !pr-2 text-neutral-500 max-sm:!h-11 max-sm:!w-11 max-sm:!justify-center max-sm:!p-0 sm:!min-w-[220px] lg:max-xl:!h-11 lg:max-xl:!w-11 lg:max-xl:!min-w-0 lg:max-xl:!justify-center lg:max-xl:!p-0">
+        <span className="flex items-center gap-2"><Search className="h-4 w-4" /><span className="hidden sm:inline lg:max-xl:hidden">Search tools</span></span>
+        <kbd className="hidden rounded-md border border-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold sm:inline lg:max-xl:hidden dark:border-neutral-600">Ctrl K</kbd>
       </button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-[12vh]" onClick={() => setOpen(false)} role="dialog" aria-modal="true" aria-label="Search tools">

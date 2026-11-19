@@ -1,4 +1,4 @@
-import { AudioLines, Bot, Code2, FileText, Gauge, Image as ImageIcon, IndianRupee, ScanQrCode, ShieldCheck, Smartphone, Sparkles, UserX, Video, Wrench, type LucideIcon } from "lucide-react";
+import { AudioLines, Bot, Code2, FileText, QrCode, Gauge, Image as ImageIcon, IndianRupee, ScanQrCode, ShieldCheck, Smartphone, Sparkles, UserX, Video, Wrench, type LucideIcon } from "lucide-react";
 import type { Category } from "@/lib/tools";
 import Link from "next/link";
 import SmartSearch from "@/components/SmartSearch";
@@ -32,10 +32,12 @@ export default function Home() {
         <p className="mx-auto mb-8 mt-4 max-w-xl text-base text-neutral-600 dark:text-neutral-300 sm:text-lg">All your tools in one place: PDF, photos, video, audio, QR codes and more. Fast, free and private on your device.</p>
         <SmartSearch />
         <nav aria-label="Browse by type" className="-mx-4 mt-8 flex justify-start gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:justify-center">
-          {categories.map((c) => { const Icon = catIcon[c]; return (
-            <Link key={c} href={`/tools/${categorySeo[c].slug}`} className="group flex w-[76px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-1 text-xs font-semibold text-neutral-600 hover:text-black dark:text-neutral-300 dark:hover:text-white" data-testid={`cat-${c}`}>
+          {[...categories.slice(0, 2).map((c) => ({ key: c as string, href: `/tools/${categorySeo[c].slug}`, Icon: catIcon[c], label: catName[c] ?? c })),
+            { key: "QR", href: "/qr-codes", Icon: QrCode, label: "QR codes" },
+            ...categories.slice(2).map((c) => ({ key: c as string, href: `/tools/${categorySeo[c].slug}`, Icon: catIcon[c], label: catName[c] ?? c }))].map(({ key, href, Icon, label }) => { const c = key; return (
+            <Link key={c} href={href} className="group flex w-[76px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-1 text-xs font-semibold text-neutral-600 hover:text-black dark:text-neutral-300 dark:hover:text-white" data-testid={`cat-${c}`}>
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100 text-neutral-900 transition group-hover:bg-neutral-900 group-hover:text-white dark:bg-neutral-900 dark:text-white dark:group-hover:bg-white dark:group-hover:text-black"><Icon className="h-6 w-6" aria-hidden /></span>
-              <span className="text-center leading-tight">{catName[c] ?? c}</span>
+              <span className="text-center leading-tight">{label}</span>
             </Link>); })}
         </nav>
       </section>
