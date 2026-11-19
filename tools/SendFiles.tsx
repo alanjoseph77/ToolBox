@@ -10,7 +10,9 @@ import PasteButton, { usePasteTarget } from "@/components/PasteButton";
 // Files travel straight from one device to the other (WebRTC). A small "matchmaker" service only introduces the two
 // devices using the code; it never sees the files. Set NEXT_PUBLIC_PEER_* to use your own matchmaker, NEXT_PUBLIC_TURN_* for a relay.
 const PREFIX = "toolbox-";
-const CHUNK = 64 * 1024;
+const CHUNK = 64 * 1024;    // one network message; every browser accepts this size
+const SLICE = 1024 * 1024;   // read the file 1 MB at a time
+const HIGH = 4 * 1024 * 1024, LOW = 1024 * 1024;   // pause when 4 MB is waiting to go out, carry on below 1 MB
 const PARALLEL = 3;          // workshop mode: how many people receive at the same time; the rest wait in line
 
 function peerOptions() {
@@ -26,8 +28,12 @@ const makeCode = () => String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_
 const fmtCode = (c: string) => `${c.slice(0, 3)} ${c.slice(3)}`;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const pct = (a: number, b: number) => (b ? Math.min(100, Math.round((a / b) * 100)) : 0);
+const mbps = (bps: number) => `${(bps / 1048576).toFixed(bps < 10 * 1048576 ? 1 : 0)} MB/s`;
+const left = (rest: number, bps: number) => { if (!bps) return ""; const t = Math.round(rest / bps); return t < 60 ? `about ${Math.max(1, t)} s left` : `about ${Math.round(t / 60)} min left`; };
+/** Bytes per second over the last few seconds. */
+function meter() { let pts: [number, number][] = []; return (bytes: number) => { const now = performance.now(); pts.push([now, bytes]); pts = pts.filter(([t]) => now - t < 4000); const [t0, b0] = pts[0]; return now - t0 > 500 ? ((bytes - b0) * 1000) / (now - t0) : 0; }; }
 
-interface Xfer { id: number; name: string; status: "asking" | "queued" | "sending" | "done" | "declined" | "lost"; sent: number; total: number }
+interface Xfer { id: number; name: string; status: "asking" | "queued" | "sending" | "done" | "declined" | "lost"; sent: number; total: number; speed?: number }
 interface Got { name: string; size: number; type: string; got: number; blob?: Blob }
 
 async function openPeer(id?: string): Promise<any> {
@@ -62,6 +68,7 @@ export default function SendFiles() {
   const nameRef = useRef("");
   nameRef.current = myName;
   const [linePos, setLinePos] = useState(0);
+  const [rxStat, setRxStat] = useState({ got: 0, total: 0, speed: 0, paused: false, stalled: false });
   const rxPeer = useRef<any>(null);
 
   const upd = (id: number, patch: Partial<Xfer>) => setXfers((l) => l.map((x) => (x.id === id ? { ...x, ...patch } : x)));
@@ -70,30 +77,56 @@ export default function SendFiles() {
     wake.current?.release?.().catch?.(() => {}); wake.current = null;
   }, []);
   useEffect(() => stopAll, [stopAll]);
+  // A phone pauses a page that is in the background, so sending stops while the sender is in another app.
+  const [away, setAway] = useState(false);
+  useEffect(() => {
+    const on = () => {
+      const hidden = document.visibilityState === "hidden";
+      if (!hidden && code) setAway((a) => a || xfers.some((x) => x.status === "sending" || x.status === "queued"));
+      conns.current.forEach((c) => { try { if (c.open) c.dataChannel?.send(JSON.stringify({ t: hidden ? "paused" : "resumed" })); } catch { /* gone */ } });
+    };
+    document.addEventListener("visibilitychange", on);
+    return () => document.removeEventListener("visibilitychange", on);
+  }, [code, xfers]);
 
   // ================= send =================
+  // Data goes straight onto the WebRTC channel (no extra packing), with flow control so a phone never piles up memory.
   const sendAll = async (id: number) => {
     const conn = conns.current.get(id), list = filesRef.current; if (!conn) return;
-    const total = list.reduce((n, f) => n + f.size, 0); let sent = 0;
+    const total = list.reduce((n, f) => n + f.size, 0); let sent = 0, last = 0;
+    const speedOf = meter();
     upd(id, { status: "sending", total, sent: 0 });
     try {
-      conn.send({ t: "meta", files: list.map((f) => ({ name: f.name, size: f.size, type: f.type })) });
+      const dc: RTCDataChannel = conn.dataChannel;
+      dc.bufferedAmountLowThreshold = LOW;
+      const msg = (o: object) => dc.send(JSON.stringify(o));
+      const drain = () => new Promise<void>((res, rej) => {
+        if (dc.bufferedAmount <= HIGH) return res();
+        const done = () => { dc.removeEventListener("bufferedamountlow", done); dc.removeEventListener("close", gone); res(); };
+        const gone = () => { dc.removeEventListener("bufferedamountlow", done); rej(new Error("closed")); };
+        dc.addEventListener("bufferedamountlow", done); dc.addEventListener("close", gone);
+      });
+      const max = Math.min(CHUNK, (conn.peerConnection?.sctp?.maxMessageSize as number) || CHUNK);
+      msg({ t: "meta", files: list.map((f) => ({ name: f.name, size: f.size, type: f.type })) });
       for (let i = 0; i < list.length; i++) {
-        conn.send({ t: "start", i });
-        for (let off = 0; off < list[i].size; off += CHUNK) {
-          const buf = await list[i].slice(off, off + CHUNK).arrayBuffer();
-          while (conn.dataChannel && conn.dataChannel.bufferedAmount > 4 * 1024 * 1024) { if (!conn.open) throw new Error("closed"); await sleep(15); }
-          if (!conn.open) throw new Error("closed");
-          conn.send(buf); sent += buf.byteLength; if ((off / CHUNK) % 8 === 0) upd(id, { sent });
+        msg({ t: "start", i });
+        for (let off = 0; off < list[i].size; off += SLICE) {
+          const buf = await list[i].slice(off, off + SLICE).arrayBuffer();
+          for (let k = 0; k < buf.byteLength; k += max) {
+            if (dc.readyState !== "open") throw new Error("closed");
+            await drain();
+            dc.send(buf.slice(k, k + max)); sent += Math.min(max, buf.byteLength - k);
+          }
+          const now = performance.now(); if (now - last > 250) { last = now; upd(id, { sent, speed: speedOf(sent) }); }
         }
-        conn.send({ t: "end", i });
+        msg({ t: "end", i });
       }
-      conn.send({ t: "done" }); upd(id, { status: "done", sent: total });
+      msg({ t: "done" }); upd(id, { status: "done", sent: total });
     } catch { upd(id, { status: "lost" }); }
   };
 
   // Workshop mode: keep up to PARALLEL transfers running; tell everyone still waiting their place in line.
-  const tellLine = () => queue.current.forEach((id, i) => { const c = conns.current.get(id); if (c?.open) try { c.send({ t: "queue", pos: i + 1 }); } catch { /* gone */ } });
+  const tellLine = () => queue.current.forEach((id, i) => { const c = conns.current.get(id); if (c?.open) try { c.dataChannel.send(JSON.stringify({ t: "queue", pos: i + 1 })); } catch { /* gone */ } });
   const pump = () => {
     while (active.current < PARALLEL && queue.current.length) {
       const id = queue.current.shift()!, conn = conns.current.get(id);
@@ -145,25 +178,31 @@ export default function SendFiles() {
     let finished = false;
     try {
       const p = await openPeer(); rxPeer.current = p;
-      const timer = setTimeout(() => { if (!finished) { setError("Could not connect. Both devices need internet, and some networks block direct connections. Try mobile data on one device."); setPhase("idle"); p.destroy(); } }, 25000);
+      const timer = setTimeout(() => { if (!finished) { setError("Could not connect. Some mobile networks block direct connections between phones. Easiest fix: the sender turns on their phone's hotspot and the receiver joins it, then try again. Or put both on the same Wi-Fi."); setPhase("idle"); p.destroy(); } }, 25000);
       p.on("error", (e: any) => { clearTimeout(timer); setPhase("idle"); setError(e?.type === "peer-unavailable" ? "No one is sharing with that code. Check the digits, and make sure the sender's page is still open." : "Connection problem. Please try again."); });
-      const conn = p.connect(PREFIX + c, { reliable: true, metadata: { name: nameRef.current.trim().slice(0, 30) } });
-      setLinePos(0);
-      let list: Got[] = [], cur: { i: number; chunks: BlobPart[] } | null = null;
-      const push = () => setRx(list.map((x) => ({ ...x })));
+      const conn = p.connect(PREFIX + c, { reliable: true, serialization: "raw", metadata: { name: nameRef.current.trim().slice(0, 30) } });
+      setLinePos(0); setRxStat({ got: 0, total: 0, speed: 0, paused: false, stalled: false });
+      let list: Got[] = [], cur: { i: number; chunks: BlobPart[] } | null = null, got = 0, total = 0, lastByte = performance.now(), lastPaint = 0, paused = false;
+      const speedOf = meter();
+      // The screen is redrawn at most 4 times a second, not for every piece, so slow phones stay smooth.
+      const paint = (force = false) => { const now = performance.now(); if (!force && now - lastPaint < 250) return; lastPaint = now; setRx(list.map((x) => ({ ...x }))); setRxStat({ got, total, speed: speedOf(got), paused, stalled: false }); };
+      const watch = setInterval(() => { if (!finished && list.length && performance.now() - lastByte > 15000) setRxStat((s) => ({ ...s, stalled: true, speed: 0 })); }, 3000);
       conn.on("open", () => { clearTimeout(timer); setPhase("waiting"); });
-      conn.on("data", (d: any) => {
-        if (d && typeof d === "object" && !(d instanceof ArrayBuffer) && !ArrayBuffer.isView(d) && d.t) {
+      conn.on("data", (raw: any) => {
+        if (typeof raw === "string") {
+          let d: any; try { d = JSON.parse(raw); } catch { return; }
           if (d.t === "queue") setLinePos(Number(d.pos) || 0);
-          else if (d.t === "meta") { setLinePos(0); list = d.files.map((f: any) => ({ ...f, got: 0 })); setPhase("receiving"); push(); }
+          else if (d.t === "paused" || d.t === "resumed") { paused = d.t === "paused"; paint(true); }
+          else if (d.t === "meta") { setLinePos(0); list = d.files.map((f: any) => ({ ...f, got: 0 })); total = list.reduce((n, f) => n + f.size, 0); setPhase("receiving"); paint(true); }
           else if (d.t === "start") cur = { i: d.i, chunks: [] };
-          else if (d.t === "end" && cur) { list[cur.i].blob = new Blob(cur.chunks, { type: list[cur.i].type }); list[cur.i].got = list[cur.i].size; cur = null; push(); }
-          else if (d.t === "done") { finished = true; setPhase("done"); }
+          else if (d.t === "end" && cur) { list[cur.i].blob = new Blob(cur.chunks, { type: list[cur.i].type }); list[cur.i].got = list[cur.i].size; cur = null; paint(true); }
+          else if (d.t === "done") { finished = true; clearInterval(watch); paint(true); setPhase("done"); }
         } else if (cur) {
-          const u8: Uint8Array = d instanceof ArrayBuffer ? new Uint8Array(d) : new Uint8Array(d.buffer, d.byteOffset, d.byteLength);
-          cur.chunks.push(u8 as BlobPart); list[cur.i].got += u8.byteLength; push();
+          const u8: Uint8Array = raw instanceof ArrayBuffer ? new Uint8Array(raw) : new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+          cur.chunks.push(u8 as BlobPart); list[cur.i].got += u8.byteLength; got += u8.byteLength; lastByte = performance.now(); paused = false; paint();
         }
       });
+      conn.on("close", () => clearInterval(watch));
       conn.on("close", () => { clearTimeout(timer); if (!finished) { setPhase("idle"); setError(list.length ? "The connection ended before everything arrived. Ask the sender to share again." : "The sender did not accept, or closed the page."); } });
     } catch { setPhase("idle"); setError("Could not reach the connection service. Check your internet and try again."); }
   }, []);
@@ -211,6 +250,7 @@ export default function SendFiles() {
         <div className="space-y-3">
           <div className="rounded-xl border bg-white p-4 text-center">
             <p className="text-sm text-neutral-500">Tell the other person to open this tool, tap Receive files and enter</p>
+            <p className="sr-only">Stay on this page while sending.</p>
             <p className="my-2 font-mono text-5xl font-bold tracking-widest" data-testid="sf-code">{fmtCode(code)}</p>
             <div className="flex flex-wrap justify-center gap-2">
               <button className="btn-ghost" onClick={() => { navigator.clipboard?.writeText(code).then(() => setNote("Code copied.")).catch(() => {}); setTimeout(() => setNote(""), 2000); }}>Copy code</button>
@@ -218,8 +258,13 @@ export default function SendFiles() {
             </div>
             {note && <p className="mt-1 text-sm text-green-700">{note}</p>}
             {qr && /* eslint-disable-next-line @next/next/no-img-element */ <img src={qr} alt="QR code to receive the files" className="mx-auto mt-3 h-32 w-32 rounded border" />}
-            <p className="mt-3 text-xs text-neutral-500">Keep this page open until the files arrive. {files.length} file{files.length > 1 ? "s" : ""} · {formatBytes(total)}</p>
+            <p className="mt-3 text-xs text-neutral-500"><b>Stay on this page with the screen on</b> until the files arrive. If you share the code in WhatsApp, come straight back here. {files.length} file{files.length > 1 ? "s" : ""} · {formatBytes(total)}</p>
           </div>
+          {away && (
+            <p className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900" role="status" data-testid="sf-away">
+              You left this page while sending. Phones pause pages in the background, so sending stops while you are in another app. Stay on this page with the screen on until everyone has the files.
+              <button className="ml-2 font-semibold underline" onClick={() => setAway(false)}>OK</button></p>
+          )}
           {workshop && (
             <div className="space-y-3 rounded-xl border bg-white p-4" data-testid="sf-summary">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -241,7 +286,7 @@ export default function SendFiles() {
           ) : (
             <div key={x.id} className="rounded-xl border bg-white p-3 text-sm" data-testid="sf-xfer" data-status={x.status}>
               {x.status === "asking" && (<div className="space-y-2"><p><b>{x.name ? `${x.name}` : "Someone"} entered your code</b> and wants the files. Do you know them?</p><div className="flex gap-2"><button className="btn" onClick={() => decide(x.id, true)} data-testid="sf-allow">Allow and send</button><button className="btn-ghost" onClick={() => decide(x.id, false)}>Decline</button></div></div>)}
-              {x.status === "sending" && (<div><p>Sending… {pct(x.sent, x.total)}%</p><div className="mt-1 h-2 rounded bg-neutral-200"><div className="h-2 rounded bg-neutral-900" style={{ width: `${pct(x.sent, x.total)}%` }} /></div></div>)}
+              {x.status === "sending" && (<div><p>Sending… {pct(x.sent, x.total)}% <span className="text-neutral-500">· {formatBytes(x.sent)} of {formatBytes(x.total)}{x.speed ? ` · ${mbps(x.speed)} · ${left(x.total - x.sent, x.speed)}` : ""}</span></p><div className="mt-1 h-2 rounded bg-neutral-200"><div className="h-2 rounded bg-neutral-900" style={{ width: `${pct(x.sent, x.total)}%` }} /></div></div>)}
               {x.status === "done" && <p className="text-green-700">Sent. The other person has everything.</p>}
               {x.status === "declined" && <p className="text-neutral-500">Declined.</p>}
               {x.status === "lost" && <p className="text-red-700">The other device disconnected before it finished.</p>}
@@ -266,6 +311,14 @@ export default function SendFiles() {
           {phase === "waiting" && <p className="rounded-xl border bg-white p-3 text-sm" data-testid="sf-waiting">{linePos ? <>Connected. You are <b>number {linePos}</b> in line. Your files start soon; keep this page open.</> : "Connected. Waiting for the sender…"}</p>}
           {(phase === "receiving" || phase === "done") && (
             <div className="space-y-2" data-testid="sf-rx">
+              {phase === "receiving" && rxStat.total > 0 && (
+                <div className="rounded-xl border bg-white p-3 text-sm" data-testid="sf-rx-total">
+                  <p className="font-semibold">Receiving {pct(rxStat.got, rxStat.total)}% <span className="font-normal text-neutral-500">· {formatBytes(rxStat.got)} of {formatBytes(rxStat.total)}{rxStat.speed ? ` · ${mbps(rxStat.speed)} · ${left(rxStat.total - rxStat.got, rxStat.speed)}` : ""}</span></p>
+                  <div className="mt-2 h-2 rounded bg-neutral-200"><div className="h-2 rounded bg-neutral-900" style={{ width: `${pct(rxStat.got, rxStat.total)}%` }} /></div>
+                  {rxStat.paused && <p className="mt-2 text-amber-800" data-testid="sf-rx-paused">The sender left the ToolBox page, so sending is paused. It carries on when they come back to it.</p>}
+                  {rxStat.stalled && !rxStat.paused && <p className="mt-2 text-amber-800" data-testid="sf-rx-stalled">Nothing has arrived for 15 seconds. Ask the sender to open the ToolBox page again and keep the screen on. A weak connection can also cause this; moving closer to Wi-Fi helps.</p>}
+                </div>
+              )}
               {rx.map((f, i) => (
                 <div key={i} className="rounded-xl border bg-white p-3 text-sm">
                   <div className="flex items-center justify-between gap-2"><span className="truncate font-medium">{f.name}</span><span className="shrink-0 text-neutral-500">{formatBytes(f.size)}</span></div>
