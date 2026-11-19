@@ -356,6 +356,7 @@ export default function SendFiles() {
   );
 }
 
+const isPhone = () => typeof navigator !== "undefined" && (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 const isApple = () => typeof navigator !== "undefined" && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 const unique = (names: string[]) => { const seen = new Map<string, number>(); return names.map((n) => { const k = seen.get(n) ?? 0; seen.set(n, k + 1); return k ? n.replace(/(\.[^.]*)?$/, ` (${k})$1`) : n; }); };
 
@@ -368,13 +369,41 @@ function SaveAll({ files }: { files: Got[] }) {
   const names = unique(ready.map((f) => f.name));
   const asFiles = () => ready.map((f, i) => new File([f.blob!], names[i], { type: f.type || "application/octet-stream" }));
   const media = ready.every((f) => /^(image|video)\//.test(f.type));
-  const canShare = typeof navigator !== "undefined" && typeof navigator.canShare === "function" && (() => { try { return navigator.canShare({ files: asFiles() }); } catch { return false; } })();
   const apple = isApple();
+  // The share menu saves to Photos on phones; on a computer it only offers apps (Windows "Share", Mail…), so it is phones only.
+  const phone = isPhone();
+  const canShare = phone && typeof navigator !== "undefined" && typeof navigator.canShare === "function" && (() => { try { return navigator.canShare({ files: asFiles() }); } catch { return false; } })();
+  const canFolder = !phone && typeof window !== "undefined" && "showDirectoryPicker" in window;
+  const total = formatBytes(ready.reduce((n, f) => n + f.size, 0));
   const share = async () => {
     setMsg("");
     try { await navigator.share({ files: asFiles() }); }
     catch (e) { if ((e as Error)?.name !== "AbortError") setMsg("The share menu could not open with this many files. Use “Download all as one ZIP” instead."); }
   };
+  // Chrome and Edge on a computer: pick a folder once, every file is written into it.
+  const toFolder = async () => {
+    setMsg("");
+    let dir: any;
+    try { dir = await (window as any).showDirectoryPicker({ id: "toolbox-received", mode: "readwrite", startIn: "downloads" }); }
+    catch (e) { if ((e as Error)?.name !== "AbortError") setMsg("Could not open a folder. Use “Download all as one ZIP” instead."); return; }
+    setBusy(true);
+    try {
+      const taken = new Set<string>();
+      for await (const [n] of dir.entries()) taken.add(n);
+      let saved = 0;
+      for (let i = 0; i < ready.length; i++) {
+        let name = names[i], k = 1;
+        while (taken.has(name)) name = names[i].replace(/(\.[^.]*)?$/, ` (${k++})$1`);   // never overwrite a file already in the folder
+        taken.add(name);
+        const fh = await dir.getFileHandle(name, { create: true }), w = await fh.createWritable();
+        await w.write(ready[i].blob!); await w.close(); saved++;
+        setMsg(`Saving… ${saved} of ${ready.length}`);
+      }
+      setMsg(`✓ Saved all ${saved} files to the folder “${dir.name}”.`);
+    } catch { setMsg("Some files could not be saved there. Try another folder, or download the ZIP."); }
+    setBusy(false);
+  };
+  const each = async () => { setMsg(""); for (const f of ready) { download(f.blob!, f.name, f.type || "application/octet-stream", false); await sleep(400); } setMsg(`Started ${ready.length} downloads. If the browser asks to allow downloading multiple files, choose Allow.`); };
   const zip = async () => {
     setMsg(""); setBusy(true);
     try {
@@ -392,8 +421,12 @@ function SaveAll({ files }: { files: Got[] }) {
           {apple && media && <p className="text-xs text-neutral-500">In the menu that opens, tap <b>Save {ready.length} {ready.every((f) => f.type.startsWith("image/")) ? "Images" : "Items"}</b>.</p>}
         </>
       )}
-      <button className={canShare ? "btn-ghost w-full" : "btn w-full"} onClick={zip} disabled={busy} data-testid="sf-zip-all">{busy ? "Making the ZIP…" : `Download all as one ZIP (${formatBytes(ready.reduce((n, f) => n + f.size, 0))})`}</button>
-      {!apple && <button className="btn-ghost w-full" onClick={async () => { for (const f of ready) { download(f.blob!, f.name, f.type || "application/octet-stream", false); await sleep(400); } }} data-testid="sf-each">Download each file</button>}
+      {!phone && (canFolder
+        ? <><button className="btn w-full" onClick={toFolder} disabled={busy} data-testid="sf-folder">Save all {ready.length} files ({total})</button>
+            <p className="text-xs text-neutral-500">Choose a folder (for example Downloads) and every file is saved into it at once.</p></>
+        : <button className="btn w-full" onClick={each} data-testid="sf-each">Download all {ready.length} files ({total})</button>)}
+      <button className={canShare || !phone ? "btn-ghost w-full" : "btn w-full"} onClick={zip} disabled={busy} data-testid="sf-zip-all">{busy ? "Working…" : `Download all as one ZIP${phone ? ` (${total})` : ""}`}</button>
+      {canFolder && <button className="w-full text-xs font-semibold text-neutral-500 underline underline-offset-2" onClick={each} data-testid="sf-each">or download each file separately</button>}
       {msg && <p className="text-sm text-neutral-600" role="status" data-testid="sf-save-msg">{msg}</p>}
     </div>
   );
