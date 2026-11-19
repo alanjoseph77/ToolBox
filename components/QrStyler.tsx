@@ -1,16 +1,35 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
-import { PRESETS, qrSvg, scanWarnings, svgDataUrl, type BodyShape, type EyeInner, type EyeOuter, type Frame, type Gradient, type QrStyle } from "@/lib/qrStyle";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ImagePlus } from "lucide-react";
+import PasteButton from "./PasteButton";
+import { DEFAULT_STYLE, PRESETS, qrSvg, scanWarnings, svgDataUrl, type BodyShape, type EyeInner, type EyeOuter, type Frame, type Gradient, type QrStyle } from "@/lib/qrStyle";
 import { scansBack } from "@/lib/qrCheck";
 
 export interface LogoOption { key: string; label: string; src: string }
-const BODY: [BodyShape, string][] = [["square", "Square"], ["rounded", "Rounded"], ["dots", "Dots"], ["diamond", "Diamond"], ["vbars", "Vertical bars"], ["hbars", "Horizontal bars"], ["leaf", "Leaf"]];
-const EYE_O: [EyeOuter, string][] = [["square", "Square"], ["rounded", "Rounded"], ["circle", "Circle"], ["leaf", "Leaf"]];
-const EYE_I: [EyeInner, string][] = [["square", "Square"], ["rounded", "Rounded"], ["circle", "Dot"], ["diamond", "Diamond"], ["leaf", "Leaf"]];
+const BODY: [BodyShape, string][] = [["square", "Square"], ["rounded", "Rounded"], ["fluid", "Liquid (joined)"], ["classy", "Classy"], ["dots", "Dots"], ["tiny", "Tiny dots"], ["small", "Pixels"], ["diamond", "Diamond"], ["vbars", "Vertical bars"], ["hbars", "Horizontal bars"], ["leaf", "Leaf"], ["star", "Stars"], ["heart", "Hearts"], ["plus", "Plus signs"], ["hexagon", "Hexagons"]];
+const EYE_O: [EyeOuter, string][] = [["square", "Square"], ["rounded", "Rounded"], ["circle", "Circle"], ["leaf", "Leaf"], ["drop", "Drop"], ["octagon", "Octagon"]];
+const EYE_I: [EyeInner, string][] = [["square", "Square"], ["rounded", "Rounded"], ["circle", "Dot"], ["diamond", "Diamond"], ["leaf", "Leaf"], ["drop", "Drop"], ["octagon", "Octagon"], ["star", "Star"]];
+const FRAMES: [Frame, string][] = [["none", "No frame"], ["label", "Label under"], ["top", "Label on top"], ["bubble", "Speech bubble"], ["box", "Box with label"], ["badge", "Badge"]];
+
+/** Shrinks a picture to at most 256 px so the QR file stays small. */
+async function logoData(file: File): Promise<string> {
+  const bmp = await createImageBitmap(file), k = Math.min(1, 256 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
+  return c.toDataURL("image/png");
+}
+// Small pictures of every quick style (same sample text), drawn once.
+let thumbs: { name: string; src: string }[] | null = null;
+const getThumbs = () => (thumbs ??= PRESETS.map((p) => ({ name: p.name, src: svgDataUrl(qrSvg("https://toolbox.otaga.in", { ...DEFAULT_STYLE, ...p.style, frame: "none", logo: "" }, "M").svg) })));
 
 /** Controls and live preview for a styled QR code. The parent owns the style so it can also download the result. */
 export default function QrStyler({ text, style, onChange, logos = [], ecc = "H" }: { text: string; style: QrStyle; onChange: (s: QrStyle) => void; logos?: LogoOption[]; ecc?: "L" | "M" | "Q" | "H" }) {
   const [logoKey, setLogoKey] = useState("none");
+  const [ownLogo, setOwnLogo] = useState("");
+  const [logoErr, setLogoErr] = useState("");
+  const logoInput = useRef<HTMLInputElement>(null);
+  const takeLogo = async (f?: File) => { setLogoErr(""); if (!f) return; try { setOwnLogo(await logoData(f)); setLogoKey("own"); } catch { setLogoErr("Could not use that picture. Try a PNG or JPG."); } };
+  logos = ownLogo ? [...logos, { key: "own", label: "Your picture", src: ownLogo }] : logos;
   const [check, setCheck] = useState<"wait" | "ok" | "bad">("wait");
   const logoSrc = logos.find((l) => l.key === logoKey)?.src ?? "";
   useEffect(() => { if (style.logo !== logoSrc) onChange({ ...style, logo: logoSrc }); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [logoSrc]);   // follow the chosen logo
@@ -43,13 +62,19 @@ export default function QrStyler({ text, style, onChange, logos = [], ecc = "H" 
       </div>
       <div className="min-w-0 space-y-4">
         {warns.map((w, i) => <p key={i} className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">{w}</p>)}
-        <div><p className="mb-2 text-sm font-medium">Quick styles</p>
-          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible">{PRESETS.map((p) => <button key={p.name} className="chip shrink-0" onClick={() => set({ ...p.style })}>{p.name}</button>)}</div></div>
+        <div><p className="mb-2 text-sm font-medium">Quick styles <span className="font-normal text-neutral-500">· {PRESETS.length} designs, tap one</span></p>
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2 sm:grid sm:grid-cols-6 sm:overflow-visible" data-testid="qr-presets">
+            {getThumbs().map((t, i) => (
+              <button key={t.name} onClick={() => set({ ...PRESETS[i].style })} data-testid={`qr-preset-${t.name}`} className="flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-xl border border-neutral-200 p-1.5 text-[11px] font-semibold hover:border-neutral-900 sm:w-auto dark:border-neutral-800 dark:hover:border-white">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={t.src} alt="" className="aspect-square w-full rounded-lg" />{t.name}
+              </button>))}
+          </div></div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {sel("Dot shape", style.body, BODY, (body) => set({ body }))}
           {sel("Corner frame", style.eyeOuter, EYE_O, (eyeOuter) => set({ eyeOuter }))}
           {sel("Corner centre", style.eyeInner, EYE_I, (eyeInner) => set({ eyeInner }))}
-          {sel("Frame", style.frame, [["none", "No frame"], ["label", "Label under"], ["box", "Box with label"]] as [Frame, string][], (frame) => set({ frame }))}
+          {sel("Frame", style.frame, FRAMES, (frame) => set({ frame }))}
           {color("Dot colour", style.color, (color) => set({ color }))}
           {color("Background", style.bg === "transparent" ? "#ffffff" : style.bg, (bg) => set({ bg }))}
           {sel("Gradient", style.gradient, [["none", "None"], ["linear", "Top to bottom"], ["diagonal", "Diagonal"], ["radial", "Centre out"]] as [Gradient, string][], (gradient) => set({ gradient }))}
@@ -62,7 +87,13 @@ export default function QrStyler({ text, style, onChange, logos = [], ecc = "H" 
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-sm">Picture in the middle
-            <select aria-label="Picture in the middle" className="rounded-lg border px-2 py-2.5" value={logoKey} onChange={(e) => setLogoKey(e.target.value)}><option value="none">None</option>{logos.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}</select></label>
+            <select aria-label="Picture in the middle" className="rounded-lg border px-2 py-2.5" value={logoKey} onChange={(e) => { if (e.target.value === "upload") logoInput.current?.click(); else setLogoKey(e.target.value); }}><option value="none">None</option>{logos.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}<option value="upload">Upload your logo…</option></select></label>
+          <div className="flex flex-wrap items-end gap-2 sm:col-span-2">
+            <button type="button" className="btn-ghost !min-h-[44px] !py-1.5 text-xs" onClick={() => logoInput.current?.click()} data-testid="qr-logo-upload"><ImagePlus className="h-4 w-4" /> Add your logo</button>
+            <PasteButton small label="Paste logo" onFiles={(f) => void takeLogo(f[0])} />
+            <input ref={logoInput} type="file" accept="image/*" hidden data-testid="qr-logo-input" onChange={(e) => { void takeLogo(e.target.files?.[0]); e.target.value = ""; }} />
+            {logoErr && <p className="w-full text-xs text-red-600">{logoErr}</p>}
+          </div>
           {logoSrc && <label className="flex flex-col gap-1 text-sm">Size: {Math.round(style.logoScale * 100)}%<input aria-label="Picture size" type="range" min={14} max={28} value={Math.round(style.logoScale * 100)} onChange={(e) => set({ logoScale: +e.target.value / 100 })} className="mt-2 h-8 w-full" /></label>}
           {style.frame !== "none" && <label className="flex flex-col gap-1 text-sm sm:col-span-2">Label text<input aria-label="Label text" className="input" maxLength={28} value={style.label} onChange={(e) => set({ label: e.target.value })} /></label>}
         </div>

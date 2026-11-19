@@ -1,29 +1,25 @@
 "use client";
-import { useEffect, useState } from "react";
-import QRCode from "qrcode";
+import { useState } from "react";
+import { Download } from "lucide-react";
 import CopyButton from "@/components/CopyButton";
-import { canvasToBlob, download } from "@/lib/files";
+import QrStyler from "@/components/QrStyler";
+import { DEFAULT_STYLE, qrSvg, svgToPng, type QrStyle } from "@/lib/qrStyle";
+import { download } from "@/lib/files";
 
-/** Draws a QR for `text` with a PNG download, and optionally shows and copies the text itself. */
+/** A QR for `text` with the full designer (shapes, colours, logo, frame) and PNG / SVG downloads. */
 export default function QrBox({ text, filename, caption, copyLabel }: { text: string; filename: string; caption?: string; copyLabel?: string }) {
-  const [url, setUrl] = useState("");
-  useEffect(() => {
-    if (!text) { setUrl(""); return; }
-    QRCode.toDataURL(text, { width: 640, margin: 2, errorCorrectionLevel: "M" }).then(setUrl).catch(() => setUrl(""));
-  }, [text]);
-  if (!text || !url) return null;
-  const save = async () => {
-    const img = new Image(); img.src = url; await img.decode();
-    const c = document.createElement("canvas"); c.width = img.width; c.height = img.height; c.getContext("2d")!.drawImage(img, 0, 0);
-    download(await canvasToBlob(c, "image/png"), filename);
-  };
+  const [style, setStyle] = useState<QrStyle>({ ...DEFAULT_STYLE, label: "Scan me" });
+  if (!text) return null;
+  const base = filename.replace(/\.png$/i, "");
+  const png = async () => download(await svgToPng(qrSvg(text, style, "M"), 1200), `${base}.png`, "image/png", false);
+  const svg = () => download(new Blob([qrSvg(text, style, "M").svg], { type: "image/svg+xml" }), `${base}.svg`, "image/svg+xml", false);
   return (
-    <div className="space-y-3 rounded-xl border bg-white p-4 text-center">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt="QR code" className="mx-auto w-56 rounded-lg border bg-white" />
+    <div className="space-y-4 rounded-xl border bg-white p-4 dark:bg-black" data-testid="qrbox">
+      <QrStyler text={text} style={style} onChange={setStyle} ecc="M" />
       {caption && <p className="break-all text-xs text-neutral-500">{caption}</p>}
-      <div className="flex flex-wrap justify-center gap-2">
-        <button className="btn" onClick={save}>Download QR (PNG)</button>
+      <div className="flex flex-wrap gap-2">
+        <button className="btn" onClick={png} data-testid="qrbox-png"><Download className="h-4 w-4" /> Download PNG</button>
+        <button className="btn-ghost" onClick={svg}><Download className="h-4 w-4" /> SVG (for print shops)</button>
         {copyLabel && <CopyButton text={caption ?? text} label={copyLabel} />}
       </div>
     </div>

@@ -150,7 +150,7 @@ const allTools: ToolMeta[] = [
   { slug: "gst-calculator", name: "GST Calculator", description: "Add or remove GST at 5%, 12%, 18%, 28% with CGST and SGST split.", category: "Utility", keywords: ["tax", "india", "invoice", "cgst"] },
   { slug: "hash-generator", name: "Hash Generator (MD5, SHA)", description: "Create MD5, SHA-1, SHA-256 and SHA-512 hashes of text or files.", category: "Developer", keywords: ["checksum", "md5", "sha256", "verify"] },
   { slug: "text-case-converter", name: "Text Case Converter", description: "Change text to UPPER, lower, Title, camelCase, snake_case and more.", category: "Developer", keywords: ["uppercase", "lowercase", "title case", "camelcase"] },
-  { slug: "qr-code-generator", name: "QR Code Generator", description: "Create QR codes for links, text, Wi-Fi and more. Download as PNG.", category: "Developer", popular: true, keywords: ["qr", "barcode"] },
+  { slug: "qr-code-generator", name: "QR Code Generator", description: "Make QR codes for links, text, Wi-Fi, WhatsApp, calls, SMS, email and maps, in 18 designs with your logo. PNG or SVG.", category: "Developer", popular: true, keywords: ["qr", "barcode"] },
 ];
 
 const isAi = (t: ToolMeta) => t.category === "AI" || AI_SLUGS.has(t.slug);
