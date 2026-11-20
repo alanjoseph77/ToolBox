@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Maximize2, Users, X } from "lucide-react";
 import QRCode from "qrcode";
 import { download, formatBytes } from "@/lib/files";
-import { makeZip } from "@/lib/zip";
+import { makeZipBlob } from "@/lib/zip";
 import PasteButton, { usePasteTarget } from "@/components/PasteButton";
 
 // Files travel straight from one device to the other (WebRTC). A small "matchmaker" service only introduces the two
@@ -325,7 +325,7 @@ export default function SendFiles() {
               {rx.map((f, i) => (
                 <div key={i} className="rounded-xl border bg-white p-3 text-sm">
                   <div className="flex items-center justify-between gap-2"><span className="truncate font-medium">{f.name}</span><span className="shrink-0 text-neutral-500">{formatBytes(f.size)}</span></div>
-                  {f.blob ? <button className="btn mt-2 w-full" onClick={() => download(f.blob!, f.name, f.type || "application/octet-stream")}>Download</button>
+                  {f.blob ? <button className="btn mt-2 w-full" onClick={() => download(f.blob!, f.name, f.type || "application/octet-stream", false)}>Download</button>
                     : <div className="mt-2 h-2 rounded bg-neutral-200"><div className="h-2 rounded bg-neutral-900" style={{ width: `${pct(f.got, f.size)}%` }} /></div>}
                 </div>
               ))}
@@ -360,21 +360,40 @@ const isPhone = () => typeof navigator !== "undefined" && (/Android|iPhone|iPad|
 const isApple = () => typeof navigator !== "undefined" && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 const unique = (names: string[]) => { const seen = new Map<string, number>(); return names.map((n) => { const k = seen.get(n) ?? 0; seen.set(n, k + 1); return k ? n.replace(/(\.[^.]*)?$/, ` (${k})$1`) : n; }); };
 
-/** Saving many received files at once. iPhone Safari allows only one download at a time, so offer the share sheet
- *  ("Save 22 Images" puts them in Photos) and a single ZIP; computers can also download each file. */
+const isAndroid = () => typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+
+/** Saving many received files at once, in the way that really works on each device:
+ *  iPhone: the share sheet ("Save N Images" puts them in Photos) or one ZIP (goes to Files).
+ *  Android: the files one after another into Downloads (the share sheet has no "save" there), or one ZIP.
+ *  Computer: a folder (Chrome / Edge) or every file as a download.
+ *  The ZIP is made in the background as soon as the files arrive, so the button saves at once when tapped. */
 function SaveAll({ files }: { files: Got[] }) {
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [zip, setZip] = useState<{ state: "wait" | "ready" | "failed" | "toobig"; blob?: Blob; pct: number }>({ state: "wait", pct: 0 });
   const ready = files.filter((f) => f.blob);
   const names = unique(ready.map((f) => f.name));
   const asFiles = () => ready.map((f, i) => new File([f.blob!], names[i], { type: f.type || "application/octet-stream" }));
   const media = ready.every((f) => /^(image|video)\//.test(f.type));
-  const apple = isApple();
-  // The share menu saves to Photos on phones; on a computer it only offers apps (Windows "Share", Mail…), so it is phones only.
+  const apple = isApple(), android = isAndroid();
   const phone = isPhone();
   const canShare = phone && typeof navigator !== "undefined" && typeof navigator.canShare === "function" && (() => { try { return navigator.canShare({ files: asFiles() }); } catch { return false; } })();
   const canFolder = !phone && typeof window !== "undefined" && "showDirectoryPicker" in window;
-  const total = formatBytes(ready.reduce((n, f) => n + f.size, 0));
+  const bytes = ready.reduce((n, f) => n + f.size, 0), total = formatBytes(bytes);
+
+  useEffect(() => {
+    let live = true;
+    if (bytes > 3 * 1024 ** 3) { setZip({ state: "toobig", pct: 0 }); return; }
+    const t = setTimeout(async () => {
+      try {
+        const blob = await makeZipBlob(ready.map((f, i) => ({ name: names[i], blob: f.blob! })), (pct) => { if (live) setZip((z) => (z.state === "wait" ? { ...z, pct } : z)); });
+        if (live) setZip({ state: "ready", blob, pct: 100 });
+      } catch { if (live) setZip({ state: "failed", pct: 0 }); }
+    }, 80);
+    return () => { live = false; clearTimeout(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready.length, bytes]);
+
   const share = async () => {
     setMsg("");
     try { await navigator.share({ files: asFiles() }); }
@@ -403,30 +422,44 @@ function SaveAll({ files }: { files: Got[] }) {
     } catch { setMsg("Some files could not be saved there. Try another folder, or download the ZIP."); }
     setBusy(false);
   };
-  const each = async () => { setMsg(""); for (const f of ready) { download(f.blob!, f.name, f.type || "application/octet-stream", false); await sleep(400); } setMsg(`Started ${ready.length} downloads. If the browser asks to allow downloading multiple files, choose Allow.`); };
-  const zip = async () => {
+  // One download after another, with a pause so the browser can start each one.
+  const each = async () => {
     setMsg(""); setBusy(true);
-    try {
-      const entries = await Promise.all(ready.map(async (f, i) => ({ name: names[i], data: new Uint8Array(await f.blob!.arrayBuffer()) })));
-      download(new Blob([makeZip(entries) as BlobPart], { type: "application/zip" }), `toolbox-files-${ready.length}.zip`, "application/zip", false);
-      if (apple) setMsg("On iPhone the ZIP goes to the Files app (Downloads). Tap it there to open the files.");
-    } catch { setMsg("Could not make the ZIP. Try saving the files one by one."); }
+    for (let i = 0; i < ready.length; i++) {
+      setMsg(`Saving ${i + 1} of ${ready.length}…`);
+      download(ready[i].blob!, names[i], ready[i].type || "application/octet-stream", false);
+      await sleep(phone ? 900 : 400);
+    }
     setBusy(false);
+    setMsg(android ? `✓ Started ${ready.length} downloads. Find them in the Files app → Downloads (pictures also show in Gallery under “Download”). If Chrome asks about downloading multiple files, tap Allow.`
+      : `Started ${ready.length} downloads. If the browser asks to allow downloading multiple files, choose Allow.`);
   };
+  const saveZip = () => {
+    if (!zip.blob) return;
+    setMsg("");
+    download(zip.blob, `toolbox-files-${ready.length}.zip`, "application/zip", false);   // right inside the tap, so the phone allows it
+    setMsg(apple ? "The ZIP is saved in the Files app → Downloads. Tap it there to open the files."
+      : android ? "The ZIP is saved in your Downloads folder (Files app → Downloads). Tap it there to open the files." : "");
+  };
+  const zipLabel = zip.state === "ready" ? `Download all as one ZIP (${total})` : zip.state === "wait" ? `Preparing the ZIP… ${zip.pct}%` : zip.state === "toobig" ? "Too big for one ZIP on this device" : "The ZIP could not be made";
+  const sharePrimary = canShare && apple;
   return (
     <div className="space-y-2 rounded-xl border bg-white p-3" data-testid="sf-saveall">
-      {canShare && (
+      {sharePrimary && (
         <>
-          <button className="btn w-full" onClick={share} data-testid="sf-share-all">{media ? `Save all ${ready.length} to Photos` : `Save or share all ${ready.length}`}</button>
-          {apple && media && <p className="text-xs text-neutral-500">In the menu that opens, tap <b>Save {ready.length} {ready.every((f) => f.type.startsWith("image/")) ? "Images" : "Items"}</b>.</p>}
+          <button className="btn w-full" onClick={share} data-testid="sf-share-all">{media ? `Save all ${ready.length} to Photos` : `Save all ${ready.length} to Files`}</button>
+          <p className="text-xs text-neutral-500">In the menu that opens, tap <b>{media ? `Save ${ready.length} ${ready.every((f) => f.type.startsWith("image/")) ? "Images" : "Items"}` : "Save to Files"}</b>.</p>
         </>
       )}
+      {phone && !apple && <button className="btn w-full" onClick={each} disabled={busy} data-testid="sf-each">{busy ? `Saving…` : `Save all ${ready.length} files (${total})`}</button>}
       {!phone && (canFolder
         ? <><button className="btn w-full" onClick={toFolder} disabled={busy} data-testid="sf-folder">Save all {ready.length} files ({total})</button>
             <p className="text-xs text-neutral-500">Choose a folder (for example Downloads) and every file is saved into it at once.</p></>
-        : <button className="btn w-full" onClick={each} data-testid="sf-each">Download all {ready.length} files ({total})</button>)}
-      <button className={canShare || !phone ? "btn-ghost w-full" : "btn w-full"} onClick={zip} disabled={busy} data-testid="sf-zip-all">{busy ? "Working…" : `Download all as one ZIP${phone ? ` (${total})` : ""}`}</button>
-      {canFolder && <button className="w-full text-xs font-semibold text-neutral-500 underline underline-offset-2" onClick={each} data-testid="sf-each">or download each file separately</button>}
+        : <button className="btn w-full" onClick={each} disabled={busy} data-testid="sf-each">Download all {ready.length} files ({total})</button>)}
+      {zip.state !== "toobig" && <button className={(phone && apple && !sharePrimary) ? "btn w-full" : "btn-ghost w-full"} onClick={saveZip} disabled={zip.state !== "ready"} data-testid="sf-zip-all">{zipLabel}</button>}
+      {zip.state === "toobig" && <p className="text-xs text-neutral-500">{zipLabel}. Use the first button instead.</p>}
+      {canShare && !apple && <button className="w-full text-xs font-semibold text-neutral-500 underline underline-offset-2" onClick={share} data-testid="sf-share-all">or share all {ready.length} to an app (Drive, WhatsApp…)</button>}
+      {canFolder && <button className="w-full text-xs font-semibold text-neutral-500 underline underline-offset-2" onClick={each} data-testid="sf-each2">or download each file separately</button>}
       {msg && <p className="text-sm text-neutral-600" role="status" data-testid="sf-save-msg">{msg}</p>}
     </div>
   );

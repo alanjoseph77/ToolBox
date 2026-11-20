@@ -51,3 +51,36 @@ export function makeZip(entries: ZipEntry[]): Uint8Array {
   for (const c of all) { out.set(c, p); p += c.length; }
   return out;
 }
+
+const crcUpdate = (crc: number, data: Uint8Array) => { let c = crc; for (let i = 0; i < data.length; i++) c = CRC_TABLE[(c ^ data[i]) & 0xff] ^ (c >>> 8); return c; };
+
+/** Makes a ZIP (no compression) from files without copying them into memory: the files are read one megabyte at a time
+ *  only to work out their checksums, and the ZIP is put together from the original pieces. Safe for 100 MB or more on a phone. */
+export async function makeZipBlob(entries: { name: string; blob: Blob }[], onProgress?: (pct: number) => void): Promise<Blob> {
+  const total = entries.reduce((n, e) => n + e.blob.size, 0);
+  if (entries.length > 65535 || total > 0xf0000000) throw new Error("too big for a ZIP");
+  const SLICE = 1024 * 1024;
+  const u16 = (v: number) => [v & 255, (v >>> 8) & 255];
+  const u32 = (v: number) => [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255];
+  const parts: BlobPart[] = [], central: Uint8Array[] = [];
+  let offset = 0, done = 0;
+  for (const e of entries) {
+    const name = utf8(e.name), size = e.blob.size;
+    let c = 0xffffffff;
+    for (let off = 0; off < size; off += SLICE) {
+      c = crcUpdate(c, new Uint8Array(await e.blob.slice(off, off + SLICE).arrayBuffer()));
+      done += Math.min(SLICE, size - off);
+      onProgress?.(Math.min(99, Math.round((done / Math.max(1, total)) * 100)));
+    }
+    await new Promise((r) => setTimeout(r, 0));   // let the page breathe between files
+    const crc = (c ^ 0xffffffff) >>> 0;
+    const local = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(size), ...u32(size), ...u16(name.length), ...u16(0)]);
+    parts.push(local, name, e.blob);
+    central.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(size), ...u32(size), ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset)]), name);
+    offset += local.length + name.length + size;
+  }
+  const centralSize = central.reduce((n, c) => n + c.length, 0);
+  const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(entries.length), ...u16(entries.length), ...u32(centralSize), ...u32(offset), ...u16(0)]);
+  onProgress?.(100);
+  return new Blob([...parts, ...central, end], { type: "application/zip" });
+}

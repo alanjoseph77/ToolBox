@@ -8,8 +8,14 @@ export function download(data: Blob | Uint8Array, filename: string, type = "appl
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.rel = "noopener";
+  a.style.display = "none";
+  document.body.appendChild(a);   // phone browsers ignore a link that is not on the page
   a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(() => a.remove(), 0);
+  // A phone reads a downloaded file slowly and in pieces. Taking the address away after one second made big files
+  // fail without any message, so it stays for a while (longer for big files).
+  setTimeout(() => URL.revokeObjectURL(url), blob.size > 10 * 1024 * 1024 ? 10 * 60_000 : 60_000);
 }
 
 export const formatBytes = (n: number) =>
