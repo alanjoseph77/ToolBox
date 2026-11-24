@@ -31,6 +31,17 @@ export default function QrCodesPage() {
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">QR codes</h1>
       <p className="mt-3 max-w-3xl leading-relaxed text-neutral-600">Every QR tool in one place: links, Wi-Fi, WhatsApp, UPI payments, restaurant menus, shop products and business cards. Pick from 18 designs, add your logo and a “Scan me” label, and download PNG or SVG for printing. Each design is checked to make sure phones can scan it.</p>
 
+      <Link href="/picture-qr-code" data-testid="qr-feature-picture" className="mt-8 flex flex-col items-center gap-5 overflow-hidden rounded-2xl border border-neutral-200 bg-gradient-to-br from-orange-50 via-white to-violet-50 p-5 hover:border-neutral-400 sm:flex-row sm:p-6 dark:border-neutral-800 dark:from-neutral-950 dark:via-black dark:to-neutral-950 dark:hover:border-neutral-600">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/picture-qr-example.webp" width={180} height={180} alt="A QR code made from a sunset picture" className="h-40 w-40 shrink-0 sm:h-44 sm:w-44" />
+        <div className="min-w-0 text-center sm:text-left">
+          <span className="rounded-full bg-black px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white dark:bg-white dark:text-black">New</span>
+          <h2 className="mt-2 text-xl font-extrabold">Picture QR: your photo inside the code</h2>
+          <p className="mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">Put your shop, food, artwork or face inside a QR code that still scans. Move and zoom the picture, choose Card or Stamp, and download up to 6400 px. A live check tells you if phones can read it.</p>
+          <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold">Make a picture QR <ChevronRight className="h-4 w-4" aria-hidden /></span>
+        </div>
+      </Link>
+
       <section aria-label="Which QR code do I need?" className="mt-8 overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800">
         <h2 className="border-b border-neutral-200 bg-neutral-50 px-4 py-3 text-base font-bold dark:border-neutral-800 dark:bg-neutral-950">Which one do I need?</h2>
         <ul className="divide-y divide-neutral-200 dark:divide-neutral-800">

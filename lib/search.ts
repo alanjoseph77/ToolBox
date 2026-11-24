@@ -26,7 +26,7 @@ const SYN: Record<string, string[]> = {
   scan: ["scan", "ocr"], text: ["text"], read: ["ocr", "text"], extract: ["to", "extract", "ocr"],
   send: ["send", "share"], transfer: ["send", "share"], share: ["share", "send"], bluetooth: ["send"], airdrop: ["send"], paste: ["share", "code"],
   menu: ["menu"], restaurant: ["menu"], hotel: ["menu"], shop: ["shop", "product"], store: ["shop", "product"], product: ["product"], business: ["business", "product", "contact"],
-  qrcode: ["qr"], barcode: ["barcode"],
+  qrcode: ["qr"], halftone: ["picture", "qr"], artistic: ["picture", "art"], visual: ["picture"], barcode: ["barcode"],
   gform: ["google", "form"], googleform: ["google", "form"], forms: ["form"], survey: ["form", "survey"], questionnaire: ["form"], mcq: ["quiz", "form"], quiz: ["quiz", "form"], gs: ["gs", "apps", "script"], appscript: ["apps", "script"],
   gif: ["gif"], meme: ["meme"], logo: ["logo", "svg", "favicon"], icon: ["favicon", "icon"], vector: ["svg"],
   loan: ["emi"], interest: ["emi", "fd", "sip"], tax: ["tax", "gst"], invoice: ["invoice", "bill"], bill: ["invoice"], salary: ["tax"],

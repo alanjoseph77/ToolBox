@@ -85,6 +85,7 @@ export const toolIcons: Record<string, LucideIcon> = {
   "fill-pdf-form": TextCursorInput,
   "upi-qr-generator": IndianRupee,
   "google-form-generator": ClipboardList,
+  "picture-qr-code": ScanQrCode,
   "emi-calculator": Calculator,
   "gst-calculator": Percent,
   "hash-generator": Hash,

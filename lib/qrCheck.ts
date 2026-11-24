@@ -3,9 +3,14 @@
 import { svgToPng, type QrResult } from "./qrStyle";
 
 export async function scansBack(r: QrResult, expected: string): Promise<boolean> {
+  try { return await readsAs(await createImageBitmap(await svgToPng(r, 700)), expected, 700); } catch { return false; }
+}
+
+/** True when a picture (canvas or bitmap) reads back as `expected`, after drawing it at `width` px on white. */
+export async function readsAs(src: CanvasImageSource & { width: number; height: number }, expected: string, width = 700): Promise<boolean> {
   try {
-    const bmp = await createImageBitmap(await svgToPng(r, 700)), c = document.createElement("canvas"); c.width = bmp.width; c.height = bmp.height;
-    const g = c.getContext("2d", { willReadFrequently: true })!; g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(bmp, 0, 0);
+    const c = document.createElement("canvas"); c.width = width; c.height = Math.round((width * src.height) / src.width);
+    const g = c.getContext("2d", { willReadFrequently: true })!; g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.imageSmoothingQuality = "high"; g.drawImage(src, 0, 0, c.width, c.height);
     const img = g.getImageData(0, 0, c.width, c.height), d = img.data;
     try {
       const Z = await import("@zxing/library"), lum = new Uint8ClampedArray(c.width * c.height);

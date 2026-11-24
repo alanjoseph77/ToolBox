@@ -31,6 +31,7 @@ export const HAVES: Have[] = [
     { label: "Change width and height", sub: "Resize in pixels or %", slug: "resize-image" },
     { label: "Put photos in a PDF", sub: "One page per photo", slug: "jpg-to-pdf" },
     { label: "Get the text out", sub: "Photo to text", slug: "image-to-text" },
+    { label: "Turn it into a QR code", sub: "Your photo inside a QR that scans", slug: "picture-qr-code" },
     { label: "Hide Aadhaar number", sub: "Mask the first 8 digits", slug: "mask-aadhaar" },
     { label: "Blur faces", sub: "Before you post it", slug: "blur-face" },
   ] },
