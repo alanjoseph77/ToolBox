@@ -2,7 +2,7 @@
 // Everything is drawn on a canvas in the browser. The same drawing is used for the preview, the print-quality PNG and the PDF sheet.
 import QRCode from "qrcode";
 
-export type HShape = "classic" | "tag" | "arch";
+export type HShape = "classic" | "tag" | "arch" | "tshirt" | "sneaker" | "bag" | "house";
 export interface HTheme { id: string; name: string; bg: string; fg: string; accent: string }
 export const THEMES: HTheme[] = [
   { id: "orange", name: "Orange", bg: "#ff5a1f", fg: "#0a0a0a", accent: "#ffffff" },
@@ -20,9 +20,81 @@ export const SHAPES: Record<HShape, { label: string; hint: string; mm: [number, 
   classic: { label: "Door hanger", hint: "Hole and slot for a handle", mm: [85, 190] },
   arch: { label: "Arch", hint: "Rounded top, hole and slot", mm: [85, 190] },
   tag: { label: "Small tag", hint: "Hole for a string", mm: [70, 120] },
+  tshirt: { label: "T-shirt", hint: "Die-cut, ring with a slot", mm: [130, 161] },
+  sneaker: { label: "Sneaker", hint: "Die-cut, ring with a slot", mm: [130, 118] },
+  bag: { label: "Shopping bag", hint: "Die-cut, ring with a slot", mm: [90, 111] },
+  house: { label: "House", hint: "Die-cut, ring with a slot", mm: [100, 124] },
 };
+export const FANCY_SHAPES: HShape[] = ["tshirt", "sneaker", "bag", "house"];
 export const DW = 420;                                   // design width in drawing units
-export const dh = (s: HShape) => Math.round((DW * SHAPES[s].mm[1]) / SHAPES[s].mm[0]);
+export const dh = (s: HShape) => FANCY[s]?.H ?? Math.round((DW * SHAPES[s].mm[1]) / SHAPES[s].mm[0]);
+
+
+// ---- die-cut shapes: a silhouette (SVG path in design units) plus a hanging ring and ready-made slots for the words and the QR code
+interface Slot { shop?: { x: number; w: number; y: number; size: number }; head?: { x: number; y: number; w: number; h: number; max: number }; card: { x: number; y: number; s: number }; cta?: { cx: number; y: number; w: number; h: number } }
+interface Fancy { H: number; path: string; ring: { cx: number; cy: number; R: number; r: number }; slot: Slot; deco?: (g: CanvasRenderingContext2D, fg: string) => void }
+export const FANCY: Partial<Record<HShape, Fancy>> = {
+  tshirt: { H: 520, path: "M150 130 L270 130 L350 160 L410 250 L350 300 L320 270 L320 500 Q320 510 310 510 L110 510 Q100 510 100 500 L100 270 L70 300 L10 250 L70 160 Z", ring: { cx: 210, cy: 78, R: 54, r: 27 },
+    slot: { shop: { x: 112, w: 196, y: 224, size: 15 }, head: { x: 112, y: 238, w: 196, h: 62, max: 56 }, card: { x: 130, y: 306, s: 160 }, cta: { cx: 210, y: 474, w: 190, h: 30 } },
+    deco: (g, fg) => { g.strokeStyle = fg; g.globalAlpha = 0.3; g.lineWidth = 7; g.beginPath(); g.ellipse(210, 134, 54, 24, 0, 0, Math.PI); g.stroke(); g.lineWidth = 3; g.beginPath(); g.moveTo(100, 276); g.lineTo(70, 306); g.moveTo(320, 276); g.lineTo(350, 306); g.stroke(); g.globalAlpha = 1; } },
+  sneaker: { H: 380, path: "M50 70 L150 60 Q180 120 235 150 L310 185 Q405 215 408 290 L408 340 Q408 358 390 358 L40 358 Q18 358 18 336 L18 150 Q20 82 50 70 Z", ring: { cx: 100, cy: 48, R: 46, r: 23 },
+    slot: { head: { x: 32, y: 108, w: 146, h: 108, max: 52 }, shop: { x: 30, w: 150, y: 246, size: 13 }, card: { x: 214, y: 204, s: 110 }, cta: { cx: 105, y: 262, w: 142, h: 34 } },
+    deco: (g, fg) => { g.fillStyle = "rgba(255,255,255,.88)"; g.fillRect(0, 322, 420, 40); g.fillStyle = "rgba(0,0,0,.14)"; g.fillRect(0, 316, 420, 6); g.strokeStyle = fg; g.globalAlpha = 0.55; g.lineWidth = 6; g.lineCap = "round"; for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(180 + i * 18, 118 + i * 11); g.lineTo(208 + i * 18, 106 + i * 11); g.stroke(); } g.globalAlpha = 1; } },
+  bag: { H: 520, path: "M30 132 L390 132 L404 498 Q404 512 390 512 L30 512 Q16 512 16 498 Z", ring: { cx: 210, cy: 78, R: 54, r: 27 },
+    slot: { shop: { x: 40, w: 340, y: 170, size: 19 }, head: { x: 40, y: 182, w: 340, h: 88, max: 78 }, card: { x: 110, y: 276, s: 200 }, cta: { cx: 210, y: 474, w: 300, h: 34 } },
+    deco: (g, fg) => { g.strokeStyle = fg; g.globalAlpha = 0.25; g.lineWidth = 4; g.beginPath(); g.moveTo(30, 144); g.lineTo(390, 144); g.stroke(); g.globalAlpha = 1; } },
+  house: { H: 520, path: "M210 108 L402 244 L402 498 Q402 512 388 512 L32 512 Q18 512 18 498 L18 244 Z", ring: { cx: 210, cy: 62, R: 52, r: 26 },
+    slot: { head: { x: 98, y: 190, w: 224, h: 52, max: 44 }, shop: { x: 40, w: 340, y: 270, size: 17 }, card: { x: 116, y: 282, s: 188 }, cta: { cx: 210, y: 474, w: 300, h: 32 } },
+    deco: (g, fg) => { g.strokeStyle = fg; g.globalAlpha = 0.28; g.lineWidth = 6; g.lineJoin = "round"; g.beginPath(); g.moveTo(18, 244); g.lineTo(210, 108); g.lineTo(402, 244); g.stroke(); g.globalAlpha = 1; } },
+};
+
+function drawFancy(canvas: HTMLCanvasElement, d: HangerData, px: number, guides: boolean) {
+  const F = FANCY[d.shape]!, W = DW, H = F.H, s = px / W, th = THEMES.find((t) => t.id === d.theme) ?? THEMES[0];
+  canvas.width = Math.round(px); canvas.height = Math.round(H * s);
+  const g = canvas.getContext("2d")!; g.clearRect(0, 0, canvas.width, canvas.height); g.save(); g.scale(s, s);
+  const body = new Path2D(F.path), { cx, cy, R, r } = F.ring;
+  g.fillStyle = th.bg; g.strokeStyle = th.bg; g.lineWidth = 12; g.lineJoin = "round";
+  g.fill(body); g.stroke(body); g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
+  g.save(); g.clip(body); g.fillStyle = "rgba(255,255,255,.07)"; g.beginPath(); g.arc(W * 0.9, H * 0.35, 170, 0, 7); g.fill(); g.restore();
+  g.save(); g.clip(body); F.deco?.(g, th.fg); g.restore();
+  g.textAlign = "center"; g.textBaseline = "alphabetic";
+  const sl = F.slot;
+  if (sl.shop && d.shop.trim()) {
+    g.fillStyle = th.fg; (g as unknown as { letterSpacing: string }).letterSpacing = "2px";
+    let txt = d.shop.toUpperCase().slice(0, 40), sz = sl.shop.size; g.font = FONT(800, sz);
+    while (g.measureText(txt).width > sl.shop.w && sz > 9) { sz--; g.font = FONT(800, sz); }
+    while (g.measureText(txt).width > sl.shop.w && txt.length > 4) txt = txt.slice(0, -2);
+    g.fillText(txt, sl.shop.x + sl.shop.w / 2 + 1, sl.shop.y); (g as unknown as { letterSpacing: string }).letterSpacing = "0px";
+  }
+  if (sl.head) {
+    const h = sl.head; g.fillStyle = th.accent; let size = h.max, lines: string[] = [];
+    for (; size >= 20; size -= 2) { g.font = FONT(900, size); lines = wrap(g, d.headline.trim() || " ", h.w); if (lines.length * size * 1.0 <= h.h && lines.every((l) => g.measureText(l).width <= h.w)) break; }
+    g.font = FONT(900, size); const total = lines.length * size, top = h.y + (h.h - total) / 2;
+    lines.forEach((l, i) => g.fillText(l, h.x + h.w / 2, top + size * 0.82 + i * size));
+  }
+  // QR card
+  const c = sl.card, pad = c.s * 0.07;
+  g.fillStyle = "#fff"; g.beginPath(); g.roundRect(c.x, c.y, c.s, c.s, c.s * 0.12); g.fill();
+  const mx = matrix(d.qr || SAMPLE_LINK), n = mx.size, ms = (c.s - 2 * pad) / (n + 2);
+  g.fillStyle = "#0a0a0a"; const qx = c.x + pad + ms, qy = c.y + pad + ms;
+  for (let rr = 0; rr < n; rr++) for (let cc = 0; cc < n; cc++) if (mx.get(rr, cc)) g.fillRect(qx + cc * ms - 0.2, qy + rr * ms - 0.2, ms + 0.4, ms + 0.4);
+  if (sl.cta && d.cta.trim()) {
+    const q = sl.cta; let sz = 22, txt = d.cta.trim().slice(0, 30); g.font = FONT(800, sz);
+    while (g.measureText(txt).width + 36 > q.w && sz > 11) { sz--; g.font = FONT(800, sz); }
+    const tw = Math.min(q.w, g.measureText(txt).width + 36);
+    g.fillStyle = th.fg; g.beginPath(); g.roundRect(q.cx - tw / 2, q.y, tw, q.h, q.h / 2); g.fill();
+    g.fillStyle = th.bg; g.fillText(txt, q.cx, q.y + q.h / 2 + sz * 0.35);
+  }
+  // ring hole and the slot up to the top of the ring
+  g.save(); g.globalCompositeOperation = "destination-out"; g.fillStyle = "#000";
+  g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill(); g.fillRect(cx - 7, cy - R - 4, 14, R + 4 - 0); g.restore();
+  if (guides) {
+    g.save(); g.strokeStyle = "rgba(60,60,60,.9)"; g.lineWidth = 1.6; g.setLineDash([7, 5]); g.lineJoin = "round";
+    g.stroke(body); g.beginPath(); g.arc(cx, cy, R, 0, 7); g.stroke(); g.beginPath(); g.arc(cx, cy, r, 0, 7); g.stroke();
+    g.beginPath(); g.moveTo(cx - 7, cy - R); g.lineTo(cx - 7, cy - r + 2); g.moveTo(cx + 7, cy - R); g.lineTo(cx + 7, cy - r + 2); g.stroke(); g.restore();
+  }
+  g.restore();
+}
 
 export interface HangerData {
   shape: HShape; theme: string;
@@ -61,6 +133,7 @@ const FONT = (w: number, px: number) => `${w} ${px}px system-ui, -apple-system, 
 
 /** Draws the hanger at `px` pixels wide. guides = dashed cut lines for the print sheet. */
 export function drawHanger(canvas: HTMLCanvasElement, d: HangerData, px: number, guides = false) {
+  if (FANCY[d.shape]) { drawFancy(canvas, d, px, guides); return; }
   const W = DW, H = dh(d.shape), s = px / W, th = THEMES.find((t) => t.id === d.theme) ?? THEMES[0];
   canvas.width = Math.round(px); canvas.height = Math.round(H * s);
   const g = canvas.getContext("2d")!;

@@ -91,7 +91,7 @@ export default function DoorHanger() {
       <div className="min-w-0 space-y-5">
         <section className="card space-y-4 p-4 sm:p-5">
           <h2 className="text-lg font-bold">1. Shape and colour</h2>
-          <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Shape">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Shape">
             {(Object.keys(SHAPES) as HShape[]).map((k) => (
               <button key={k} role="radio" aria-checked={shape === k} onClick={() => setShape(k)} data-testid={`dh-shape-${k}`} className={`flex min-h-[64px] flex-col items-center justify-center rounded-xl border px-1 py-2 text-center text-sm font-semibold ${shape === k ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black" : "bg-white hover:border-neutral-900 dark:bg-black"}`}>
                 {SHAPES[k].label}<span className={`text-[11px] font-normal ${shape === k ? "opacity-70" : "text-neutral-500"}`}>{SHAPES[k].mm[0]}×{SHAPES[k].mm[1]} mm</span>
