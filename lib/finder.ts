@@ -67,6 +67,7 @@ export const HAVES: Have[] = [
     { label: "Make a QR code", sub: "Menu, links, business card…", slug: "qr-studio", popular: true },
     { label: "Make a Google Form or quiz", sub: "From your list of questions", slug: "google-form-generator" },
     { label: "QR code for a product", sub: "Photo, price, order on WhatsApp", slug: "product-qr" },
+    { label: "Print an offer hanger", sub: "Door-handle card with a QR code", slug: "door-hanger-maker" },
     { label: "Send files to another phone", sub: "With a 6-digit code", slug: "send-files" },
     { label: "Work out a loan EMI", sub: "Monthly EMI and interest", slug: "emi-calculator" },
     { label: "Add or remove GST", sub: "CGST and SGST split", slug: "gst-calculator" },

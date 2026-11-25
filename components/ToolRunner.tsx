@@ -139,6 +139,7 @@ const map: Record<string, ComponentType> = {
   "upi-qr-generator": load(() => import("@/tools/UpiQrGenerator")),
   "google-form-generator": load(() => import("@/tools/GoogleFormGenerator")),
   "picture-qr-code": load(() => import("@/tools/PictureQr")),
+  "door-hanger-maker": load(() => import("@/tools/DoorHanger")),
   "emi-calculator": load(() => import("@/tools/EmiCalculator")),
   "gst-calculator": load(() => import("@/tools/GstCalculator")),
   "hash-generator": load(() => import("@/tools/HashGenerator")),

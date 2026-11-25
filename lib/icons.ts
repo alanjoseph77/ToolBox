@@ -2,7 +2,7 @@ import { ClipboardList, WandSparkles, Contrast, ScanQrCode, Store, Send, Clipboa
   Baseline, CalendarDays, Copyright, FilePenLine, FileSignature, GraduationCap, Landmark, LockOpen, MessageCircle, PiggyBank, Receipt, SlidersHorizontal, TrendingUp, Wallet, Wifi, VolumeX, MicOff, AudioLines, Shrink, Mic, Gauge, ListMusic, ScanFace, Laugh, GitCompare, FileCode2, CodeXml, Barcode, Binary, Braces, Briefcase, Camera, Clapperboard, Combine, ContactRound, Crop, Eraser, FileArchive, FileImage,
   FileOutput, FileSpreadsheet, FileText, Fingerprint, ImageDown, ImagePlus, Images, KeyRound, LayoutGrid, Link2, Lock, MessageSquareText,
   Music, Palette, PenLine, Pipette, QrCode, Regex, RefreshCw, Repeat, Ruler, Scaling, ScanText, Scissors, ShieldCheck, Sparkles,
-  SpellCheck, SquareSplitHorizontal, Aperture, Calculator, CaseSensitive, FileX2, Hash, IdCard, IndianRupee, ListChecks, PenTool, Percent, TextCursorInput, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, TextSelect, Type, Wand2, ZoomIn, Film, Droplets, Split, type LucideIcon,
+  SpellCheck, SquareSplitHorizontal, Aperture, Calculator, CaseSensitive, FileX2, Hash, IdCard, IndianRupee, ListChecks, PenTool, Percent, TextCursorInput, Archive, Bookmark, Columns2, EyeOff, FileCog, FlipHorizontal2, Grid2x2, HardDrive, ListOrdered, Maximize, RotateCw, ScanLine, Shuffle, Stamp, TextSearch, Workflow, TextSelect, Type, Wand2, ZoomIn, Film, Droplets, Split, type LucideIcon, Tag
 } from "lucide-react";
 import type { Category } from "./tools";
 
@@ -86,6 +86,7 @@ export const toolIcons: Record<string, LucideIcon> = {
   "upi-qr-generator": IndianRupee,
   "google-form-generator": ClipboardList,
   "picture-qr-code": ScanQrCode,
+  "door-hanger-maker": Tag,
   "emi-calculator": Calculator,
   "gst-calculator": Percent,
   "hash-generator": Hash,
