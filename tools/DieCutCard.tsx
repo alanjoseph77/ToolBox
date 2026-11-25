@@ -32,9 +32,11 @@ export default function DieCutCard() {
   const [o, setO] = useState<CardOpts>(CARD_DEFAULTS);
   const [kind, setKind] = useState<KindX>("link");
   const [f, setF] = useState<Fields>({ url: "https://" });
-  const [size, setSize] = useState(160);
+  const [size, setSize] = useState(130);
   const [sheet, setSheet] = useState<"A4" | "A3">("A4");
   const [showCut, setShowCut] = useState(true);
+  const [showSafe, setShowSafe] = useState(true);
+  const closedRef = useRef<HTMLCanvasElement>(null), photosIn = useRef<HTMLInputElement>(null);
   const [check, setCheck] = useState<"wait" | "good" | "near" | "bad" | "na">("na");
   const preview = useRef<HTMLCanvasElement>(null);
   const logoIn = useRef<HTMLInputElement>(null), shotIn = useRef<HTMLInputElement>(null);
@@ -44,9 +46,10 @@ export default function DieCutCard() {
 
   const value = useMemo(() => kind === "instagram" ? ((f.ig ?? "").replace(/^@/, "").trim() ? `https://www.instagram.com/${(f.ig ?? "").replace(/^@/, "").trim()}` : "") : qrText(kind, f), [kind, f]);
   const needsQr = o.mode !== "sticker" || o.badge;
-  const built = useMemo(() => (fig ? buildCard(fig, { ...o, qr: value }) : null), [fig, o, value]);
+  const qrIcon: CardOpts["qrIcon"] = o.mode === "book" ? (kind === "instagram" ? "insta" : o.logo ? "logo" : "none") : "none";
+  const built = useMemo(() => (fig ? buildCard(fig, { ...o, qr: value, qrIcon }) : null), [fig, o, value, qrIcon]);
   const poly = useMemo(() => (built ? contourOf(built.art) : null), [built]);
-  const dims = useMemo(() => { if (!built) return null; const a = built.art; return a.width >= a.height ? { w: size, h: (size * a.height) / a.width } : { w: (size * a.width) / a.height, h: size }; }, [built, size]);
+  const dims = useMemo(() => { if (!built) return null; const a = built.art; if (o.mode === "book") return { w: size * 2, h: (size * 2 * a.height) / a.width }; return a.width >= a.height ? { w: size, h: (size * a.height) / a.width } : { w: (size * a.width) / a.height, h: size }; }, [built, size, o.mode]);
   const fit = dims ? sheetFit(dims.w, dims.h, sheet) : null;
 
   // load a picture: keep a transparent PNG as it is, otherwise take the background out
@@ -79,9 +82,12 @@ export default function DieCutCard() {
       g.save(); g.strokeStyle = "#e6007e"; g.lineWidth = 2.5; g.setLineDash([9, 6]); g.beginPath(); poly.forEach(([x, y], i) => (i ? g.lineTo(x * k, y * k) : g.moveTo(x * k, y * k))); g.closePath(); g.stroke();
       if (built.hole) { g.beginPath(); g.arc(built.hole.x * k, built.hole.y * k, built.hole.r * k, 0, 7); g.stroke(); }
       if (built.crease) { g.strokeStyle = "#2563eb"; g.setLineDash([4, 7]); for (const cx of [built.crease.x, built.crease.x2]) { if (cx === undefined) continue; g.beginPath(); g.moveTo(cx * k, built.crease.y0 * k); g.lineTo(cx * k, built.crease.y1 * k); g.stroke(); } }
+      if (showSafe && built.safe) { g.setLineDash([]); g.fillStyle = "rgba(34,197,94,.10)"; g.strokeStyle = "rgba(22,163,74,.55)"; g.lineWidth = 1.5; g.fillRect(built.safe.x * k, built.safe.y * k, built.safe.w * k, built.safe.h * k); g.strokeRect(built.safe.x * k, built.safe.y * k, built.safe.w * k, built.safe.h * k); }
       g.restore();
     }
-  }, [built, poly, showCut]);
+    const cc = closedRef.current;
+    if (cc && built.closed) { const f = built.closed, k2 = Math.min(260 / f.width, 300 / f.height); cc.width = Math.round(f.width * k2); cc.height = Math.round(f.height * k2); const cg = cc.getContext("2d")!; cg.drawImage(f, 0, 0, cc.width, cc.height); cg.strokeStyle = "rgba(0,0,0,.25)"; cg.lineWidth = 1.5; cg.beginPath(); cg.moveTo(cc.width / 2, 0); cg.lineTo(cc.width / 2, cc.height); cg.stroke(); }
+  }, [built, poly, showCut, showSafe]);
 
   useEffect(() => {
     if (!built || !needsQr || !value) { setCheck(needsQr ? "wait" : "na"); return; }
@@ -140,14 +146,14 @@ export default function DieCutCard() {
         <section className="card space-y-4 p-4 sm:p-5">
           <h2 className="text-lg font-bold">2. What to make</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Type">
-            {MODES.map((m) => <button key={m.id} role="radio" aria-checked={o.mode === m.id} onClick={() => { set({ mode: m.id }); if (m.id === "book" && size < 140) setSize(160); else if (m.id !== "book" && size >= 140) setSize(100); }} data-testid={`dc-mode-${m.id}`} className={`flex min-h-[64px] flex-col items-center justify-center rounded-xl border px-1 py-2 text-center text-sm font-semibold ${o.mode === m.id ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black" : "bg-white hover:border-neutral-900 dark:bg-black"}`}>{m.label}<span className={`text-[11px] font-normal ${o.mode === m.id ? "opacity-70" : "text-neutral-500"}`}>{m.hint}</span></button>)}
+            {MODES.map((m) => <button key={m.id} role="radio" aria-checked={o.mode === m.id} onClick={() => { set({ mode: m.id }); if ((m.id === "book") !== (o.mode === "book")) setSize(m.id === "book" ? 130 : 100); }} data-testid={`dc-mode-${m.id}`} className={`flex min-h-[64px] flex-col items-center justify-center rounded-xl border px-1 py-2 text-center text-sm font-semibold ${o.mode === m.id ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black" : "bg-white hover:border-neutral-900 dark:bg-black"}`}>{m.label}<span className={`text-[11px] font-normal ${o.mode === m.id ? "opacity-70" : "text-neutral-500"}`}>{m.hint}</span></button>)}
           </div>
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Colour">
             {THEMES.map((t) => <button key={t.id} role="radio" aria-checked={o.theme === t.id} aria-label={t.name} title={t.name} onClick={() => set({ theme: t.id })} data-testid={`dc-theme-${t.id}`} className={`h-11 w-11 rounded-full border-2 ${o.theme === t.id ? "border-neutral-900 ring-2 ring-neutral-900 ring-offset-2 dark:border-white dark:ring-white" : "border-white shadow"}`} style={{ background: `linear-gradient(135deg, ${t.bg} 55%, ${t.accent} 55%)` }} />)}
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm"><span className="flex justify-between"><span>White border</span><span className="text-neutral-500">{o.border}%</span></span><input type="range" min={0} max={8} step={0.5} value={o.border} onChange={(e) => set({ border: +e.target.value })} className="mt-1 h-8 w-full" data-testid="dc-border" aria-label="White border" /></label>
-            <label className="block text-sm"><span className="flex justify-between"><span>Size (longest side)</span><span className="text-neutral-500">{size} mm</span></span><input type="range" min={40} max={sheet === "A3" ? 380 : 250} step={5} value={size} onChange={(e) => setSize(+e.target.value)} className="mt-1 h-8 w-full" data-testid="dc-size" aria-label="Size in millimetres" /></label>
+            <label className="block text-sm"><span className="flex justify-between"><span>{o.mode === "book" ? "Closed card width" : "Size (longest side)"}</span><span className="text-neutral-500">{size} mm</span></span><input type="range" min={o.mode === "book" ? 60 : 40} max={o.mode === "book" ? (sheet === "A3" ? 200 : 140) : sheet === "A3" ? 380 : 250} step={5} value={size} onChange={(e) => setSize(+e.target.value)} className="mt-1 h-8 w-full" data-testid="dc-size" aria-label="Size in millimetres" /></label>
           </div>
           {o.mode === "fold" && <label className="flex min-h-[44px] items-center gap-3 text-sm"><input type="checkbox" className="h-5 w-5" checked={o.flip} onChange={(e) => set({ flip: e.target.checked })} data-testid="dc-flip" /> Put the QR panel on the left</label>}
           {o.mode === "sticker" && <label className="flex min-h-[44px] items-center gap-3 text-sm"><input type="checkbox" className="h-5 w-5" checked={o.badge} onChange={(e) => set({ badge: e.target.checked })} data-testid="dc-badge" /> Add a small QR badge</label>}
@@ -158,10 +164,13 @@ export default function DieCutCard() {
             <h2 className="text-lg font-bold">3. Words and QR code</h2>
             {o.mode !== "sticker" && <div className="grid gap-3 sm:grid-cols-2">{txt("shop", "Shop or name", o.shop, (s) => set({ shop: s }), 40, "Your shop name")}{txt("cta", "Tag on the QR", o.cta, (s) => set({ cta: s }), 14, "SCAN ME")}</div>}
             {o.mode === "book" && txt("handle", "Name on the phone", o.handle, (s) => set({ handle: s }), 24, "yourshop")}
+            {o.mode === "book" && !o.shot && <div className="space-y-2"><div className="grid grid-cols-3 gap-2">{txt("posts", "Posts", o.posts, (s) => set({ posts: s }), 7, "120")}{txt("followers", "Followers", o.followers, (s) => set({ followers: s }), 7, "4,532")}{txt("following", "Following", o.following, (s) => set({ following: s }), 7, "12")}</div><p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">These are sample numbers. Type your real ones, or use a screenshot of your own profile below.</p></div>}
             {o.mode === "book" && <div className="flex flex-wrap items-center gap-2 text-sm">
               <button className="btn-ghost !py-1.5" onClick={() => logoIn.current?.click()} data-testid="dc-logo-btn"><ImagePlus className="h-4 w-4" /> {o.logo ? "Change logo" : "Add your logo"}</button>
               <button className="btn-ghost !py-1.5" onClick={() => shotIn.current?.click()} data-testid="dc-shot-btn"><ImagePlus className="h-4 w-4" /> {o.shot ? "Change profile screenshot" : "Add a profile screenshot"}</button>
-              {(o.logo || o.shot) && <button className="btn-ghost !py-1.5" onClick={() => set({ logo: null, shot: null })}>Remove both</button>}
+              <button className="btn-ghost !py-1.5" onClick={() => photosIn.current?.click()} data-testid="dc-photos-btn"><ImagePlus className="h-4 w-4" /> {o.photos.length ? `Product photos (${o.photos.length}/6)` : "Add product photos (up to 6)"}</button>
+              {(o.logo || o.shot || o.photos.length > 0) && <button className="btn-ghost !py-1.5" onClick={() => set({ logo: null, shot: null, photos: [] })}>Remove these</button>}
+              <input ref={photosIn} type="file" accept="image/*" multiple hidden data-testid="dc-photos-input" onChange={async (e) => { const fs = [...(e.target.files ?? [])].slice(0, 6); e.target.value = ""; try { const ps = await Promise.all(fs.map(async (f) => { const b = await createImageBitmap(f); return { src: b, w: b.width, h: b.height }; })); set({ photos: ps }); } catch { setMsg("Could not open one of the pictures."); } }} />
               <input ref={logoIn} type="file" accept="image/*" hidden data-testid="dc-logo-input" onChange={(e) => { takePic(e.target.files?.[0], "logo"); e.target.value = ""; }} />
               <input ref={shotIn} type="file" accept="image/*" hidden data-testid="dc-shot-input" onChange={(e) => { takePic(e.target.files?.[0], "shot"); e.target.value = ""; }} />
               <span className="w-full text-xs text-neutral-500">Without a screenshot the phone shows a plain profile page with your name and line.</span></div>}
@@ -188,7 +197,11 @@ export default function DieCutCard() {
                 <canvas ref={preview} data-testid="dc-preview" aria-label="Die-cut preview" className="mx-auto block h-auto max-w-full drop-shadow-lg" />
               </div>
               <label className="flex min-h-[40px] items-center gap-3 text-sm"><input type="checkbox" className="h-5 w-5" checked={showCut} onChange={(e) => setShowCut(e.target.checked)} data-testid="dc-showcut" /> <Scissors className="h-4 w-4 text-pink-600" /> Show the cut line</label>
-              {o.mode === "book" && dims && <p className="text-xs text-neutral-500" data-testid="dc-dims">Open: {(dims.w / 10).toFixed(0)} × {(dims.h / 10).toFixed(0)} cm. Closed: {(dims.w / 20).toFixed(0)} × {(dims.h / 10).toFixed(0)} cm. Fold the two outer flaps along the blue lines.</p>}
+              {o.mode === "book" && dims && <div className="space-y-2" data-testid="dc-dims">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-600"><span className="flex items-center gap-1"><i className="inline-block h-0 w-5 border-t-2 border-dashed border-blue-600" /> Fold line</span><span className="flex items-center gap-1"><i className="inline-block h-0 w-5 border-t-2 border-dashed border-pink-600" /> Die-cut line</span><span className="flex items-center gap-1"><i className="inline-block h-3 w-5 rounded-sm border border-green-600/60 bg-green-500/10" /> Safe print area</span>
+                  <label className="ml-auto flex items-center gap-1"><input type="checkbox" checked={showSafe} onChange={(e) => setShowSafe(e.target.checked)} data-testid="dc-showsafe" /> show</label></div>
+                <div className="rounded-xl bg-neutral-50 p-3 text-xs leading-relaxed text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"><b>Closed:</b> {dims.w / 2 | 0} × {dims.h | 0} mm · <b>Open:</b> {dims.w | 0} × {dims.h | 0} mm<br /><b>Left flap</b> {dims.w / 4 | 0} mm · <b>Middle panel</b> {dims.w / 2 | 0} mm · <b>Right flap</b> {dims.w / 4 | 0} mm<br />Fold the two flaps over the middle panel. They meet in the middle and the card closes into the full picture.</div>
+                <div className="text-center"><canvas ref={closedRef} data-testid="dc-closed" aria-label="Closed card" className="mx-auto block rounded-lg bg-[repeating-conic-gradient(#e5e5e5_0_25%,#fff_0_50%)] bg-[length:16px_16px] p-2" /><p className="mt-1 text-xs font-medium text-neutral-600">Closed card (front view)</p></div></div>}
               {needsQr && <p className={`rounded-lg px-3 py-2 text-sm ${check === "good" ? "bg-green-50 text-green-800" : check === "near" ? "bg-amber-50 text-amber-900" : check === "bad" ? "bg-red-50 text-red-800" : "bg-neutral-100 text-neutral-600"}`} data-testid="dc-check" data-state={check}>
                 {!value ? "Add your QR details to check that it scans." : check === "good" ? "✓ Scan check passed, also from far away" : check === "near" ? "Scans up close only. Make it bigger or use a shorter link." : check === "bad" ? "This does not scan. Use a shorter link." : "Checking that it scans…"}</p>}
               <div className="space-y-2">

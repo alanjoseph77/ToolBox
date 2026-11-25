@@ -10,12 +10,13 @@ export interface CardOpts {
   theme: string; shop: string; sub: string; phone: string; cta: string;
   qr: string; badge: boolean; flip: boolean;       // badge: QR badge on a plain sticker; flip: panel on the left
   handle: string; logo: Pic | null; shot: Pic | null;   // book card: name on the phone, brand logo, screenshot of the profile
+  posts: string; followers: string; following: string; photos: Pic[]; qrIcon: "insta" | "logo" | "none";   // phone page numbers, product photos for the grid, picture in the middle of the QR
 }
-export const CARD_DEFAULTS: CardOpts = { mode: "book", border: 3, theme: "green", shop: "Your shop name", sub: "Follow us and order online", phone: "", cta: "SCAN ME", qr: "", badge: false, flip: false, handle: "yourshop", logo: null, shot: null };
+export const CARD_DEFAULTS: CardOpts = { mode: "book", border: 3, theme: "green", shop: "Your shop name", sub: "Follow us and order online", phone: "", cta: "SCAN ME", qr: "", badge: false, flip: false, handle: "yourshop", logo: null, shot: null, posts: "120", followers: "4,532", following: "12", photos: [], qrIcon: "none" };
 export const SAMPLE_QR = "https://yourshop.in";
 
 type Matrix = { size: number; get(r: number, c: number): number };
-const matrix = (t: string): Matrix => QRCode.create(t || " ", { errorCorrectionLevel: "M" }).modules as unknown as Matrix;
+const matrix = (t: string, ecc: "M" | "H" = "M"): Matrix => QRCode.create(t || " ", { errorCorrectionLevel: ecc }).modules as unknown as Matrix;
 const FONT = (w: number, px: number) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
 const mk = (w: number, h: number) => { const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
 
@@ -54,12 +55,28 @@ function wrap(g: CanvasRenderingContext2D, text: string, maxW: number): string[]
   if (line) out.push(line); return out;
 }
 
-function qrCard(g: CanvasRenderingContext2D, text: string, x: number, y: number, s: number, accent: string) {
+type Icon = ((g: CanvasRenderingContext2D, cx: number, cy: number, s: number) => void) | null;
+function qrCard(g: CanvasRenderingContext2D, text: string, x: number, y: number, s: number, accent: string, icon: Icon = null) {
   g.save(); g.fillStyle = "#fff"; g.beginPath(); g.roundRect(x, y, s, s, s * 0.1); g.fill();
   g.lineWidth = Math.max(3, s * 0.035); g.strokeStyle = accent; g.stroke();
-  const mx = matrix(text || SAMPLE_QR), n = mx.size, pad = s * 0.07, ms = (s - 2 * pad) / (n + 2);
-  g.fillStyle = "#0a0a0a"; const qx = x + pad + ms, qy = y + pad + ms;
-  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (mx.get(r, c)) g.fillRect(qx + c * ms - 0.2, qy + r * ms - 0.2, ms + 0.4, ms + 0.4);
+  const mx = matrix(text || SAMPLE_QR, icon ? "H" : "M"), n = mx.size, pad = s * 0.07, ms = (s - 2 * pad) / (n + 2);
+  g.fillStyle = "#0a0a0a"; const qx = x + pad + ms, qy = y + pad + ms, mid = (n - 1) / 2, clear = Math.ceil(n * 0.115);
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) { if (icon && Math.abs(r - mid) <= clear && Math.abs(c - mid) <= clear) continue; if (mx.get(r, c)) g.fillRect(qx + c * ms - 0.2, qy + r * ms - 0.2, ms + 0.4, ms + 0.4); }
+  if (icon) { const cs = (clear * 2 + 1) * ms; g.fillStyle = "#fff"; g.beginPath(); g.roundRect(x + s / 2 - cs / 2 - ms * 0.4, y + s / 2 - cs / 2 - ms * 0.4, cs + ms * 0.8, cs + ms * 0.8, ms * 1.6); g.fill(); icon(g, x + s / 2, y + s / 2, cs * 0.92); }
+  g.restore();
+}
+/** A camera-style badge for QR codes that open an Instagram profile. */
+const instaIcon: Icon = (g, cx, cy, s) => {
+  const gr = g.createLinearGradient(cx - s / 2, cy + s / 2, cx + s / 2, cy - s / 2); gr.addColorStop(0, "#fdc830"); gr.addColorStop(0.45, "#ee2a7b"); gr.addColorStop(1, "#6228d7");
+  g.save(); g.fillStyle = gr; g.beginPath(); g.roundRect(cx - s / 2, cy - s / 2, s, s, s * 0.28); g.fill();
+  g.strokeStyle = "#fff"; g.lineWidth = s * 0.075; g.beginPath(); g.roundRect(cx - s * 0.3, cy - s * 0.3, s * 0.6, s * 0.6, s * 0.17); g.stroke();
+  g.beginPath(); g.arc(cx, cy, s * 0.14, 0, 7); g.stroke(); g.fillStyle = "#fff"; g.beginPath(); g.arc(cx + s * 0.2, cy - s * 0.2, s * 0.04, 0, 7); g.fill(); g.restore();
+};
+const logoIcon = (l: Pic): Icon => (g, cx, cy, s) => { const k = Math.min(s / l.w, s / l.h); g.drawImage(l.src, cx - (l.w * k) / 2, cy - (l.h * k) / 2, l.w * k, l.h * k); };
+/** Two simple leaves, a soft decoration for a corner of the QR page. */
+function leaves(g: CanvasRenderingContext2D, x: number, y: number, s: number, flip: boolean, col: string) {
+  g.save(); g.translate(x, y); if (flip) g.scale(-1, 1); g.fillStyle = col;
+  for (const [a, k] of [[-0.35, 1], [-0.95, 0.75]]) { g.save(); g.rotate(a); g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(s * 0.28 * k, -s * 0.12 * k, s * 0.34 * k, -s * 0.5 * k, 0, -s * 0.62 * k); g.bezierCurveTo(-s * 0.3 * k, -s * 0.46 * k, -s * 0.22 * k, -s * 0.1 * k, 0, 0); g.fill(); g.restore(); }
   g.restore();
 }
 function pill(g: CanvasRenderingContext2D, text: string, cx: number, cy: number, h: number, bg: string, fg: string) {
@@ -69,33 +86,37 @@ function pill(g: CanvasRenderingContext2D, text: string, cx: number, cy: number,
 }
 
 
-/** A phone with a screenshot of the profile, or a plain profile layout (no made-up numbers) when there is no screenshot. */
+/** A phone showing a screenshot of the profile, or a clean profile page built from the words and photos given. */
 function drawPhone(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, o: CardOpts, th: { bg: string; fg: string; accent: string }) {
   g.save(); g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = w * 0.06; g.shadowOffsetY = w * 0.025;
   g.fillStyle = "#101113"; g.beginPath(); g.roundRect(x, y, w, h, w * 0.13); g.fill(); g.shadowColor = "transparent";
-  const m = w * 0.04, sx = x + m, sy = y + m, sw = w - 2 * m, sh = h - 2 * m, rad = w * 0.1;
+  const m = w * 0.035, sx = x + m, sy = y + m, sw = w - 2 * m, sh = h - 2 * m, rad = w * 0.105;
   g.save(); g.beginPath(); g.roundRect(sx, sy, sw, sh, rad); g.clip(); g.fillStyle = "#fff"; g.fillRect(sx, sy, sw, sh);
   if (o.shot) { const k = Math.max(sw / o.shot.w, sh / o.shot.h); g.drawImage(o.shot.src, sx + (sw - o.shot.w * k) / 2, sy, o.shot.w * k, o.shot.h * k); }
   else {
     const u = sw / 100; g.textBaseline = "alphabetic"; g.textAlign = "left";
-    g.fillStyle = "#111"; g.font = FONT(800, 6.2 * u); g.fillText("‹", sx + 6 * u, sy + 17 * u); g.font = FONT(800, 6 * u); g.fillText((o.handle || "yourshop").slice(0, 18), sx + 17 * u, sy + 17 * u);
-    g.fillStyle = th.bg; g.beginPath(); g.arc(sx + 20 * u, sy + 37 * u, 11 * u, 0, 7); g.fill();
-    if (o.logo) { g.save(); g.beginPath(); g.arc(sx + 20 * u, sy + 37 * u, 10 * u, 0, 7); g.clip(); g.fillStyle = "#fff"; g.fillRect(sx + 9 * u, sy + 26 * u, 22 * u, 22 * u); const k = Math.min(18 * u / o.logo.w, 18 * u / o.logo.h); g.drawImage(o.logo.src, sx + 20 * u - (o.logo.w * k) / 2, sy + 37 * u - (o.logo.h * k) / 2, o.logo.w * k, o.logo.h * k); g.restore(); }
-    else { g.fillStyle = th.fg; g.font = FONT(900, 11 * u); g.textAlign = "center"; g.fillText((o.shop.trim()[0] || "Y").toUpperCase(), sx + 20 * u, sy + 41 * u); g.textAlign = "left"; }
-    g.fillStyle = "#111"; g.font = FONT(800, 5.6 * u); g.fillText(o.shop.trim().slice(0, 22) || "Your shop name", sx + 6 * u, sy + 60 * u);
-    g.fillStyle = "#555"; g.font = FONT(500, 4.6 * u); let by = sy + 69 * u; for (const l of wrap(g, o.sub.trim() || "Follow us for new things", 86 * u).slice(0, 2)) { g.fillText(l, sx + 6 * u, by); by += 6.2 * u; }
-    g.fillStyle = th.bg; g.beginPath(); g.roundRect(sx + 6 * u, sy + 84 * u, 42 * u, 11 * u, 3 * u); g.fill(); g.fillStyle = th.fg; g.font = FONT(800, 4.8 * u); g.textAlign = "center"; g.fillText("Follow", sx + 27 * u, sy + 91.3 * u);
-    g.fillStyle = "#e5e5e5"; g.beginPath(); g.roundRect(sx + 52 * u, sy + 84 * u, 42 * u, 11 * u, 3 * u); g.fill(); g.fillStyle = "#111"; g.fillText("Message", sx + 73 * u, sy + 91.3 * u); g.textAlign = "left";
-    for (let i = 0; i < 4; i++) { g.fillStyle = "#e5e5e5"; g.beginPath(); g.arc(sx + (14 + i * 24) * u, sy + 111 * u, 8 * u, 0, 7); g.fill(); }
-    const tint = [th.bg, "#d4d4d8", th.accent, "#e5e5e5", "#d4d4d8", th.bg];
-    for (let i = 0; i < 9; i++) { g.fillStyle = tint[i % tint.length]; g.globalAlpha = 0.55; g.fillRect(sx + (i % 3) * (sw / 3) + 0.6 * u, sy + 126 * u + Math.floor(i / 3) * (sw / 3) + 0.6 * u, sw / 3 - 1.2 * u, sw / 3 - 1.2 * u); }
-    g.globalAlpha = 1;
+    g.fillStyle = "#111"; g.font = FONT(700, 7 * u); g.fillText("‹", sx + 6 * u, sy + 19 * u); g.font = FONT(800, 5.4 * u); g.fillText((o.handle || "yourshop").slice(0, 18), sx + 15 * u, sy + 18.6 * u);
+    const ay = sy + 38 * u, ar = 11 * u;
+    const ring = g.createLinearGradient(sx + 9 * u, ay + ar, sx + 31 * u, ay - ar); ring.addColorStop(0, "#fdc830"); ring.addColorStop(0.5, "#ee2a7b"); ring.addColorStop(1, "#6228d7");
+    g.strokeStyle = ring; g.lineWidth = 1.6 * u; g.beginPath(); g.arc(sx + 20 * u, ay, ar, 0, 7); g.stroke();
+    g.fillStyle = th.bg; g.beginPath(); g.arc(sx + 20 * u, ay, ar - 2.2 * u, 0, 7); g.fill();
+    if (o.logo) { g.save(); g.beginPath(); g.arc(sx + 20 * u, ay, ar - 2.2 * u, 0, 7); g.clip(); g.fillStyle = "#fff"; g.fillRect(sx + 8 * u, ay - 12 * u, 24 * u, 24 * u); const k = Math.min(15 * u / o.logo.w, 15 * u / o.logo.h); g.drawImage(o.logo.src, sx + 20 * u - (o.logo.w * k) / 2, ay - (o.logo.h * k) / 2, o.logo.w * k, o.logo.h * k); g.restore(); }
+    else { g.fillStyle = th.fg; g.font = FONT(900, 10 * u); g.textAlign = "center"; g.fillText((o.shop.trim()[0] || "Y").toUpperCase(), sx + 20 * u, ay + 3.6 * u); }
+    g.textAlign = "center"; const stats: [string, string][] = [[o.posts, "Posts"], [o.followers, "Followers"], [o.following, "Following"]];
+    stats.forEach(([v, l], i) => { const cx = sx + (50 + i * 22) * u; g.fillStyle = "#111"; g.font = FONT(800, 5 * u); g.fillText(v.trim().slice(0, 7) || "–", cx, ay - 1 * u); g.fillStyle = "#555"; g.font = FONT(500, 3.4 * u); g.fillText(l, cx, ay + 4.6 * u); });
+    g.textAlign = "left"; g.fillStyle = "#111"; g.font = FONT(800, 4.8 * u); g.fillText(o.shop.trim().slice(0, 24) || "Your shop name", sx + 6 * u, sy + 62 * u);
+    g.fillStyle = "#444"; g.font = FONT(500, 4.2 * u); let by = sy + 68.6 * u; for (const l of wrap(g, o.sub.trim() || "Follow us for new things", 88 * u).slice(0, 2)) { g.fillText(l, sx + 6 * u, by); by += 5.4 * u; }
+    const bY = sy + 80 * u; g.fillStyle = th.bg; g.beginPath(); g.roundRect(sx + 6 * u, bY, 42 * u, 9.5 * u, 2.4 * u); g.fill(); g.fillStyle = th.fg; g.font = FONT(800, 4.2 * u); g.textAlign = "center"; g.fillText("Follow", sx + 27 * u, bY + 6.4 * u);
+    g.fillStyle = "#e9e9eb"; g.beginPath(); g.roundRect(sx + 52 * u, bY, 42 * u, 9.5 * u, 2.4 * u); g.fill(); g.fillStyle = "#111"; g.fillText("Message", sx + 73 * u, bY + 6.4 * u);
+    ["Products", "About", "Reviews", "Offers"].forEach((t, i) => { const cx = sx + (16 + i * 23) * u, cy = sy + 101 * u; g.fillStyle = "#f1ece0"; g.beginPath(); g.arc(cx, cy, 7 * u, 0, 7); g.fill(); g.strokeStyle = th.bg; g.lineWidth = 0.9 * u; g.beginPath(); g.arc(cx, cy, 2.6 * u, 0, 7); g.stroke(); g.fillStyle = "#333"; g.font = FONT(500, 3.1 * u); g.fillText(t, cx, cy + 11.3 * u); });
+    const gy = sy + 116 * u, tw = sw / 3, tint = [th.bg, "#d4d4d8", th.accent, "#e5e5e5", "#d4d4d8", th.bg];
+    for (let i = 0; i < 6; i++) { const tx = sx + (i % 3) * tw, ty = gy + Math.floor(i / 3) * tw; g.save(); g.beginPath(); g.rect(tx + 0.5 * u, ty + 0.5 * u, tw - 1 * u, tw - 1 * u); g.clip(); const ph = o.photos[i]; if (ph) { const k = Math.max(tw / ph.w, tw / ph.h); g.drawImage(ph.src, tx + (tw - ph.w * k) / 2, ty + (tw - ph.h * k) / 2, ph.w * k, ph.h * k); } else { g.globalAlpha = 0.5; g.fillStyle = tint[i]; g.fillRect(tx, ty, tw, tw); g.globalAlpha = 1; } g.restore(); }
   }
   g.restore();
-  g.fillStyle = "#101113"; g.beginPath(); g.roundRect(x + w * 0.32, y + m * 0.9, w * 0.36, m * 1.5, m); g.fill(); g.restore();
+  g.fillStyle = "#101113"; g.beginPath(); g.roundRect(x + w * 0.31, y + m * 0.85, w * 0.38, m * 1.6, m); g.fill(); g.restore();
 }
 
-export interface Built { art: HTMLCanvasElement; hole: { x: number; y: number; r: number } | null; crease: { x: number; y0: number; y1: number; x2?: number } | null }
+export interface Built { art: HTMLCanvasElement; hole: { x: number; y: number; r: number } | null; crease: { x: number; y0: number; y1: number; x2?: number } | null; safe?: { x: number; y: number; w: number; h: number }; closed?: HTMLCanvasElement }
 
 /** Builds the finished artwork (transparent outside the cut shape). */
 export function buildCard(fig: HTMLCanvasElement, o: CardOpts): Built {
@@ -108,32 +129,31 @@ export function buildCard(fig: HTMLCanvasElement, o: CardOpts): Built {
 
 
   if (o.mode === "book") {
-    // three panels: the left and right halves of the figure (the right one mirrored) hinge onto a middle panel with a phone page and a QR page
-    const half = Math.round(FW / 2), W = half + FW + half, ph = Math.round(FH * 0.9), py = Math.round(FH * 0.05), art = mk(W, FH), g = art.getContext("2d")!;
-    g.fillStyle = "#fff"; g.beginPath(); g.roundRect(half - 1, py, FW + 2, ph, Math.max(18, r * 1.6)); g.fill();
-    const ix = half + r, iy = py + r, iw = FW - 2 * r, ih = ph - 2 * r, pgw = iw / 2;
-    g.fillStyle = th.bg; g.globalAlpha = 0.14; g.beginPath(); g.roundRect(ix, iy, pgw, ih, Math.max(12, ih * 0.04)); g.fill(); g.globalAlpha = 1;
-    g.fillStyle = "#fffdf6"; g.beginPath(); g.roundRect(ix + pgw, iy, pgw, ih, Math.max(12, ih * 0.04)); g.fill();
+    // three panels: the left half of the figure, a middle panel as wide as the whole figure (phone page + QR page), and the right half.
+    // Folding the two halves over the middle panel closes the card into the complete figure.
+    const half = Math.round(FW / 2), W = half + FW + half, py = Math.round(FH * 0.06), ph = FH - py, art = mk(W, FH), g = art.getContext("2d")!;
+    g.fillStyle = "#fff"; g.beginPath(); g.roundRect(half - 1, py, FW + 2, ph, Math.max(16, r * 1.4)); g.fill();
+    const m = Math.max(4, Math.round(r * 0.35)), ix = half + m, iy = py + m, iw = FW - 2 * m, ih = ph - 2 * m, pgw = iw / 2, cream = "#f7f2e6";
+    g.fillStyle = cream; g.beginPath(); g.roundRect(ix, iy, iw, ih, Math.max(12, r * 1.1)); g.fill();
     // left page: phone
-    const pW = Math.min(ih * 0.9 * 0.47, pgw * 0.88), pHt = pW / 0.47; drawPhone(g, ix + (pgw - pW) / 2, iy + (ih - pHt) / 2, pW, pHt, o, th);
-    // right page: logo or name, tagline, QR, SCAN ME
+    const pW = Math.min(ih * 0.9 * 0.47, pgw * 0.8), pHt = pW / 0.47; drawPhone(g, ix + (pgw - pW) / 2, iy + (ih - pHt) / 2, pW, pHt, o, th);
+    // right page: logo (or name), "follow us" line, QR, SCAN ME
     const rx = ix + pgw, cx = rx + pgw / 2; g.textAlign = "center"; g.textBaseline = "alphabetic";
-    let ty = iy + ih * 0.08;
-    if (o.logo) { const lh = ih * 0.2, k = Math.min((pgw * 0.8) / o.logo.w, lh / o.logo.h); g.drawImage(o.logo.src, cx - (o.logo.w * k) / 2, ty, o.logo.w * k, o.logo.h * k); ty += o.logo.h * k + ih * 0.03; }
-    let fs = Math.min(ih * 0.075, pgw * 0.16); g.font = FONT(900, fs); g.fillStyle = th.bg; let nm = (o.shop || "").trim().toUpperCase().slice(0, 26) || " ";
-    while (g.measureText(nm).width > pgw * 0.86 && fs > 12) { fs -= 1; g.font = FONT(900, fs); }
-    g.fillText(nm, cx, ty + fs); ty += fs * 1.35;
-    if (o.sub.trim()) { let ss = Math.min(ih * 0.036, pgw * 0.075); g.font = FONT(600, ss); g.fillStyle = "#57534e"; for (const l of wrap(g, o.sub.trim(), pgw * 0.84).slice(0, 2)) { g.fillText(l, cx, ty + ss); ty += ss * 1.3; } ty += ss * 0.3; }
-    const qs = Math.min(pgw * 0.84, ih - (ty - iy) - ih * 0.2), qy = ty + ih * 0.015;
-    qrCard(g, o.qr, cx - qs / 2, qy, qs, th.bg);
-    pill(g, (o.cta || "SCAN ME").slice(0, 14), cx, Math.min(iy + ih - ih * 0.055, qy + qs + ih * 0.075), Math.max(28, ih * 0.085), th.bg, th.fg);
-    if (o.phone.trim()) { g.font = FONT(800, ih * 0.03); g.fillStyle = "#44403c"; g.fillText(o.phone.trim().slice(0, 22), cx, iy + ih - ih * 0.005); }
-    // the two halves of the figure
-    const lf = mk(half + 1, FH), lg = lf.getContext("2d")!; lg.drawImage(fl, 0, 0, half + 1, FH, 0, 0, half + 1, FH);
-    g.save(); g.shadowColor = "rgba(0,0,0,.25)"; g.shadowBlur = Math.max(5, r * 0.7); g.drawImage(lf, 0, 0); g.restore(); g.drawImage(lf, 0, 0);
-    const rt = mk(FW - half + 1, FH), rg = rt.getContext("2d")!; rg.translate(rt.width, 0); rg.scale(-1, 1); rg.drawImage(fl, half - 1, 0, FW - half + 1, FH, 0, 0, FW - half + 1, FH);
-    g.save(); g.shadowColor = "rgba(0,0,0,.25)"; g.shadowBlur = Math.max(5, r * 0.7); g.drawImage(rt, half + FW - 1, 0); g.restore(); g.drawImage(rt, half + FW - 1, 0);
-    return { art, hole, crease: { x: half, y0: py, y1: py + ph, x2: half + FW } };
+    leaves(g, rx + pgw * 0.05, iy + ih * 0.975, pgw * 0.3, false, th.bg + "55"); leaves(g, rx + pgw * 0.95, iy + ih * 0.975, pgw * 0.26, true, th.bg + "55");
+    let ty = iy + ih * 0.05;
+    if (o.logo) { const lh = ih * 0.2, k = Math.min((pgw * 0.78) / o.logo.w, lh / o.logo.h); g.drawImage(o.logo.src, cx - (o.logo.w * k) / 2, ty, o.logo.w * k, o.logo.h * k); ty += o.logo.h * k + ih * 0.025; }
+    else { let fs = Math.min(ih * 0.1, pgw * 0.2); g.font = FONT(900, fs); g.fillStyle = th.bg; let nm = (o.shop || "").trim().toUpperCase().slice(0, 26) || " "; while (g.measureText(nm).width > pgw * 0.84 && fs > 12) { fs -= 1; g.font = FONT(900, fs); } g.fillText(nm, cx, ty + fs); ty += fs * 1.3; }
+    if (o.sub.trim()) { let ss = Math.min(ih * 0.034, pgw * 0.07); g.font = FONT(600, ss); const t = o.sub.trim().slice(0, 40), tw = g.measureText(t).width, ly = ty + ss * 0.8; g.fillStyle = "#2f2a22"; g.fillText(t, cx, ly + ss * 0.3); g.strokeStyle = th.bg; g.lineWidth = Math.max(2, ss * 0.1); const gap = ss * 0.7; for (const sgn of [-1, 1]) { g.beginPath(); g.moveTo(cx + sgn * (tw / 2 + gap), ly); g.lineTo(cx + sgn * Math.min(pgw * 0.46, tw / 2 + gap + pgw * 0.1), ly); g.stroke(); } ty += ss * 1.9; }
+    const icon: Icon = o.qrIcon === "insta" ? instaIcon : o.qrIcon === "logo" && o.logo ? logoIcon(o.logo) : null;
+    const qs = Math.min(pgw * 0.84, ih - (ty - iy) - ih * 0.2), qy = ty + ih * 0.01;
+    qrCard(g, o.qr, cx - qs / 2, qy, qs, th.bg, icon);
+    pill(g, (o.cta || "SCAN ME").slice(0, 14), cx, Math.min(iy + ih - ih * 0.06, qy + qs + ih * 0.075), Math.max(28, ih * 0.085), th.bg, th.fg);
+    if (o.phone.trim()) { g.font = FONT(800, ih * 0.03); g.fillStyle = "#44403c"; g.fillText(o.phone.trim().slice(0, 22), cx, iy + ih - ih * 0.008); }
+    // the two halves of the figure, side by side with the middle panel (not mirrored: they fold over it and meet in the middle)
+    const lf = mk(half + 1, FH); lf.getContext("2d")!.drawImage(fl, 0, 0, half + 1, FH, 0, 0, half + 1, FH);
+    const rt = mk(FW - half + 1, FH); rt.getContext("2d")!.drawImage(fl, half - 1, 0, FW - half + 1, FH, 0, 0, FW - half + 1, FH);
+    g.save(); g.shadowColor = "rgba(0,0,0,.22)"; g.shadowBlur = Math.max(4, r * 0.5); g.drawImage(lf, 0, 0); g.drawImage(rt, half + FW - 1, 0); g.restore(); g.drawImage(lf, 0, 0); g.drawImage(rt, half + FW - 1, 0);
+    return { art, hole, crease: { x: half, y0: py, y1: FH, x2: half + FW }, safe: { x: ix + FW * 0.03, y: iy + FH * 0.03, w: iw - FW * 0.06, h: ih - FH * 0.06 }, closed: fl };
   }
 
   if (o.mode === "fold") {
