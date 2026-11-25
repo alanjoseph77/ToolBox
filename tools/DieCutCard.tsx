@@ -5,7 +5,7 @@ import Dropzone from "@/components/Dropzone";
 import PasteButton from "@/components/PasteButton";
 import WaterLoader from "@/components/WaterLoader";
 import { THEMES } from "@/lib/doorHanger";
-import { CARD_DEFAULTS, buildCard, contourOf, cutSvg, hasTransparency, prepareFigure, sampleFigure, sheetFit, sheetPdf, type CardMode, type CardOpts } from "@/lib/dieCut";
+import { CARD_DEFAULTS, buildCard, contourOf, cutSvg, hasTransparency, prepareFigure, renderFinal, sampleFigure, sheetFit, sheetPdf, type CardMode, type CardOpts } from "@/lib/dieCut";
 import { qrText, type Fields, type Kind } from "@/lib/qrContent";
 import { looksFlat, removeFlatBg } from "@/lib/flatbg";
 import { removeBg } from "@/lib/bgremoval";
@@ -16,6 +16,7 @@ type KindX = Kind | "instagram";
 const KINDS_USED: { id: KindX; label: string }[] = [{ id: "link", label: "Website" }, { id: "whatsapp", label: "WhatsApp" }, { id: "instagram", label: "Instagram" }, { id: "phone", label: "Call" }, { id: "location", label: "Map" }];
 const MODES: { id: CardMode; label: string; hint: string }[] = [
   { id: "book", label: "Book card (3 panels)", hint: "Phone page and QR page inside" },
+  { id: "band", label: "Wrap band flyer", hint: "Band with QR across your product" },
   { id: "fold", label: "Fold-out QR panel", hint: "Panel on one side" },
   { id: "sticker", label: "Sticker", hint: "Just the cut-out shape" },
   { id: "hanger", label: "Hanger", hint: "Ring for a door handle" },
@@ -26,6 +27,8 @@ type Method = "keep" | "graphic" | "photo";
 export default function DieCutCard() {
   const [orig, setOrig] = useState<{ file: Blob; name: string } | null>(null);
   const [fig, setFig] = useState<HTMLCanvasElement | null>(null);
+  const full = useRef<HTMLCanvasElement | null>(null);
+  const setPicture = (src: CanvasImageSource, w: number, h: number) => { const f = prepareFigure(src, w, h, 2600); full.current = f; setFig(prepareFigure(f, f.width, f.height, 1000)); };
   const [method, setMethod] = useState<Method>("photo");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -59,7 +62,7 @@ export default function DieCutCard() {
       let bmp: ImageBitmap;
       if (m === "keep") bmp = await createImageBitmap(file);
       else bmp = await createImageBitmap(m === "graphic" ? await removeFlatBg(file, 40, true) : await removeBg(file));
-      setFig(prepareFigure(bmp, bmp.width, bmp.height));
+      setPicture(bmp, bmp.width, bmp.height);
     } catch { setMsg(m === "photo" ? "The AI background remover could not run here. Check your internet for the first download, or try Graphic mode for pictures on a plain colour." : "Could not cut the picture out. Try another picture."); }
     setBusy(false);
   };
@@ -71,7 +74,7 @@ export default function DieCutCard() {
       setMethod(m); await cutOut(file, m);
     } catch { setMsg("Could not open that picture. Try a JPG or PNG."); }
   };
-  const sample = () => { const c = sampleFigure(); setOrig({ file: new Blob(), name: "Sample cup" }); setFig(prepareFigure(c, c.width, c.height)); setMethod("keep"); setMsg(""); if (!value) { setKind("instagram"); setF((x) => ({ ...x, ig: "yourshop" })); set({ shop: "Your shop name" }); } };
+  const sample = () => { const c = sampleFigure(); setOrig({ file: new Blob(), name: "Sample cup" }); setPicture(c, c.width, c.height); setMethod("keep"); setMsg(""); if (!value) { setKind("instagram"); setF((x) => ({ ...x, ig: "yourshop" })); set({ shop: "Your shop name" }); } };
   const redo = (m: Method) => { setMethod(m); if (orig && orig.file.size) cutOut(orig.file, m); };
 
   useEffect(() => {
@@ -101,15 +104,16 @@ export default function DieCutCard() {
   }, [built, value, needsQr]);
 
   const px300 = () => Math.round((dims!.w / 25.4) * 300);
-  const artPng = async () => { const a = built!.art, c = document.createElement("canvas"); c.width = px300(); c.height = Math.round(c.width * a.height / a.width); const g = c.getContext("2d")!; g.imageSmoothingQuality = "high"; g.drawImage(a, 0, 0, c.width, c.height); return canvasToBlob(c, "image/png"); };
+  const finalOf = () => renderFinal(full.current ?? fig!, { ...o, qr: value, qrIcon }, px300());
+  const artPng = async (f = finalOf()) => canvasToBlob(f.canvas, "image/png");
   const ready = !!built && !!poly && !!dims && (!needsQr || !!value);
   const run = async (fn: () => Promise<void>) => { setBusy(true); setMsg(""); try { await fn(); } catch { setMsg("Could not make the file on this device. Try again or use a smaller size."); } setBusy(false); };
   const savePng = () => run(async () => download(await artPng(), `die-cut-${o.mode}.png`, "image/png", false));
-  const saveSvg = () => run(async () => download(new Blob([cutSvg(poly!, built!.hole, built!.art.width, built!.art.height, dims!.w, dims!.h)], { type: "image/svg+xml" }), `die-cut-${o.mode}-cutline.svg`, "image/svg+xml", false));
+  const saveSvg = () => run(async () => { const f = finalOf(); download(new Blob([cutSvg(f.poly, f.built.hole, f.built.art.width, f.built.art.height, dims!.w, dims!.h)], { type: "image/svg+xml" }), `die-cut-${o.mode}-cutline.svg`, "image/svg+xml", false); });
   const savePdf = (cut: "machine" | "scissors") => run(async () => {
-    const bytes = new Uint8Array(await (await artPng()).arrayBuffer());
+    const f = finalOf(), bytes = new Uint8Array(await (await artPng(f)).arrayBuffer());
     const note = cut === "machine" ? `Print at 100%. The pink line is a spot colour called CutContour for the print-and-cut machine. ${dims!.w.toFixed(0)} x ${dims!.h.toFixed(0)} mm.` : `Print at 100%. Cut along the dashed line. ${dims!.w.toFixed(0)} x ${dims!.h.toFixed(0)} mm.`;
-    download(await sheetPdf(built!.art, poly!, built!.hole, dims!.w, dims!.h, sheet, cut, bytes, note), `die-cut-${o.mode}-${sheet}-${cut}.pdf`, "application/pdf", false);
+    download(await sheetPdf(f.built.art, f.poly, f.built.hole, dims!.w, dims!.h, sheet, cut, bytes, note), `die-cut-${o.mode}-${sheet}-${cut}.pdf`, "application/pdf", false);
   });
 
   const field = (k: string, label: string, ph: string, type = "text") => <div><label className="label" htmlFor={`dc-${k}`}>{label}</label><input id={`dc-${k}`} data-testid={`dc-${k}`} className="input" type={type} value={f[k] ?? ""} onChange={setField(k)} placeholder={ph} /></div>;
@@ -145,7 +149,7 @@ export default function DieCutCard() {
 
         <section className="card space-y-4 p-4 sm:p-5">
           <h2 className="text-lg font-bold">2. What to make</h2>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Type">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Type">
             {MODES.map((m) => <button key={m.id} role="radio" aria-checked={o.mode === m.id} onClick={() => { set({ mode: m.id }); if ((m.id === "book") !== (o.mode === "book")) setSize(m.id === "book" ? 130 : 100); }} data-testid={`dc-mode-${m.id}`} className={`flex min-h-[64px] flex-col items-center justify-center rounded-xl border px-1 py-2 text-center text-sm font-semibold ${o.mode === m.id ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black" : "bg-white hover:border-neutral-900 dark:bg-black"}`}>{m.label}<span className={`text-[11px] font-normal ${o.mode === m.id ? "opacity-70" : "text-neutral-500"}`}>{m.hint}</span></button>)}
           </div>
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Colour">
@@ -164,6 +168,8 @@ export default function DieCutCard() {
             <h2 className="text-lg font-bold">3. Words and QR code</h2>
             {o.mode !== "sticker" && <div className="grid gap-3 sm:grid-cols-2">{txt("shop", "Shop or name", o.shop, (s) => set({ shop: s }), 40, "Your shop name")}{txt("cta", "Tag on the QR", o.cta, (s) => set({ cta: s }), 14, "SCAN ME")}</div>}
             {o.mode === "book" && txt("handle", "Name on the phone", o.handle, (s) => set({ handle: s }), 24, "yourshop")}
+            {o.mode === "band" && <div className="grid gap-3 sm:grid-cols-2">{txt("address", "Address (optional)", o.address, (s) => set({ address: s }), 48, "12 Market Road, Kochi")}{txt("social", "Social handle (optional)", o.handle, (s) => set({ handle: s }), 24, "@yourshop")}</div>}
+            {o.mode === "band" && <div className="flex flex-wrap items-center gap-2 text-sm"><button className="btn-ghost !py-1.5" onClick={() => logoIn.current?.click()} data-testid="dc-logo-btn2"><ImagePlus className="h-4 w-4" /> {o.logo ? "Change logo" : "Add your logo"}</button>{o.logo && <button className="btn-ghost !py-1.5" onClick={() => set({ logo: null })}>Remove logo</button>}{o.mode === "band" && <input ref={logoIn} type="file" accept="image/*" hidden onChange={(e) => { takePic(e.target.files?.[0], "logo"); e.target.value = ""; }} />}</div>}
             {o.mode === "book" && !o.shot && <div className="space-y-2"><div className="grid grid-cols-3 gap-2">{txt("posts", "Posts", o.posts, (s) => set({ posts: s }), 7, "120")}{txt("followers", "Followers", o.followers, (s) => set({ followers: s }), 7, "4,532")}{txt("following", "Following", o.following, (s) => set({ following: s }), 7, "12")}</div><p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">These are sample numbers. Type your real ones, or use a screenshot of your own profile below.</p></div>}
             {o.mode === "book" && <div className="flex flex-wrap items-center gap-2 text-sm">
               <button className="btn-ghost !py-1.5" onClick={() => logoIn.current?.click()} data-testid="dc-logo-btn"><ImagePlus className="h-4 w-4" /> {o.logo ? "Change logo" : "Add your logo"}</button>
@@ -174,7 +180,7 @@ export default function DieCutCard() {
               <input ref={logoIn} type="file" accept="image/*" hidden data-testid="dc-logo-input" onChange={(e) => { takePic(e.target.files?.[0], "logo"); e.target.value = ""; }} />
               <input ref={shotIn} type="file" accept="image/*" hidden data-testid="dc-shot-input" onChange={(e) => { takePic(e.target.files?.[0], "shot"); e.target.value = ""; }} />
               <span className="w-full text-xs text-neutral-500">Without a screenshot the phone shows a plain profile page with your name and line.</span></div>}
-            {(o.mode === "fold" || o.mode === "book") && txt("sub", "Small line", o.sub, (s) => set({ sub: s }), 70, "Follow us and order online")}
+            {(o.mode === "fold" || o.mode === "book" || o.mode === "band") && txt("sub", o.mode === "band" ? "Offer line" : "Small line", o.sub, (s) => set({ sub: s }), 70, o.mode === "band" ? "Scan and win a free meal" : "Follow us and order online")}
             {o.mode !== "sticker" && txt("phone", "Phone number (optional)", o.phone, (s) => set({ phone: s }), 22, "+91 98765 43210")}
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="QR code type">{KINDS_USED.map((k) => <button key={k.id} role="radio" aria-checked={kind === k.id} onClick={() => setKind(k.id)} data-testid={`dc-kind-${k.id}`} className={`chip ${kind === k.id ? "chip-active" : ""}`}>{k.label}</button>)}</div>
             <div className="grid gap-3 sm:grid-cols-2">

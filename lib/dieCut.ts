@@ -3,16 +3,16 @@
 import QRCode from "qrcode";
 import { THEMES } from "./doorHanger";
 
-export type CardMode = "book" | "sticker" | "fold" | "hanger";
+export type CardMode = "book" | "band" | "sticker" | "fold" | "hanger";
 export interface Pic { src: CanvasImageSource; w: number; h: number }
 export interface CardOpts {
   mode: CardMode; border: number;                  // white border as % of the picture height
   theme: string; shop: string; sub: string; phone: string; cta: string;
   qr: string; badge: boolean; flip: boolean;       // badge: QR badge on a plain sticker; flip: panel on the left
   handle: string; logo: Pic | null; shot: Pic | null;   // book card: name on the phone, brand logo, screenshot of the profile
-  posts: string; followers: string; following: string; photos: Pic[]; qrIcon: "insta" | "logo" | "none";   // phone page numbers, product photos for the grid, picture in the middle of the QR
+  address: string; posts: string; followers: string; following: string; photos: Pic[]; qrIcon: "insta" | "logo" | "none";   // phone page numbers, product photos for the grid, picture in the middle of the QR
 }
-export const CARD_DEFAULTS: CardOpts = { mode: "book", border: 3, theme: "green", shop: "Your shop name", sub: "Follow us and order online", phone: "", cta: "SCAN ME", qr: "", badge: false, flip: false, handle: "yourshop", logo: null, shot: null, posts: "120", followers: "4,532", following: "12", photos: [], qrIcon: "none" };
+export const CARD_DEFAULTS: CardOpts = { mode: "book", border: 3, theme: "green", shop: "Your shop name", sub: "Follow us and order online", phone: "", cta: "SCAN ME", qr: "", badge: false, flip: false, handle: "yourshop", logo: null, shot: null, address: "", posts: "120", followers: "4,532", following: "12", photos: [], qrIcon: "none" };
 export const SAMPLE_QR = "https://yourshop.in";
 
 type Matrix = { size: number; get(r: number, c: number): number };
@@ -156,6 +156,55 @@ export function buildCard(fig: HTMLCanvasElement, o: CardOpts): Built {
     return { art, hole, crease: { x: half, y0: py, y1: FH, x2: half + FW }, safe: { x: ix + FW * 0.03, y: iy + FH * 0.03, w: iw - FW * 0.06, h: ih - FH * 0.06 }, closed: fl };
   }
 
+  if (o.mode === "band") {
+    // a band in the brand colour wrapped across the middle of the product, cut to the same shape, with a checkered edge
+    const art = mk(FW, FH), g = art.getContext("2d")!; g.drawImage(fl, 0, 0);
+    const vertical = FW > FH * 1.15, hd = H0.c.getContext("2d", { willReadFrequently: true })!.getImageData(0, 0, FW, FH).data, on = (x: number, y: number) => hd[(y * FW + x) * 4 + 3] > 128;
+    const bx = vertical ? Math.round(FW * 0.3) : 0, by = vertical ? 0 : Math.round(FH * 0.26), bw = vertical ? Math.round(FW * 0.44) : FW, bh = vertical ? FH : Math.round(FH * 0.5);
+    const band = mk(FW, FH), bg = band.getContext("2d")!;
+    bg.fillStyle = th.bg; bg.fillRect(bx, by, bw, bh);
+    const cs = Math.max(8, Math.round((vertical ? bw : bh) * 0.045));
+    for (let i = 0; i < 2; i++) for (let j = 0; j * cs < (vertical ? bh : bw); j++) { bg.fillStyle = (i + j) % 2 ? th.fg : th.bg; if (vertical) bg.fillRect(bx + bw - cs * (2 - i), by + j * cs, cs, cs); else bg.fillRect(bx + j * cs, by + bh - cs * (2 - i), cs, cs); }
+    bg.fillStyle = th.fg; if (vertical) bg.fillRect(bx + bw - cs * 2 - cs * 0.35, by, cs * 0.18, bh); else bg.fillRect(bx, by + bh - cs * 2 - cs * 0.35, bw, cs * 0.18);
+    bg.globalCompositeOperation = "destination-in"; bg.drawImage(H0.c, 0, 0);
+    g.save(); g.shadowColor = "rgba(0,0,0,.22)"; g.shadowBlur = Math.max(4, cs * 0.6); g.drawImage(band, 0, 0); g.restore(); g.drawImage(band, 0, 0);
+    // the usable area: where the shape is solid across the whole band
+    let x0 = bx, x1 = bx + bw, y0 = by, y1 = by + bh;
+    if (!vertical) { x0 = 0; x1 = FW; for (let y = by; y < by + bh - cs * 2.5; y += 3) { let l = 0, rr = FW - 1; while (l < FW && !on(l, y)) l++; while (rr > 0 && !on(rr, y)) rr--; x0 = Math.max(x0, l); x1 = Math.min(x1, rr); } y1 = by + bh - cs * 2.6; }
+    else { y0 = 0; y1 = FH; for (let x = bx; x < bx + bw - cs * 2.5; x += 3) { let t = 0, b = FH - 1; while (t < FH && !on(x, t)) t++; while (b > 0 && !on(x, b)) b--; y0 = Math.max(y0, t); y1 = Math.min(y1, b); } x1 = bx + bw - cs * 2.6; }
+    const pad = Math.min(x1 - x0, y1 - y0) * 0.07, cx0 = x0 + pad, cy0 = y0 + pad, cw = x1 - x0 - 2 * pad, ch = y1 - y0 - 2 * pad;
+    const tc = mk(FW, FH), t = tc.getContext("2d")!; t.textBaseline = "alphabetic"; let used = 0;
+    const igDot = (x: number, y: number, s2: number) => { t.save(); t.strokeStyle = th.fg; t.lineWidth = s2 * 0.12; t.beginPath(); t.roundRect(x, y, s2, s2, s2 * 0.3); t.stroke(); t.beginPath(); t.arc(x + s2 / 2, y + s2 / 2, s2 * 0.22, 0, 7); t.stroke(); t.restore(); };
+    const name = (o.shop || "").trim(), social = (o.handle || "").trim().replace(/^@?/, "@"), lines: string[] = [o.address.trim(), o.phone.trim()].filter(Boolean);
+    const fit = (txt: string, max: number, w: number, weight: number) => { let fs = max; t.font = FONT(weight, fs); while (t.measureText(txt).width > w && fs > 9) { fs -= 1; t.font = FONT(weight, fs); } return fs; };
+    if (cw >= ch * 1.25) {
+      // wide band: words on the left, QR on the right
+      const qs = Math.min(ch * 0.8, cw * 0.36), qx = cx0 + cw - qs, qy = cy0 + (ch - qs) / 2 + ch * 0.05, lw = cw - qs - cw * 0.06;
+      t.textAlign = "left"; t.fillStyle = th.fg; let ty = cy0;
+      if (o.logo) { const lh = ch * 0.38, k = Math.min(lw / o.logo.w, lh / o.logo.h); t.drawImage(o.logo.src, cx0, ty, o.logo.w * k, o.logo.h * k); ty += o.logo.h * k + ch * 0.06; }
+      else if (name) { const fs = fit(name, ch * 0.3, lw, 900); t.font = FONT(900, fs); t.fillText(name, cx0, ty + fs * 0.88); ty += fs * 1.12; }
+      if (o.sub.trim()) { const fs = fit(o.sub.trim(), ch * 0.1, lw, 800); t.font = FONT(800, fs); t.fillStyle = th.accent; t.fillText(o.sub.trim(), cx0, ty + fs); ty += fs * 1.45; t.fillStyle = th.fg; }
+      for (const l of lines) { const fs = fit(l.toUpperCase(), ch * 0.085, lw, 700); t.font = FONT(700, fs); t.fillText(l.toUpperCase(), cx0, ty + fs); ty += fs * 1.35; }
+      if (o.handle.trim()) { const fs = fit(social, ch * 0.085, lw - ch * 0.12, 700); igDot(cx0, ty + fs * 0.1, fs * 1.05); t.font = FONT(700, fs); t.fillText(social, cx0 + fs * 1.5, ty + fs); ty += fs * 1.35; }
+      qrCard(g, o.qr, qx, qy, qs, th.fg);
+      t.textAlign = "center"; const ls = fit((o.cta || "SCAN ME").toUpperCase(), ch * 0.1, qs, 900); t.font = FONT(900, ls); t.fillStyle = th.fg; t.fillText((o.cta || "SCAN ME").toUpperCase(), qx + qs / 2, qy - ls * 0.35);
+    } else {
+      // tall band: everything stacked
+      t.textAlign = "center"; t.fillStyle = th.fg; const mid = cx0 + cw / 2; let ty = cy0;
+      if (o.logo) { const lh = ch * 0.16, k = Math.min(cw / o.logo.w, lh / o.logo.h); t.drawImage(o.logo.src, mid - (o.logo.w * k) / 2, ty, o.logo.w * k, o.logo.h * k); ty += o.logo.h * k + ch * 0.025; }
+      else if (name) { const fs = fit(name, cw * 0.15, cw, 900); t.font = FONT(900, fs); t.fillText(name, mid, ty + fs * 0.88); ty += fs * 1.15; }
+      if (o.sub.trim()) { const fs = fit(o.sub.trim(), cw * 0.062, cw, 800); t.font = FONT(800, fs); t.fillStyle = th.accent; t.fillText(o.sub.trim(), mid, ty + fs); ty += fs * 1.5; t.fillStyle = th.fg; }
+      const ls = fit((o.cta || "SCAN ME").toUpperCase(), cw * 0.07, cw, 900); t.font = FONT(900, ls); t.fillText((o.cta || "SCAN ME").toUpperCase(), mid, ty + ls); ty += ls * 1.3;
+      const rest = (lines.length + (o.handle.trim() ? 1 : 0)) * cw * 0.055 * 1.4, qs = Math.max(Math.min(cw * 0.62, cy0 + ch - ty - rest - ch * 0.03), Math.min(cw * 0.45, ch * 0.4));
+      qrCard(g, o.qr, mid - qs / 2, ty, qs, th.fg); ty += qs + ch * 0.03;
+      for (const l of lines) { const fs = fit(l.toUpperCase(), cw * 0.055, cw, 700); t.font = FONT(700, fs); t.fillText(l.toUpperCase(), mid, ty + fs); ty += fs * 1.4; }
+      if (o.handle.trim()) { const fs = fit(social, cw * 0.055, cw * 0.85, 700); t.font = FONT(700, fs); const tw = t.measureText(social).width; igDot(mid - tw / 2 - fs * 1.4, ty + fs * 0.08, fs * 1.05); t.fillText(social, mid + fs * 0.25, ty + fs); ty += fs * 1.3; }
+      used = ty - cy0;
+    }
+    g.drawImage(tc, 0, Math.max(0, (ch - used) / 2));
+    return { art, hole, crease };
+  }
+
   if (o.mode === "fold") {
     const pw = Math.round(FH * 1.2), ph = Math.round(FH * 0.62), ov = Math.round(Math.min(FW * 0.22, pw * 0.2)), py = Math.round(FH * 0.2);
     const W = FW + pw - ov, art = mk(W, FH), g = art.getContext("2d")!;
@@ -204,8 +253,8 @@ export function buildCard(fig: HTMLCanvasElement, o: CardOpts): Built {
 }
 
 /** The outline of the finished shape (the cut line), as a polygon in artwork pixels. */
-export function contourOf(art: HTMLCanvasElement): [number, number][] {
-  const m = Math.min(1, 700 / Math.max(art.width, art.height)), w = Math.max(2, Math.round(art.width * m)), h = Math.max(2, Math.round(art.height * m));
+export function contourOf(art: HTMLCanvasElement, res = 700): [number, number][] {
+  const m = Math.min(1, res / Math.max(art.width, art.height)), w = Math.max(2, Math.round(art.width * m)), h = Math.max(2, Math.round(art.height * m));
   const pad = 2, W = w + pad * 2, Hh = h + pad * 2, s = mk(W, Hh), sg = s.getContext("2d", { willReadFrequently: true })!; sg.drawImage(art, pad, pad, w, h);
   const d = sg.getImageData(0, 0, W, Hh).data, on = new Uint8Array(W * Hh); for (let i = 0; i < on.length; i++) on[i] = d[i * 4 + 3] > 128 ? 1 : 0;
   // largest connected piece
@@ -236,6 +285,27 @@ function rdp(p: [number, number][], eps: number): [number, number][] {
     for (let i = a + 1; i < b; i++) { const d = Math.abs(dy * p[i][0] - dx * p[i][1] + x2 * y1 - y2 * x1) / L; if (d > md) { md = d; mi = i; } }
     if (md > eps && mi > 0) { keep[mi] = 1; st.push([a, mi], [mi, b]); } }
   return p.filter((_, i) => keep[i]);
+}
+
+
+/** A smooth closed path through the cut-line points (curves through the midpoints), scaled by k. */
+function smoothPath(poly: [number, number][], k: number, hole: Built["hole"]): Path2D {
+  const p = new Path2D(), n = poly.length; if (n < 3) return p;
+  const mid = (a: [number, number], b: [number, number]) => [((a[0] + b[0]) / 2) * k, ((a[1] + b[1]) / 2) * k];
+  const s0 = mid(poly[n - 1], poly[0]); p.moveTo(s0[0], s0[1]);
+  for (let i = 0; i < n; i++) { const c = poly[i], m = mid(c, poly[(i + 1) % n]); p.quadraticCurveTo(c[0] * k, c[1] * k, m[0], m[1]); }
+  p.closePath();
+  if (hole) { p.moveTo((hole.x + hole.r) * k, hole.y * k); p.arc(hole.x * k, hole.y * k, hole.r * k, 0, Math.PI * 2, true); p.closePath(); }
+  return p;
+}
+
+/** The print-quality result: built from the full-size picture, with edges cut by a smooth vector path (no jagged pixels). */
+export function renderFinal(fig: HTMLCanvasElement, o: CardOpts, pxWidth: number) {
+  const built = buildCard(fig, o), poly = contourOf(built.art, 1600), a = built.art, k = pxWidth / a.width;
+  const c = mk(pxWidth, a.height * k), g = c.getContext("2d")!, path = smoothPath(poly, k, built.hole);
+  g.fillStyle = "#fff"; g.fill(path, "evenodd");
+  g.save(); g.clip(path, "evenodd"); g.imageSmoothingQuality = "high"; g.drawImage(a, 0, 0, c.width, c.height); g.restore();
+  return { canvas: c, poly, built };
 }
 
 /** Cut line as an SVG path in millimetres. */
