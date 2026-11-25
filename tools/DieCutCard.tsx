@@ -15,7 +15,8 @@ import { canvasToBlob, download } from "@/lib/files";
 type KindX = Kind | "instagram";
 const KINDS_USED: { id: KindX; label: string }[] = [{ id: "link", label: "Website" }, { id: "whatsapp", label: "WhatsApp" }, { id: "instagram", label: "Instagram" }, { id: "phone", label: "Call" }, { id: "location", label: "Map" }];
 const MODES: { id: CardMode; label: string; hint: string }[] = [
-  { id: "fold", label: "Fold-out QR card", hint: "Opens to show a QR code" },
+  { id: "book", label: "Book card (3 panels)", hint: "Phone page and QR page inside" },
+  { id: "fold", label: "Fold-out QR panel", hint: "Panel on one side" },
   { id: "sticker", label: "Sticker", hint: "Just the cut-out shape" },
   { id: "hanger", label: "Hanger", hint: "Ring for a door handle" },
 ];
@@ -31,11 +32,13 @@ export default function DieCutCard() {
   const [o, setO] = useState<CardOpts>(CARD_DEFAULTS);
   const [kind, setKind] = useState<KindX>("link");
   const [f, setF] = useState<Fields>({ url: "https://" });
-  const [size, setSize] = useState(100);
+  const [size, setSize] = useState(160);
   const [sheet, setSheet] = useState<"A4" | "A3">("A4");
   const [showCut, setShowCut] = useState(true);
   const [check, setCheck] = useState<"wait" | "good" | "near" | "bad" | "na">("na");
   const preview = useRef<HTMLCanvasElement>(null);
+  const logoIn = useRef<HTMLInputElement>(null), shotIn = useRef<HTMLInputElement>(null);
+  const takePic = async (file: File | undefined, key: "logo" | "shot") => { if (!file) return; try { const b = await createImageBitmap(file); set({ [key]: { src: b, w: b.width, h: b.height } } as Partial<CardOpts>); } catch { setMsg("Could not open that picture. Try a JPG or PNG."); } };
   const set = (p: Partial<CardOpts>) => setO((x) => ({ ...x, ...p }));
   const setField = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setF((x) => ({ ...x, [k]: e.target.value }));
 
@@ -75,7 +78,7 @@ export default function DieCutCard() {
     if (showCut) {
       g.save(); g.strokeStyle = "#e6007e"; g.lineWidth = 2.5; g.setLineDash([9, 6]); g.beginPath(); poly.forEach(([x, y], i) => (i ? g.lineTo(x * k, y * k) : g.moveTo(x * k, y * k))); g.closePath(); g.stroke();
       if (built.hole) { g.beginPath(); g.arc(built.hole.x * k, built.hole.y * k, built.hole.r * k, 0, 7); g.stroke(); }
-      if (built.crease) { g.strokeStyle = "#2563eb"; g.setLineDash([4, 7]); g.beginPath(); g.moveTo(built.crease.x * k, built.crease.y0 * k); g.lineTo(built.crease.x * k, built.crease.y1 * k); g.stroke(); }
+      if (built.crease) { g.strokeStyle = "#2563eb"; g.setLineDash([4, 7]); for (const cx of [built.crease.x, built.crease.x2]) { if (cx === undefined) continue; g.beginPath(); g.moveTo(cx * k, built.crease.y0 * k); g.lineTo(cx * k, built.crease.y1 * k); g.stroke(); } }
       g.restore();
     }
   }, [built, poly, showCut]);
@@ -136,8 +139,8 @@ export default function DieCutCard() {
 
         <section className="card space-y-4 p-4 sm:p-5">
           <h2 className="text-lg font-bold">2. What to make</h2>
-          <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Type">
-            {MODES.map((m) => <button key={m.id} role="radio" aria-checked={o.mode === m.id} onClick={() => set({ mode: m.id })} data-testid={`dc-mode-${m.id}`} className={`flex min-h-[64px] flex-col items-center justify-center rounded-xl border px-1 py-2 text-center text-sm font-semibold ${o.mode === m.id ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black" : "bg-white hover:border-neutral-900 dark:bg-black"}`}>{m.label}<span className={`text-[11px] font-normal ${o.mode === m.id ? "opacity-70" : "text-neutral-500"}`}>{m.hint}</span></button>)}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Type">
+            {MODES.map((m) => <button key={m.id} role="radio" aria-checked={o.mode === m.id} onClick={() => { set({ mode: m.id }); if (m.id === "book" && size < 140) setSize(160); else if (m.id !== "book" && size >= 140) setSize(100); }} data-testid={`dc-mode-${m.id}`} className={`flex min-h-[64px] flex-col items-center justify-center rounded-xl border px-1 py-2 text-center text-sm font-semibold ${o.mode === m.id ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black" : "bg-white hover:border-neutral-900 dark:bg-black"}`}>{m.label}<span className={`text-[11px] font-normal ${o.mode === m.id ? "opacity-70" : "text-neutral-500"}`}>{m.hint}</span></button>)}
           </div>
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Colour">
             {THEMES.map((t) => <button key={t.id} role="radio" aria-checked={o.theme === t.id} aria-label={t.name} title={t.name} onClick={() => set({ theme: t.id })} data-testid={`dc-theme-${t.id}`} className={`h-11 w-11 rounded-full border-2 ${o.theme === t.id ? "border-neutral-900 ring-2 ring-neutral-900 ring-offset-2 dark:border-white dark:ring-white" : "border-white shadow"}`} style={{ background: `linear-gradient(135deg, ${t.bg} 55%, ${t.accent} 55%)` }} />)}
@@ -154,7 +157,15 @@ export default function DieCutCard() {
           <section className="card space-y-3 p-4 sm:p-5">
             <h2 className="text-lg font-bold">3. Words and QR code</h2>
             {o.mode !== "sticker" && <div className="grid gap-3 sm:grid-cols-2">{txt("shop", "Shop or name", o.shop, (s) => set({ shop: s }), 40, "Your shop name")}{txt("cta", "Tag on the QR", o.cta, (s) => set({ cta: s }), 14, "SCAN ME")}</div>}
-            {o.mode === "fold" && txt("sub", "Small line", o.sub, (s) => set({ sub: s }), 70, "Follow us and order online")}
+            {o.mode === "book" && txt("handle", "Name on the phone", o.handle, (s) => set({ handle: s }), 24, "yourshop")}
+            {o.mode === "book" && <div className="flex flex-wrap items-center gap-2 text-sm">
+              <button className="btn-ghost !py-1.5" onClick={() => logoIn.current?.click()} data-testid="dc-logo-btn"><ImagePlus className="h-4 w-4" /> {o.logo ? "Change logo" : "Add your logo"}</button>
+              <button className="btn-ghost !py-1.5" onClick={() => shotIn.current?.click()} data-testid="dc-shot-btn"><ImagePlus className="h-4 w-4" /> {o.shot ? "Change profile screenshot" : "Add a profile screenshot"}</button>
+              {(o.logo || o.shot) && <button className="btn-ghost !py-1.5" onClick={() => set({ logo: null, shot: null })}>Remove both</button>}
+              <input ref={logoIn} type="file" accept="image/*" hidden data-testid="dc-logo-input" onChange={(e) => { takePic(e.target.files?.[0], "logo"); e.target.value = ""; }} />
+              <input ref={shotIn} type="file" accept="image/*" hidden data-testid="dc-shot-input" onChange={(e) => { takePic(e.target.files?.[0], "shot"); e.target.value = ""; }} />
+              <span className="w-full text-xs text-neutral-500">Without a screenshot the phone shows a plain profile page with your name and line.</span></div>}
+            {(o.mode === "fold" || o.mode === "book") && txt("sub", "Small line", o.sub, (s) => set({ sub: s }), 70, "Follow us and order online")}
             {o.mode !== "sticker" && txt("phone", "Phone number (optional)", o.phone, (s) => set({ phone: s }), 22, "+91 98765 43210")}
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="QR code type">{KINDS_USED.map((k) => <button key={k.id} role="radio" aria-checked={kind === k.id} onClick={() => setKind(k.id)} data-testid={`dc-kind-${k.id}`} className={`chip ${kind === k.id ? "chip-active" : ""}`}>{k.label}</button>)}</div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -177,6 +188,7 @@ export default function DieCutCard() {
                 <canvas ref={preview} data-testid="dc-preview" aria-label="Die-cut preview" className="mx-auto block h-auto max-w-full drop-shadow-lg" />
               </div>
               <label className="flex min-h-[40px] items-center gap-3 text-sm"><input type="checkbox" className="h-5 w-5" checked={showCut} onChange={(e) => setShowCut(e.target.checked)} data-testid="dc-showcut" /> <Scissors className="h-4 w-4 text-pink-600" /> Show the cut line</label>
+              {o.mode === "book" && dims && <p className="text-xs text-neutral-500" data-testid="dc-dims">Open: {(dims.w / 10).toFixed(0)} × {(dims.h / 10).toFixed(0)} cm. Closed: {(dims.w / 20).toFixed(0)} × {(dims.h / 10).toFixed(0)} cm. Fold the two outer flaps along the blue lines.</p>}
               {needsQr && <p className={`rounded-lg px-3 py-2 text-sm ${check === "good" ? "bg-green-50 text-green-800" : check === "near" ? "bg-amber-50 text-amber-900" : check === "bad" ? "bg-red-50 text-red-800" : "bg-neutral-100 text-neutral-600"}`} data-testid="dc-check" data-state={check}>
                 {!value ? "Add your QR details to check that it scans." : check === "good" ? "✓ Scan check passed, also from far away" : check === "near" ? "Scans up close only. Make it bigger or use a shorter link." : check === "bad" ? "This does not scan. Use a shorter link." : "Checking that it scans…"}</p>}
               <div className="space-y-2">
@@ -185,7 +197,7 @@ export default function DieCutCard() {
                 <div className="grid grid-cols-2 gap-2"><button className="btn-ghost" disabled={!ready || busy} onClick={savePng} data-testid="dc-png"><Download className="h-4 w-4" /> PNG</button><button className="btn-ghost" disabled={!ready || busy} onClick={saveSvg} data-testid="dc-svg"><Download className="h-4 w-4" /> Cut line SVG</button></div>
               </div>
               <div className="flex items-center justify-between text-xs text-neutral-500"><span data-testid="dc-fit">{fit?.per ? `${fit.per} on one ${sheet} sheet` : `Too big for ${sheet}. Make it smaller.`}</span><span className="flex gap-1">{(["A4", "A3"] as const).map((s) => <button key={s} className={`chip !px-3 !py-1 ${sheet === s ? "chip-active" : ""}`} onClick={() => setSheet(s)} data-testid={`dc-sheet-${s}`}>{s}</button>)}</span></div>
-              <p className="text-xs text-neutral-500">Machine file: the pink line is a spot colour named CutContour, which print-and-cut machines (Roland, Mimaki and similar) cut along. Print at 100%. Folding is by hand along the blue line.</p>
+              <p className="text-xs text-neutral-500">Machine file: the pink line is a spot colour named CutContour, which print-and-cut machines (Roland, Mimaki and similar) cut along. Print at 100%. Folding is by hand along the blue lines.</p>
             </>
           ) : <p className="text-sm text-neutral-500">Add a picture and your die-cut card appears here.</p>}
           {msg && built && <p className="text-sm text-red-600" role="alert">{msg}</p>}
