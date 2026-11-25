@@ -87,6 +87,7 @@ export const toolIcons: Record<string, LucideIcon> = {
   "google-form-generator": ClipboardList,
   "picture-qr-code": ScanQrCode,
   "door-hanger-maker": Tag,
+  "die-cut-card-maker": Scissors,
   "emi-calculator": Calculator,
   "gst-calculator": Percent,
   "hash-generator": Hash,
